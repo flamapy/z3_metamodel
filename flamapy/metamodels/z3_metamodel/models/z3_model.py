@@ -3,7 +3,7 @@ from typing import Optional, Any, Union
 
 import z3
 
-from flamapy.core.models import VariabilityModel
+from flamapy.core.models import VariabilityModel, ASTOperation
 
 from flamapy.metamodels.fm_metamodel.models import FeatureType
 
@@ -38,17 +38,11 @@ class Z3Model(VariabilityModel):
         FeatureType.STRING: z3.String
     }
 
-    class LogicConnective(Enum):
-        NOT = z3.Not
-        OR = z3.Or
-        AND = z3.And
-        IMPLIES = z3.Implies
-        EQUIVALENCE = '=='
-
     # Algebraic data types for optional typed features
     OPTION_INT = get_datatype('OptionInt', FeatureType.INTEGER)
     OPTION_REAL = get_datatype('OptionReal', FeatureType.REAL)
     OPTION_STRING = get_datatype('OptionString', FeatureType.STRING)
+    OPTION_BOOLEAN = get_datatype('OptionBoolean', FeatureType.BOOLEAN)
 
     @staticmethod
     def get_extension() -> str:
@@ -101,7 +95,7 @@ class Z3Model(VariabilityModel):
             return variable_type.val(variable)
         return None
 
-    def get_variable_type(self, feature: str) -> Optional[FeatureType]:
+    def get_variable_type(self, feature: str) -> Optional[z3.z3.DatatypeRef]:
         """Get the variable type associated with the given feature."""
         if feature in self._boolean_features_variables:
             return FeatureType.BOOLEAN
@@ -117,4 +111,26 @@ class Z3Model(VariabilityModel):
         """Add a formula to the model."""
         self._formulas.extend(formula)
 
+    @property
+    def formulas(self):
+        return self._formulas
+    
+    def __str__(self) -> str:
+        """Return a string representation of the model."""
+        features = self._boolean_features_variables.keys() | self._typed_features_variables.keys()
+        res = f'Z3 MODEL: {len(features)} variables, {len(self._formulas)} formulas\n'
+        res += 'VARIABLES:\n'
+        
+        for number, feature in enumerate(features, 1):
+            res += f'{number}: {feature}'
+            if feature in self._boolean_features_variables:
+                res += f' (Boolean): {self._boolean_features_variables[feature]}\n'
+            elif feature in self._typed_features_variables:
+                feature_type = self.get_variable_type(feature)
+                variable = self._typed_features_variables[feature]
+                res += f' ({feature_type}): {variable}\n'
+        res += 'FORMULAS:\n'
+        for number, formula in enumerate(self._formulas, 1):
+            res += f'{number}: {formula}\n'
+        return res
 

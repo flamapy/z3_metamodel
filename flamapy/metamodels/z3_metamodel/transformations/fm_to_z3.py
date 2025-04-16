@@ -4,13 +4,19 @@ from typing import Optional
 
 import z3
 
-from flamapy.core.models.ast import AST, ASTOperation
+from flamapy.core.models.ast import (
+    ASTOperation, 
+    Node, 
+    LOGICAL_OPERATORS,
+    ARITHMETIC_OPERATORS,
+    AGGREGATION_OPERATORS
+)
+
+from flamapy.core.exceptions import FlamaException
 from flamapy.core.transformations import ModelToModel
 from flamapy.metamodels.fm_metamodel.models import FeatureModel
-from flamapy.metamodels.fm_metamodel.models import FeatureModel, Feature, Relation, Constraint
+from flamapy.metamodels.fm_metamodel.models import FeatureModel, Relation, Constraint
 from flamapy.metamodels.z3_metamodel.models import Z3Model
-from flamapy.metamodels.bdd_metamodel.transformations.fm_to_bdd_pl import FmToBDD as FmToBddPL
-from flamapy.metamodels.bdd_metamodel.transformations.fm_to_bdd_cnf import FmToBDD as FmToBddCNF
 
 
 class FmToZ3(ModelToModel):
@@ -145,40 +151,86 @@ class FmToZ3(ModelToModel):
         self.destination_model.add_formula(formula)
 
     def _add_constraint_formula(self, ctc: Constraint) -> None:
-        if ctc.is_logical_constraint():
-            expr = self._get_logical_expression(ctc.ast)
-        elif ctc.is_arithmetic_constraint():
-            expr = self._get_arithmetic_expression(ctc.ast)
-        else:
-            raise ValueError(f"Unknown constraint type: {ctc.type}")
+        expr  = self._get_expression(ctc.ast.root, None)
+        self.destination_model.add_formula(expr)
+
+    def _get_expression(self, node: Node, parent: Node) -> z3.ExprRef:
+        if node.is_term():
+            if parent is None:  # process terminal node as boolean feature
+                if isinstance(node.data, str):
+                    if self.destination_model.has_variable(node.data):  # is a feature
+                        expr = self.destination_model.get_boolean_variable(node.data)
+                    else:
+                        raise FlamaException(f'Unsupported feature: {node.data}')
+                else:
+                    raise FlamaException(f'Unsupported terminal feature: {type(node.data)}')
+            else:
+                # process terminal node according to the parent.
+                if isinstance(node.data, str):
+                    if self.destination_model.has_variable(node.data):  # is a feature
+                        if parent.data in LOGICAL_OPERATORS:
+                            expr = self.destination_model.get_boolean_variable(node.data)
+                        elif parent.data in ARITHMETIC_OPERATORS:
+                            expr = self.destination_model.get_typed_variable(node.data)
+                        else:
+                            raise FlamaException(f'Unsupported operator: {parent.data}')
+                    else:  # is a string or boolean constant
+                        if node.data == 'true':
+                            expr = z3.BoolVal(True)
+                        elif node.data == 'false':
+                            expr = z3.BoolVal(False)
+                        else:
+                            expr = z3.String(node.data)
+                elif isinstance(node.data, int):
+                    expr = z3.Int(node.data)
+                elif isinstance(node.data, float):
+                    expr = z3.Real(node.data)
+                elif isinstance(node.data, bool):  # just in case
+                    expr = z3.BoolVal(node.data)
+                else:
+                    raise FlamaException(f'Unsupported node data type: {type(node.data)}')
+        else:  # is operation
+            if node.is_binary_op():
+                left_expr = self._get_expression(node.left, node)
+                right_expr = self._get_expression(node.right, node)
+                if node.data == ASTOperation.AND:
+                    expr = z3.And(left_expr, right_expr)
+                elif node.data == ASTOperation.OR:
+                    expr = z3.Or(left_expr, right_expr)
+                elif node.data in [ASTOperation.IMPLIES, ASTOperation.REQUIRES]:
+                    expr = z3.Implies(left_expr, right_expr)
+                elif node.data == ASTOperation.EXCLUDES:
+                    expr = z3.Implies(left_expr, z3.Not(right_expr))
+                elif node.data == ASTOperation.XOR:
+                    expr = z3.Xor(left_expr, right_expr)
+                elif node.data == ASTOperation.EQUIVALENCE:
+                    expr = (left_expr == right_expr)
+                elif node.data == ASTOperation.ADD:
+                    expr = (left_expr + right_expr)
+                elif node.data == ASTOperation.SUB:
+                    expr = (left_expr - right_expr)
+                elif node.data == ASTOperation.MUL:
+                    expr = (left_expr * right_expr)
+                elif node.data == ASTOperation.DIV:
+                    expr = (left_expr / right_expr)
+                elif node.data == ASTOperation.EQUALS:
+                    expr = (left_expr == right_expr)
+                elif node.data == ASTOperation.LOWER:
+                    expr = (left_expr < right_expr)
+                elif node.data == ASTOperation.GREATER:
+                    expr = (left_expr > right_expr)
+                elif node.data == ASTOperation.LOWER_EQUALS:
+                    expr = (left_expr <= right_expr)
+                elif node.data == ASTOperation.GREATER_EQUALS:
+                    expr = (left_expr >= right_expr)
+                elif node.data == ASTOperation.NOT_EQUALS:
+                    expr = (left_expr != right_expr)
+                else:
+                    raise FlamaException(f'Unsupported binary operator: {node.data}')
+            elif node.is_unary_op():
+                left_expr = self._get_expression(node.left, node)
+                if node.data == ASTOperation.NOT:
+                    expr = z3.Not(left_expr)
+                else:
+                    raise FlamaException(f'Unsupported unary operator: {node.data}')
         return expr
-
-    def _get_logical_expression(self, ast: AST) -> z3.ExprRef:
-
-    def _get_arithmetic_expression(self, ast: AST) -> z3.ExprRef:
-        if ast.root.is_term():
-            if self.destination_model.get_boolean_variable(ast.root.data)
-            self.destination_model.add_formula()
-
-    def _add_constraint_formula(self, ctc: Constraint) -> None:
-
-        constraint_str = re.sub(rf"\b{ASTOperation.XOR.value}\b", 
-                                BDDModel.LogicConnective.XOR.value, constraint_str)
-        constraint_str = re.sub(rf"\b{ASTOperation.NOT.value}\b", 
-                                BDDModel.LogicConnective.NOT.value, constraint_str)
-        constraint_str = re.sub(rf"\b{ASTOperation.AND.value}\b", 
-                                BDDModel.LogicConnective.AND.value, constraint_str)
-        constraint_str = re.sub(rf"\b{ASTOperation.OR.value}\b", 
-                                BDDModel.LogicConnective.OR.value, constraint_str)
-        constraint_str = re.sub(rf"\b{ASTOperation.IMPLIES.value}\b", 
-                                BDDModel.LogicConnective.IMPLIES.value, constraint_str)
-        constraint_str = re.sub(rf"\b{ASTOperation.EQUIVALENCE.value}\b", 
-                                BDDModel.LogicConnective.EQUIVALENCE.value, constraint_str)
-        constraint_str = re.sub(rf"\b{ASTOperation.REQUIRES.value}\b", 
-                                BDDModel.LogicConnective.IMPLIES.value, constraint_str)
-        constraint_str = re.sub(
-            rf"\b{ASTOperation.EXCLUDES.value}\b",
-            f'{BDDModel.LogicConnective.IMPLIES.value} {BDDModel.LogicConnective.NOT.value}',
-            constraint_str
-        )
-        return constraint_str

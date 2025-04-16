@@ -1,22 +1,3 @@
-from .fm_to_bdd_pl import FmToBDD
-from .json_writer import JSONWriter
-from .json_reader import JSONReader
-from .pickle_writer import PickleWriter
-from .pickle_reader import PickleReader
-from .dddmp_writer import DDDMPWriter
-from .dddmp_reader import DDDMPReader
-from .png_writer import PNGWriter
-from .svg_writer import SVGWriter
-from .pdf_writer import PDFWriter
+from .fm_to_z3 import FmToZ3
 
-
-__all__ = ['FmToBDD', 
-           'JSONWriter',
-           'JSONReader',
-           'PickleWriter',
-           'PickleReader',
-           'DDDMPWriter',
-           'DDDMPReader',
-           'PNGWriter',
-           'SVGWriter',
-           'PDFWriter']
+__all__ = ['FmToZ3']
