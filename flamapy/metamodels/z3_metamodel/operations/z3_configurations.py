@@ -39,8 +39,6 @@ def configurations(model: Z3Model) -> bool:
         block = []
         for variable in variables:
             val = m.evaluate(variable, model_completion=True)
-            print(f'{variable}: {val}')
-            value = val
             if isinstance(val, z3.z3.DatatypeRef):  #  is a typed feature
                 variable_type = model.get_variable_type(str(variable))
                 if z3.is_true(m.evaluate(variable_type.is_None(variable))):
