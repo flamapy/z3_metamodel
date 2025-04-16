@@ -1,4 +1,3 @@
-import re
 import itertools
 from typing import Optional
 
@@ -157,7 +156,6 @@ class FmToZ3(ModelToModel):
     def _get_expression(self, node: Node, parent: Node) -> z3.ExprRef:
         if node.is_term():
             if parent is None:  # process terminal node as boolean feature
-                print(f'Processing terminal node: {node.data} ({type(node.data)})')
                 if isinstance(node.data, str):
                     if self.destination_model.has_variable(node.data):  # is a feature
                         expr = self.destination_model.get_boolean_variable(node.data)
@@ -166,7 +164,7 @@ class FmToZ3(ModelToModel):
                 else:
                     raise FlamaException(f'Unsupported terminal feature: {type(node.data)}')
             else:
-                # process terminal node according to the parent.
+                # process terminal node according to the parent
                 if isinstance(node.data, str):
                     if self.destination_model.has_variable(node.data):  # is a feature
                         if parent.data in LOGICAL_OPERATORS:
@@ -176,26 +174,9 @@ class FmToZ3(ModelToModel):
                         else:
                             raise FlamaException(f'Unsupported operator: {parent.data}')
                     else:  # is a string or boolean constant
-                        if node.data == 'true':
-                            expr = node.data
-                            #expr = z3.BoolVal(True)
-                        elif node.data == 'false':
-                            expr = node.data
-                            #expr = z3.BoolVal(False)
-                        else:
-                            expr = node.data
-                            #expr = z3.String(node.data)
-                elif isinstance(node.data, int):
-                    expr = node.data
-                    #expr = z3.Int(node.data)
-                elif isinstance(node.data, float):
-                    expr = node.data
-                    #expr = z3.Real(node.data)
-                elif isinstance(node.data, bool):  # just in case
-                    expr = node.data
-                    #expr = z3.BoolVal(node.data)
+                        expr = node.data
                 else:
-                    raise FlamaException(f'Unsupported node data type: {type(node.data)}')
+                    expr = node.data
         else:  # is operation
             if node.is_binary_op():
                 left_expr = self._get_expression(node.left, node)

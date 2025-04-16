@@ -1,0 +1,14 @@
+features
+    Icecream
+        mandatory
+            Container
+                alternative
+                    Cup
+                    Cone 
+                    Stick 
+        optional
+            Integer Scoops
+            String "Customer name"
+constraints
+    !Scoops
+    "Customer name" == 'Josemi' | "Customer name" == 'Jose Miguel'

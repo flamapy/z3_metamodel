@@ -32,7 +32,6 @@ def configurations(model: Z3Model) -> bool:
     solver.add(model.formulas)
 
     configurations = []
-    seen_blocks = []
     while solver.check() == z3.sat:
         m = solver.model()
         config_elements = {}
@@ -40,24 +39,25 @@ def configurations(model: Z3Model) -> bool:
         block = []
         for variable in variables:
             val = m.evaluate(variable, model_completion=True)
+            print(f'{variable}: {val}')
             value = val
             if isinstance(val, z3.z3.DatatypeRef):  #  is a typed feature
                 variable_type = model.get_variable_type(str(variable))
                 if z3.is_true(m.evaluate(variable_type.is_None(variable))):
                     value = False
                 else:
-                    value = model.get_typed_variable(str(variable))
+                    typed_variable = model.get_typed_variable(str(variable))
+                    value = m.evaluate(typed_variable)
                     if variable_type == Z3Model.OPTION_INT:
-                        value = m.evaluate(value).as_long()
+                        value = value.as_long()
                     elif variable_type == Z3Model.OPTION_REAL:
-                        value = m.evaluate(value).as_decimal()
+                        value = value.as_decimal()
                     elif variable_type == Z3Model.OPTION_STRING:
-                        value = m.evaluate(value).as_string()
+                        value = value.as_string()
             else:  # boolean feature
                 value = z3.is_true(val)
             config_elements[str(variable)] = value
             block.append(variable != val)
-
         configurations.append(Configuration(config_elements))
         solver.add(z3.Or(block))  # block this solution
 

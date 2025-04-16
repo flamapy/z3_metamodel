@@ -7,7 +7,7 @@ from flamapy.metamodels.z3_metamodel.operations import (
 )
 
 
-MODEL = 'tests/models/fm02.uvl'
+MODEL = 'tests/models/fm06.uvl'
 
 
 def main():
