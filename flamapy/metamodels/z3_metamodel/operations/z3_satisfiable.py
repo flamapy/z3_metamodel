@@ -20,8 +20,8 @@ class Z3Satisfiable(Satisfiable):
         return self.get_result()
 
     def execute(self, model: VariabilityModel) -> 'Z3Satisfiable':
-        bdd_model = cast(Z3Model, model)
-        self._result = is_satisfiable(bdd_model)
+        z3_model = cast(Z3Model, model)
+        self._result = is_satisfiable(z3_model)
         return self
 
 

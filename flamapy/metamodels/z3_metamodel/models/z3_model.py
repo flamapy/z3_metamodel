@@ -102,6 +102,12 @@ class Z3Model(VariabilityModel):
         else:
             return self._typed_features_types.get(feature, None)
     
+    def get_variables(self) -> set[Union[z3.z3.ExprRef, z3.z3.DatatypeRef]]:
+        return set(self._boolean_features_variables.values()) | set(self._typed_features_variables.values())
+    
+    def get_features(self) -> set[str]:
+        return self._boolean_features_variables.keys() | self._typed_features_variables.keys()
+    
     def has_variable(self, feature: str) -> bool:
         """Check if the variable associated with the given feature is present in the model."""
         return feature in self._boolean_features_variables or \

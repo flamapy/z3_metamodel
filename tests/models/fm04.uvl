@@ -1,0 +1,12 @@
+features
+    Icecream
+        mandatory
+            Container
+                alternative
+                    Cup
+                    Cone 
+                    Stick 
+        optional
+            Integer Scoops
+constraints
+    Scoops >= 0 & Scoops <= 2

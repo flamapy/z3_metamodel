@@ -157,6 +157,7 @@ class FmToZ3(ModelToModel):
     def _get_expression(self, node: Node, parent: Node) -> z3.ExprRef:
         if node.is_term():
             if parent is None:  # process terminal node as boolean feature
+                print(f'Processing terminal node: {node.data} ({type(node.data)})')
                 if isinstance(node.data, str):
                     if self.destination_model.has_variable(node.data):  # is a feature
                         expr = self.destination_model.get_boolean_variable(node.data)
@@ -176,17 +177,23 @@ class FmToZ3(ModelToModel):
                             raise FlamaException(f'Unsupported operator: {parent.data}')
                     else:  # is a string or boolean constant
                         if node.data == 'true':
-                            expr = z3.BoolVal(True)
+                            expr = node.data
+                            #expr = z3.BoolVal(True)
                         elif node.data == 'false':
-                            expr = z3.BoolVal(False)
+                            expr = node.data
+                            #expr = z3.BoolVal(False)
                         else:
-                            expr = z3.String(node.data)
+                            expr = node.data
+                            #expr = z3.String(node.data)
                 elif isinstance(node.data, int):
-                    expr = z3.Int(node.data)
+                    expr = node.data
+                    #expr = z3.Int(node.data)
                 elif isinstance(node.data, float):
-                    expr = z3.Real(node.data)
+                    expr = node.data
+                    #expr = z3.Real(node.data)
                 elif isinstance(node.data, bool):  # just in case
-                    expr = z3.BoolVal(node.data)
+                    expr = node.data
+                    #expr = z3.BoolVal(node.data)
                 else:
                     raise FlamaException(f'Unsupported node data type: {type(node.data)}')
         else:  # is operation
