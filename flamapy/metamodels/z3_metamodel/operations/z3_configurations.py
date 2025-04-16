@@ -26,7 +26,7 @@ class Z3Configurations(Configurations):
         return self
 
 
-def configurations(model: Z3Model) -> bool:
+def configurations(model: Z3Model) -> list[Configuration]:
     variables = model.get_variables()
     solver = z3.Solver()
     solver.add(model.formulas)
