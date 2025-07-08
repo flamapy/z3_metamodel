@@ -16,6 +16,10 @@ from flamapy.core.transformations import ModelToModel
 from flamapy.metamodels.fm_metamodel.models import FeatureModel
 from flamapy.metamodels.fm_metamodel.models import FeatureModel, Relation, Constraint
 from flamapy.metamodels.z3_metamodel.models import Z3Model
+from flamapy.metamodels.fm_metamodel.transformations.refactorings import (
+    FMSecureFeaturesNames,
+    FeatureCardinalityRefactoring
+)
 
 
 class FmToZ3(ModelToModel):
@@ -34,6 +38,14 @@ class FmToZ3(ModelToModel):
         self._counter: int = 0
 
     def transform(self) -> Z3Model:
+        # Apply the feature cardinality refactoring to the source model
+        fm_refactored = FeatureCardinalityRefactoring(self.source_model).transform()
+        # Secure the features names and create a mapping with the original names
+        fmsfn = FMSecureFeaturesNames(fm_refactored)
+        secure_fm = fmsfn.transform()
+        mapping_names = fmsfn.mapping_names
+        self.source_model = secure_fm
+
         self.destination_model = Z3Model()
         self._declare_features()
         self._traverse_feature_tree()

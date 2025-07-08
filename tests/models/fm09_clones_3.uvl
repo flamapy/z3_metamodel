@@ -1,0 +1,140 @@
+features
+	R 
+		optional
+			A {abstract}
+				alternative
+					A_n2 {abstract}
+						mandatory
+							A_n2_A_1 
+								optional
+									A_n2_A_1_B 
+								optional
+									A_n2_A_1_C {abstract}
+										alternative
+											A_n2_A_1_C_n1 {abstract}
+												mandatory
+													A_n2_A_1_C_n1_C_1 
+														alternative
+															A_n2_A_1_C_n1_C_1_C1 
+															A_n2_A_1_C_n1_C_1_C2 
+											A_n2_A_1_C_n2 {abstract}
+												mandatory
+													A_n2_A_1_C_n2_C_1 
+														alternative
+															A_n2_A_1_C_n2_C_1_C1 
+															A_n2_A_1_C_n2_C_1_C2 
+												mandatory
+													A_n2_A_1_C_n2_C_2 
+														alternative
+															A_n2_A_1_C_n2_C_2_C1 
+															A_n2_A_1_C_n2_C_2_C2 
+						mandatory
+							A_n2_A_2 
+								optional
+									A_n2_A_2_B 
+								optional
+									A_n2_A_2_C {abstract}
+										alternative
+											A_n2_A_2_C_n1 {abstract}
+												mandatory
+													A_n2_A_2_C_n1_C_1 
+														alternative
+															A_n2_A_2_C_n1_C_1_C1 
+															A_n2_A_2_C_n1_C_1_C2 
+											A_n2_A_2_C_n2 {abstract}
+												mandatory
+													A_n2_A_2_C_n2_C_1 
+														alternative
+															A_n2_A_2_C_n2_C_1_C1 
+															A_n2_A_2_C_n2_C_1_C2 
+												mandatory
+													A_n2_A_2_C_n2_C_2 
+														alternative
+															A_n2_A_2_C_n2_C_2_C1 
+															A_n2_A_2_C_n2_C_2_C2 
+					A_n3 {abstract}
+						mandatory
+							A_n3_A_1 
+								optional
+									A_n3_A_1_B 
+								optional
+									A_n3_A_1_C {abstract}
+										alternative
+											A_n3_A_1_C_n1 {abstract}
+												mandatory
+													A_n3_A_1_C_n1_C_1 
+														alternative
+															A_n3_A_1_C_n1_C_1_C1 
+															A_n3_A_1_C_n1_C_1_C2 
+											A_n3_A_1_C_n2 {abstract}
+												mandatory
+													A_n3_A_1_C_n2_C_1 
+														alternative
+															A_n3_A_1_C_n2_C_1_C1 
+															A_n3_A_1_C_n2_C_1_C2 
+												mandatory
+													A_n3_A_1_C_n2_C_2 
+														alternative
+															A_n3_A_1_C_n2_C_2_C1 
+															A_n3_A_1_C_n2_C_2_C2 
+						mandatory
+							A_n3_A_2 
+								optional
+									A_n3_A_2_B 
+								optional
+									A_n3_A_2_C {abstract}
+										alternative
+											A_n3_A_2_C_n1 {abstract}
+												mandatory
+													A_n3_A_2_C_n1_C_1 
+														alternative
+															A_n3_A_2_C_n1_C_1_C1 
+															A_n3_A_2_C_n1_C_1_C2 
+											A_n3_A_2_C_n2 {abstract}
+												mandatory
+													A_n3_A_2_C_n2_C_1 
+														alternative
+															A_n3_A_2_C_n2_C_1_C1 
+															A_n3_A_2_C_n2_C_1_C2 
+												mandatory
+													A_n3_A_2_C_n2_C_2 
+														alternative
+															A_n3_A_2_C_n2_C_2_C1 
+															A_n3_A_2_C_n2_C_2_C2 
+						mandatory
+							A_n3_A_3 
+								optional
+									A_n3_A_3_B 
+								optional
+									A_n3_A_3_C {abstract}
+										alternative
+											A_n3_A_3_C_n1 {abstract}
+												mandatory
+													A_n3_A_3_C_n1_C_1 
+														alternative
+															A_n3_A_3_C_n1_C_1_C1 
+															A_n3_A_3_C_n1_C_1_C2 
+											A_n3_A_3_C_n2 {abstract}
+												mandatory
+													A_n3_A_3_C_n2_C_1 
+														alternative
+															A_n3_A_3_C_n2_C_1_C1 
+															A_n3_A_3_C_n2_C_1_C2 
+												mandatory
+													A_n3_A_3_C_n2_C_2 
+														alternative
+															A_n3_A_3_C_n2_C_2_C1 
+															A_n3_A_3_C_n2_C_2_C2 
+		optional
+			D 
+constraints
+	A_n2_A_1_B => A_n2_A_1_C
+	D => (A_n2_A_1_C & A_n2_A_1_B)
+	A_n2_A_2_B => A_n2_A_2_C
+	D => (A_n2_A_2_C & A_n2_A_2_B)
+	A_n3_A_1_B => A_n3_A_1_C
+	D => (A_n3_A_1_C & A_n3_A_1_B)
+	A_n3_A_2_B => A_n3_A_2_C
+	D => (A_n3_A_2_C & A_n3_A_2_B)
+	A_n3_A_3_B => A_n3_A_3_C
+	D => (A_n3_A_3_C & A_n3_A_3_B)

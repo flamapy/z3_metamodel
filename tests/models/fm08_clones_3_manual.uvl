@@ -1,0 +1,48 @@
+features
+	R 
+		optional
+			A {abstract}
+				alternative
+					A_n2 {abstract}  // seleccionada cuando quieres 2 instancias
+						mandatory
+							A_n2_A_1 // Clon 1
+								optional
+									A_n2_A_1_B 
+								optional
+									A_n2_A_1_C 
+							A_n2_A_2 // Clon 2
+								optional
+								optional
+									A_n2_A_2_B 
+								optional
+									A_n2_A_2_C 
+					A_n3 {abstract} // seleccionada cuando quieres 3 instancias
+						mandatory
+							A_n3_A_1  // Clon 1
+								optional
+									A_n3_A_1_B 
+								optional
+									A_n3_A_1_C 
+							A_n3_A_2 // Clon 2
+								optional
+									A_n3_A_2_B 
+								optional
+									A_n3_A_2_C
+							A_n3_A_3 // Clon 3
+								optional
+									A_n3_A_3_B 
+								optional
+									A_n3_A_3_C 
+		optional
+			D 
+constraints
+	A_n2_A_1_B => A_n2_A_1_C
+	A_n2_A_2_B => A_n2_A_2_C
+	A_n3_A_1_B => A_n3_A_1_C
+	A_n3_A_2_B => A_n3_A_2_C
+	A_n3_A_3_B => A_n3_A_3_C
+	D => (A_n2_A_1_B & A_n2_A_1_C)
+	D => (A_n2_A_2_B & A_n2_A_2_C)
+	D => (A_n3_A_1_B & A_n3_A_1_C)
+	D => (A_n3_A_2_B & A_n3_A_2_C)
+	D => (A_n3_A_3_B & A_n3_A_3_C)
