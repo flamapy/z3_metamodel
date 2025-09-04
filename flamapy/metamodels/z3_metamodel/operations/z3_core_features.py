@@ -25,7 +25,7 @@ class Z3CoreFeatures(CoreFeatures):
         return self
 
 
-def get_core_features(model: Z3Model) -> bool:
+def get_core_features(model: Z3Model) -> list[Any]:
     solver = z3.Solver()
     solver.add(model.formulas)
     core_features = []
@@ -34,8 +34,8 @@ def get_core_features(model: Z3Model) -> bool:
             if isinstance(variable, z3.z3.DatatypeRef):  #  is a typed feature
                 variable_type = model.get_variable_type(str(variable))
                 if solver.check([variable_type.is_None(variable)]) == z3.unsat:
-                    core_features.append(variable)
+                    core_features.append(str(variable))
             else:  # boolean feature
                 if solver.check([z3.Not(variable)]) == z3.unsat:
-                    core_features.append(variable)
+                    core_features.append(str(variable))
     return core_features

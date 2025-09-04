@@ -6,7 +6,8 @@ from flamapy.metamodels.z3_metamodel.operations import (
     Z3Configurations,
     Z3ConfigurationsNumber,
     Z3CoreFeatures,
-    Z3DeadFeatures
+    Z3DeadFeatures,
+    Z3FalseOptionalFeatures
 )
 
 
@@ -28,6 +29,11 @@ def main():
 
     dead_features = Z3DeadFeatures().execute(z3_model).get_result()
     print(f'Dead features: {dead_features}')
+
+    false_optional_features = Z3FalseOptionalFeatures().execute(z3_model).get_result()
+    print(f'False optional features: {false_optional_features}')
+
+    raise Exception
 
     configurations = Z3Configurations().execute(z3_model).get_result()
     print(f'Configurations: {len(configurations)}')

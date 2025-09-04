@@ -25,7 +25,7 @@ class Z3DeadFeatures(DeadFeatures):
         return self
 
 
-def get_dead_features(model: Z3Model) -> bool:
+def get_dead_features(model: Z3Model) -> list[Any]:
     solver = z3.Solver()
     solver.add(model.formulas)
     dead_features = []
@@ -34,8 +34,8 @@ def get_dead_features(model: Z3Model) -> bool:
             if isinstance(variable, z3.z3.DatatypeRef):  #  is a typed feature
                 variable_type = model.get_variable_type(str(variable))
                 if solver.check([variable_type.is_Some(variable)]) == z3.unsat:
-                    dead_features.append(variable)
+                    dead_features.append(str(variable))
             else:  # boolean feature
                 if solver.check([variable]) == z3.unsat:
-                    dead_features.append(variable)
+                    dead_features.append(str(variable))
     return dead_features

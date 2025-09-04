@@ -57,6 +57,7 @@ class Z3Model(VariabilityModel):
         self._typed_features_variables: dict[str, z3.z3.DatatypeRef] = {}
         self._typed_variable_types: dict[str, z3.z3.DatatypeRef] = {}
         self._formulas: list[z3.z3.ExprRef] = []
+        self.original_model: VariabilityModel
 
     def add_variable(self, name: str, variable_type: FeatureType = FeatureType.BOOLEAN) -> None:
         """Add a variable to the model.

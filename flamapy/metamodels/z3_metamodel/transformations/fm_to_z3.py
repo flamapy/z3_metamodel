@@ -47,6 +47,7 @@ class FmToZ3(ModelToModel):
         self.source_model = secure_fm
 
         self.destination_model = Z3Model()
+        self.destination_model.original_model = self.source_model
         self._declare_features()
         self._traverse_feature_tree()
         self._traverse_constraints()
