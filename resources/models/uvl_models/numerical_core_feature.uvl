@@ -1,0 +1,11 @@
+features
+  Electricity_price
+    mandatory
+      Period 
+        alternative
+          half_hourly
+          hourly
+    optional
+      Integer ok
+constraints
+  ok == 1

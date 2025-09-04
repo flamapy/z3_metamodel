@@ -1,10 +1,10 @@
 from typing import cast
 
+import z3
+
 from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import Satisfiable
 from flamapy.metamodels.z3_metamodel.models import Z3Model
-
-import z3
 
 
 class Z3Satisfiable(Satisfiable):

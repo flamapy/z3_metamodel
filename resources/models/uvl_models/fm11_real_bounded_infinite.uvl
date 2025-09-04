@@ -1,0 +1,12 @@
+features
+    Icecream
+        mandatory
+            Container
+                alternative
+                    Cup
+                    Cone 
+                    Stick 
+        optional
+            Real Price
+constraints
+    Price >= 1.00 & Price <= 3.00

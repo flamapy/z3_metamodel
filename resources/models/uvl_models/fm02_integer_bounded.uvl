@@ -8,7 +8,5 @@ features
                     Stick 
         optional
             Integer Scoops
-            String "Customer name"
 constraints
-    !Scoops
-    "Customer name" == 'Josemi' | "Customer name" == 'Jose Miguel'
+    Scoops >= 1 & Scoops <= 3

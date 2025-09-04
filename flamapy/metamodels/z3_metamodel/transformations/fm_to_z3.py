@@ -17,9 +17,9 @@ from flamapy.metamodels.fm_metamodel.models import FeatureModel
 from flamapy.metamodels.fm_metamodel.models import FeatureModel, Relation, Constraint
 from flamapy.metamodels.z3_metamodel.models import Z3Model
 from flamapy.metamodels.fm_metamodel.transformations.refactorings import (
-    FMSecureFeaturesNames,
     FeatureCardinalityRefactoring
 )
+from flamapy.metamodels.fm_metamodel.transformations import FMSecureFeaturesNames
 
 
 class FmToZ3(ModelToModel):

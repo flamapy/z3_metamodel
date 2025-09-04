@@ -7,6 +7,6 @@ features
                     Cone 
                     Stick 
         optional
-            Integer Scoops
+            Real Price
 constraints
-    Scoops >= 0 & Scoops <= 2
+    Price == 1.00 | Price == 3.00

@@ -46,6 +46,8 @@ class Z3Model(VariabilityModel):
     # The Option Boolean is not used, but defined for completeness
     OPTION_BOOLEAN = get_datatype('OptionBoolean', FeatureType.BOOLEAN)  
 
+    DEFAULT_PRECISION = 2
+
     @staticmethod
     def get_extension() -> str:
         return 'z3'

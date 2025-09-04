@@ -1,0 +1,13 @@
+features
+    Icecream
+        mandatory
+            Container
+                alternative
+                    Cup
+                    Cone 
+                    Stick 
+        optional
+            String "Customer name"
+constraints
+    Cup | Cone => "Customer name" == 'Josemi' | "Customer name" == 'Jose Miguel'
+    Stick => !"Customer name"

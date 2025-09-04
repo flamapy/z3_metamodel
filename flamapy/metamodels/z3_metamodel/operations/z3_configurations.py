@@ -1,11 +1,11 @@
 from typing import cast
 
+import z3
+
 from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import Configurations
 from flamapy.metamodels.configuration_metamodel.models import Configuration
 from flamapy.metamodels.z3_metamodel.models import Z3Model
-
-import z3
 
 
 class Z3Configurations(Configurations):
@@ -32,11 +32,12 @@ def configurations(model: Z3Model) -> list[Configuration]:
     solver.add(model.formulas)
 
     configurations = []
+    n_configs = 0
     while solver.check() == z3.sat:
         m = solver.model()
         config_elements = {}
-
         block = []
+
         for variable in variables:
             val = m.evaluate(variable, model_completion=True)
             if isinstance(val, z3.z3.DatatypeRef):  #  is a typed feature
@@ -49,13 +50,16 @@ def configurations(model: Z3Model) -> list[Configuration]:
                     if variable_type == Z3Model.OPTION_INT:
                         value = value.as_long()
                     elif variable_type == Z3Model.OPTION_REAL:
-                        value = value.as_decimal()
+                        value = value.as_decimal(Z3Model.DEFAULT_PRECISION)
                     elif variable_type == Z3Model.OPTION_STRING:
                         value = value.as_string()
             else:  # boolean feature
                 value = z3.is_true(val)
             config_elements[str(variable)] = value
             block.append(variable != val)
+        n_configs += 1
+        config = Configuration(config_elements)
+        print(f'Config. {n_configs}: {config.elements}')
         configurations.append(Configuration(config_elements))
         solver.add(z3.Or(block))  # block this solution
 

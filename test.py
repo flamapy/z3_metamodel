@@ -4,21 +4,30 @@ from flamapy.metamodels.z3_metamodel.transformations import FmToZ3
 from flamapy.metamodels.z3_metamodel.operations import (
     Z3Satisfiable,
     Z3Configurations,
-    Z3ConfigurationsNumber
+    Z3ConfigurationsNumber,
+    Z3CoreFeatures,
+    Z3DeadFeatures
 )
 
 
-MODEL = 'tests/models/fm06.uvl'
+MODEL = 'resources/models/uvl_models/Electricity.uvl'
 
 
 def main():
     dm = DiscoverMetamodels()
     fm_model = dm.use_transformation_t2m(MODEL, 'fm')
+    print(fm_model)
     z3_model = FmToZ3(fm_model).transform()
     print(z3_model)
 
     result = Z3Satisfiable().execute(z3_model).get_result()
     print(f'Satisfiable: {result}')
+
+    core_features = Z3CoreFeatures().execute(z3_model).get_result()
+    print(f'Core features: {core_features}')
+
+    dead_features = Z3DeadFeatures().execute(z3_model).get_result()
+    print(f'Dead features: {dead_features}')
 
     configurations = Z3Configurations().execute(z3_model).get_result()
     print(f'Configurations: {len(configurations)}')
