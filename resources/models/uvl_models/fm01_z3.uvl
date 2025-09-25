@@ -10,3 +10,4 @@ features
             Integer Scoops {price 1.0}
 constraints
     Scoops >= 1 & Scoops <= 3
+    sum(price) == 2.5

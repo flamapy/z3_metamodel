@@ -21,6 +21,7 @@ class FeatureInfo:
 class Z3Model:
     def __init__(self):
         self.features: dict[str, FeatureInfo] = {}
+        self.attributes: dict[str, list[Any]] = {}  # attr_name -> [z3var]
         self.constraints = []  # list of z3 expressions
         self.original_model: Optional[VariabilityModel] = None
 
@@ -85,7 +86,7 @@ class Z3Model:
 
         return sel, val
 
-    def get_variable(self, name: str) -> FeatureInfo:
+    def get_variable(self, name: str) -> Optional[FeatureInfo]:
         """Get the FeatureInfo of a feature by name."""
         return self.features.get(name, None)
     
@@ -98,7 +99,7 @@ class Z3Model:
         if feature_name not in self.features:
             raise KeyError(feature_name)
         info = self.features[feature_name]
-        var_name = f"{feature_name}__attr__{attr_name}"
+        var_name = f"{feature_name}.{attr_name}"
         if attr_type == FeatureType.INTEGER:
             var = z3.Int(var_name)
         elif attr_type == FeatureType.REAL:
@@ -112,6 +113,11 @@ class Z3Model:
 
         info.attributes[attr_name] = {"var": var, "type": attr_type}
 
+        # Create a global record of attributes as well to easy access attributes by name
+        if attr_name not in self.attributes:
+            self.attributes[attr_name] = []
+        self.attributes[attr_name].append(var)
+
         # If a const_value is given, it is imposed when the feature is selected.
         if const_value is not None:
             const_expr = self._const(attr_type, const_value)
@@ -122,6 +128,29 @@ class Z3Model:
     def add_constraint(self, constraint: z3.ExprRef):
         """Add an arbitrary Z3 constraint to the model."""
         self.constraints.append(constraint)
+
+    def __str__(self) -> str:
+        res = "Variables: Feature (Type), Bool var, Typed value):\r\n"
+        for i, (feature_name, feature_info) in enumerate(self.features.items()):
+            res += f"V{i}: {feature_name} ({feature_info.ftype.name}), sel: {feature_info.sel}, val: {feature_info.val}\r\n"
+        res += "Constraints:\r\n"
+        for i, c in enumerate(self.constraints):
+            res += f"C{i}: {c}\r\n"
+        return res
+
+    def __hash__(self) -> int:
+        return hash(
+            (
+                self.features
+            )
+        )
+
+    def __eq__(self, other: Any) -> bool:
+        return (
+            isinstance(other, Z3Model)
+            and self.features == other.features
+            and sorted(self.constraints) == sorted(other.constraints)
+        )
 
     # Construir la suma total de un atributo numérico (solo considera features con dicho atributo)
     # def sum_attribute(self, attr_name: str):

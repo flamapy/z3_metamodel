@@ -1,6 +1,7 @@
 import itertools
 import copy
-from typing import Optional
+import logging
+from typing import Any, Optional
 
 import z3
 
@@ -14,7 +15,14 @@ from flamapy.core.models.ast import (
 
 from flamapy.core.exceptions import FlamaException
 from flamapy.core.transformations import ModelToModel
-from flamapy.metamodels.fm_metamodel.models import FeatureModel, Relation, Constraint, FeatureType
+from flamapy.metamodels.fm_metamodel.models import (
+    FeatureModel, 
+    Feature, 
+    Relation, 
+    Constraint, 
+    FeatureType
+)
+
 from flamapy.metamodels.z3_metamodel.models import Z3Model
 from flamapy.metamodels.fm_metamodel.transformations import FlatFM
 from flamapy.metamodels.fm_metamodel.transformations.refactorings import (
@@ -62,9 +70,29 @@ class FmToZ3(ModelToModel):
                 self.destination_model.add_boolean_feature(feature.name)
             else:
                 self.destination_model.add_typed_feature(feature.name, feature.feature_type)
-            # for attribute in feature.get_attributes():
-            #     self.destination_model.add_attribute(feature.name, attribute.name, attribute.default_value, att)
+            self._declare_attributes(feature)
             self._counter += 1
+
+    def _declare_attributes(self, feature: Feature) -> None:
+        for attribute in feature.get_attributes():
+            if isinstance(attribute.default_value, bool):
+                attr_type = FeatureType.BOOLEAN
+            elif isinstance(attribute.default_value, int):
+                attr_type = FeatureType.INTEGER
+            elif isinstance(attribute.default_value, float):
+                attr_type = FeatureType.REAL
+            elif isinstance(attribute.default_value, str):
+                attr_type = FeatureType.STRING
+            else:
+                logging.warning("FM to Z3: Unsupported attribute type: " + 
+                                f"{type(attribute.default_value)} for attribute " +
+                                f"'{attribute.name}' in feature '{feature.name}'")
+                attr_type = None
+            if attr_type is not None:
+                self.destination_model.add_attribute(feature.name, 
+                                                     attribute.name, 
+                                                     attr_type, 
+                                                     attribute.default_value)
 
     def _traverse_feature_tree(self) -> None:
         """Traverse the feature tree from the root, 
@@ -190,10 +218,30 @@ class FmToZ3(ModelToModel):
                             expr = variable.sel
                         elif parent.data in ARITHMETIC_OPERATORS:
                             expr = variable.val
+                        elif parent.data in AGGREGATION_OPERATORS:
+                            expr = variable  # the aggregation operator will handle it
                         else:
                             raise FlamaException(f'Unsupported operator: {parent.data}')
-                    else:  # is a string or boolean constant
-                        expr = node.data
+                    else:  # is not a feature, so it may be an attribute
+                        if '.' in node.data:  # attribute of a feature
+                            feature_name, attr_name = find_feature_and_attribute(node.data)
+                            feature_info = self.destination_model.get_variable(feature_name)
+                            attribute_info = feature_info.attributes.get(attr_name, None)
+                            if attribute_info is not None:
+                                expr = attribute_info['var']
+                        else:
+                            expr = node.data
+                            # if feature_info is None:
+                            #     raise FlamaException(f'Unsupported feature in attribute: {feature_name}')
+                            # attr_info = feature_info.attributes.get(attr_name, None)
+                            # if attr_info is None:
+                            #     raise FlamaException(f'Unsupported attribute: {attr_name} in feature {feature_name}')
+                            # expr = attr_info['var']
+                        #TODO: se debe guardar una referencia al atributo (no str).
+                        # attribute_var = self.destination_model.attributes.get(node.data, None)
+                        # if attribute_var is not None:
+                        #     expr = attribute_var
+                        # else:  # is a string or boolean constant
                 else:
                     expr = node.data
         else:  # is operation
@@ -240,4 +288,67 @@ class FmToZ3(ModelToModel):
                     expr = z3.Not(left_expr)
                 else:
                     raise FlamaException(f'Unsupported unary operator: {node.data}')
+            elif node.is_aggregate_op():
+                left_expr = self._get_expression(node.left, node)
+                right_expr = self._get_expression(node.right, node) if node.right is not None else None
+                if node.data in [ASTOperation.SUM, ASTOperation.AVG]:
+                    # TODO: check if aggregate functions can be applied over features too
+                    attributes_vars = self.destination_model.attributes.get(left_expr, None)
+                    if right_expr is not None:
+                        attributes_vars = []
+                        feature = self.source_model.get_feature_by_name(right_expr.name)
+                        for feat in get_subtree(feature):
+                            print(f'feature in subtree: {feat}')
+                            feature_attributes = self.destination_model.get_variable(feat.name).attributes
+                            if left_expr in feature_attributes:
+                                attributes_vars.append(feature_attributes[left_expr]['var'])
+                    if node.data == ASTOperation.SUM:
+                        expr = z3.Sum(attributes_vars)
+                    elif node.data == ASTOperation.AVG:
+                        expr = z3.Sum(attributes_vars) / len(attributes_vars)
+                #elif node.data in [ASTOperation.LEN]:
+                else:
+                    raise FlamaException(f'Unsupported aggregation operator: {node.data}')
         return expr
+
+
+def is_valid_feature(model: Z3Model, name: str) -> bool:
+    return name in model.features
+
+
+def is_valid_attribute(model: Z3Model, name: str) -> bool:
+    return name in model.attributes
+
+
+def find_feature_and_attribute(identifier: str) -> Optional[tuple[str, str]]:
+    parts = identifier.split('.')
+    n = len(parts)
+    if n == 0:
+        return None
+    for i in range(1, n):
+        feature_parts = parts[:i]
+        feature = ".".join(feature_parts)
+        attribute_parts = parts[i:]
+        attribute = ".".join(attribute_parts)
+        if is_valid_feature(feature) and is_valid_attribute(attribute):
+            return (feature, attribute)
+    return None
+
+
+def is_feature_ancestor(feature: Feature, possible_ancestor: Feature) -> bool:
+    """Check if possible_ancestor is an ancestor of feature in the feature tree."""
+    parent = feature.parent
+    while parent is not None:
+        if parent == possible_ancestor:
+            return True
+        parent = parent.parent
+    return False
+
+
+def get_subtree(feature: Feature) -> list[Feature]:
+    """Get all features in the subtree rooted at feature (including itself)."""
+    subtree = [feature]
+    for relation in feature.get_relations():
+        for child in relation.children:
+            subtree.extend(get_subtree(child))
+    return subtree
