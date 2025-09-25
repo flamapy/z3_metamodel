@@ -1,0 +1,12 @@
+features
+    Icecream
+        mandatory
+            Container
+                alternative
+                    Cup {price 1.5, cost {value 0.5, unit 'euro'}}
+                    Cone {price 2.0}
+                    Stick {price 1.0}
+        optional
+            Integer Scoops {price 1.0}
+constraints
+    Scoops >= 1 & Scoops <= 3

@@ -1,4 +1,5 @@
 import itertools
+import copy
 from typing import Optional
 
 import z3
@@ -13,9 +14,9 @@ from flamapy.core.models.ast import (
 
 from flamapy.core.exceptions import FlamaException
 from flamapy.core.transformations import ModelToModel
-from flamapy.metamodels.fm_metamodel.models import FeatureModel
-from flamapy.metamodels.fm_metamodel.models import FeatureModel, Relation, Constraint
+from flamapy.metamodels.fm_metamodel.models import FeatureModel, Relation, Constraint, FeatureType
 from flamapy.metamodels.z3_metamodel.models import Z3Model
+from flamapy.metamodels.fm_metamodel.transformations import FlatFM
 from flamapy.metamodels.fm_metamodel.transformations.refactorings import (
     FeatureCardinalityRefactoring
 )
@@ -38,13 +39,15 @@ class FmToZ3(ModelToModel):
         self._counter: int = 0
 
     def transform(self) -> Z3Model:
+        # FlatFM if the feature model contains imports
+        feature_model = self.source_model
+        if feature_model.imports:
+            feature_model = FlatFM(feature_model).transform()
         # Apply the feature cardinality refactoring to the source model
-        fm_refactored = FeatureCardinalityRefactoring(self.source_model).transform()
-        # Secure the features names and create a mapping with the original names
-        fmsfn = FMSecureFeaturesNames(fm_refactored)
-        secure_fm = fmsfn.transform()
-        mapping_names = fmsfn.mapping_names
-        self.source_model = secure_fm
+        if FeatureCardinalityRefactoring(feature_model).is_applicable():
+            feature_model = copy.deepcopy(feature_model)
+            feature_model = FeatureCardinalityRefactoring(feature_model).transform()
+        self.source_model = feature_model
 
         self.destination_model = Z3Model()
         self.destination_model.original_model = self.source_model
@@ -54,21 +57,24 @@ class FmToZ3(ModelToModel):
         return self.destination_model
 
     def _declare_features(self) -> None:
-        assert self.destination_model is not None, "destination_model is None"
         for feature in self.source_model.get_features():
-            if not self.destination_model.has_variable(feature.name):
-                self.destination_model.add_variable(feature.name, feature.feature_type)
-                self._counter += 1
+            if feature.feature_type == FeatureType.BOOLEAN:
+                self.destination_model.add_boolean_feature(feature.name)
+            else:
+                self.destination_model.add_typed_feature(feature.name, feature.feature_type)
+            # for attribute in feature.get_attributes():
+            #     self.destination_model.add_attribute(feature.name, attribute.name, attribute.default_value, att)
+            self._counter += 1
 
     def _traverse_feature_tree(self) -> None:
-        """Traverse the feature tree from the root and return the list of formulas."""
+        """Traverse the feature tree from the root, 
+        adding variables and constraints to the Z3 model."""
         if self.source_model is None or self.source_model.root is None:
-            return []
-        assert self.destination_model is not None, "destination_model is None"
+            return None
         # The root is always present
         root_feature = self.source_model.root
-        formula = (self.destination_model.get_boolean_variable(root_feature.name))
-        self.destination_model.add_formula(formula)
+        formula = (self.destination_model.get_variable(root_feature.name).sel)
+        self.destination_model.add_constraint(formula)
         features = [root_feature]
         while features:
             feature = features.pop()
@@ -95,40 +101,40 @@ class FmToZ3(ModelToModel):
             self._add_cardinality_formula(relation)
 
     def _add_mandatory_formula(self, relation: Relation) -> None:
-        parent = self.destination_model.get_boolean_variable(relation.parent.name)
-        child = self.destination_model.get_boolean_variable(relation.children[0].name)
+        parent = self.destination_model.get_variable(relation.parent.name).sel
+        child = self.destination_model.get_variable(relation.children[0].name).sel
         formula = (parent == child)
-        self.destination_model.add_formula(formula)
+        self.destination_model.add_constraint(formula)
 
     def _add_optional_formula(self, relation: Relation) -> None:
-        parent = self.destination_model.get_boolean_variable(relation.parent.name)
-        child = self.destination_model.get_boolean_variable(relation.children[0].name)
+        parent = self.destination_model.get_variable(relation.parent.name).sel
+        child = self.destination_model.get_variable(relation.children[0].name).sel
         formula = z3.Implies(child, parent)
-        self.destination_model.add_formula(formula)
+        self.destination_model.add_constraint(formula)
 
     def _add_or_formula(self, relation: Relation) -> None:
-        parent = self.destination_model.get_boolean_variable(relation.parent.name)
-        children = [self.destination_model.get_boolean_variable(child.name) 
+        parent = self.destination_model.get_variable(relation.parent.name).sel
+        children = [self.destination_model.get_variable(child.name).sel
                     for child in relation.children]
         formula = (parent == z3.Or(*children))
-        self.destination_model.add_formula(formula)
+        self.destination_model.add_constraint(formula)
 
     def _add_alternative_formula(self, relation: Relation) -> None:
         formulas = []
-        parent = self.destination_model.get_boolean_variable(relation.parent.name)
-        children = [self.destination_model.get_boolean_variable(child.name)
+        parent = self.destination_model.get_variable(relation.parent.name).sel
+        children = [self.destination_model.get_variable(child.name).sel
                     for child in relation.children]
         for child in children:
             children_negatives = set(children) - {child}
             formula = (child == z3.And([z3.Not(ch) for ch in children_negatives] + [parent]))
             formulas.append(formula)
         formula = z3.And(*formulas)
-        self.destination_model.add_formula(formula)
+        self.destination_model.add_constraint(formula)
 
     def _add_mutex_formula(self, relation: Relation) -> None:
         formulas = []
-        parent = self.destination_model.get_boolean_variable(relation.parent.name)
-        children = {self.destination_model.get_boolean_variable(child.name)
+        parent = self.destination_model.get_variable(relation.parent.name).sel
+        children = {self.destination_model.get_variable(child.name).sel
                     for child in relation.children}
         for child in children:
             children_negatives = children - {child}
@@ -136,11 +142,11 @@ class FmToZ3(ModelToModel):
             formulas.append(formula)
         formula = z3.And(*formulas)
         formula = z3.Or(parent == z3.Not(z3.Or(*children)), formula)
-        self.destination_model.add_formula(formula)
+        self.destination_model.add_constraint(formula)
 
     def _add_cardinality_formula(self, relation: Relation) -> None:
-        parent = self.destination_model.get_boolean_variable(relation.parent.name)
-        children = {self.destination_model.get_boolean_variable(child.name)
+        parent = self.destination_model.get_variable(relation.parent.name).sel
+        children = {self.destination_model.get_variable(child.name).sel
                     for child in relation.children}
         or_ctc = []
         for k in range(relation.card_min, relation.card_max + 1):
@@ -160,30 +166,30 @@ class FmToZ3(ModelToModel):
                 or_ctc.append(and_ctc) 
         formula_or_ctc = z3.Or(*or_ctc)
         formula = (parent == formula_or_ctc)
-        self.destination_model.add_formula(formula)
+        self.destination_model.add_constraint(formula)
 
     def _add_constraint_formula(self, ctc: Constraint) -> None:
         expr  = self._get_expression(ctc.ast.root, None)
-        self.destination_model.add_formula(expr)
+        self.destination_model.add_constraint(expr)
 
     def _get_expression(self, node: Node, parent: Node) -> z3.ExprRef:
         if node.is_term():
             if parent is None:  # process terminal node as boolean feature
                 if isinstance(node.data, str):
-                    if self.destination_model.has_variable(node.data):  # is a feature
-                        expr = self.destination_model.get_boolean_variable(node.data)
-                    else:
+                    expr = self.destination_model.get_variable(node.data)
+                    if expr is None:
                         raise FlamaException(f'Unsupported feature: {node.data}')
                 else:
                     raise FlamaException(f'Unsupported terminal feature: {type(node.data)}')
             else:
                 # process terminal node according to the parent
                 if isinstance(node.data, str):
-                    if self.destination_model.has_variable(node.data):  # is a feature
+                    variable = self.destination_model.get_variable(node.data)
+                    if variable is not None:  # is a feature
                         if parent.data in LOGICAL_OPERATORS:
-                            expr = self.destination_model.get_boolean_variable(node.data)
+                            expr = variable.sel
                         elif parent.data in ARITHMETIC_OPERATORS:
-                            expr = self.destination_model.get_typed_variable(node.data)
+                            expr = variable.val
                         else:
                             raise FlamaException(f'Unsupported operator: {parent.data}')
                     else:  # is a string or boolean constant

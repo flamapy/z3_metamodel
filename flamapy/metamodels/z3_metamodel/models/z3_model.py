@@ -1,4 +1,5 @@
 from typing import Any, Optional
+from dataclasses import dataclass
 
 import z3
 
@@ -8,143 +9,157 @@ from flamapy.core.models import VariabilityModel, ASTOperation
 from flamapy.metamodels.fm_metamodel.models import FeatureType
 
 
-def get_datatype(name: str, variable_type: FeatureType) -> Any:
-    """Create a datatype for optional typed variables.
-    
-    It uses algebraic data types (ADTs) to define variables that may or may not have a value.
-    The ADT has two constructors:
-        1. None: represents the absence of a value.
-        2. Some: wraps a value of the specified type.
-    """
-    data_type = None
-    if variable_type == FeatureType.BOOLEAN:
-        data_type = z3.BoolSort()
-    elif variable_type == FeatureType.INTEGER:
-        data_type = z3.IntSort()
-    elif variable_type == FeatureType.REAL:
-        data_type = z3.RealSort()
-    elif variable_type == FeatureType.STRING:
-        data_type = z3.StringSort()
-    else:
-        raise FlamaException(f'Unsupported variable type: {variable_type}')
-    option_var = z3.Datatype(name)
-    option_var.declare('None')
-    option_var.declare('Some', ('val', data_type))
-    return option_var.create()
+@dataclass
+class FeatureInfo:
+    name: str              # feature name
+    sel: Any               # BoolRef
+    val: Optional[Any]     # Int/Real/String Ref or None for pure boolean features
+    ftype: FeatureType     # "bool", "int", "real", "string"
+    attributes: dict[str, dict[str, Any]]  # attr_name -> {"var": z3var, "type": ...}
 
 
-class Z3Model(VariabilityModel):
-    """A z3 representation of the feature model.
+class Z3Model:
+    def __init__(self):
+        self.features: dict[str, FeatureInfo] = {}
+        self.constraints = []  # list of z3 expressions
+        self.original_model: Optional[VariabilityModel] = None
 
-    It relies on the z3 library: https://github.com/z3prover
-    """
+    def _const(self, ftype: FeatureType, value: Any) -> Any:
+        """Helper to create a Z3 constant of the given type with the given value."""
+        if ftype == FeatureType.INTEGER:
+            return z3.IntVal(int(value))
+        if ftype == FeatureType.REAL:
+            return z3.RealVal(float(value))
+        if ftype == FeatureType.STRING:
+            return z3.StringVal(str(value))
+        if ftype == FeatureType.BOOLEAN:
+            return z3.BoolVal(bool(value))
+        raise ValueError("Unsupported type")
 
-    # Algebraic data types for optional typed features
-    OPTION_INT = get_datatype('OptionInt', FeatureType.INTEGER)
-    OPTION_REAL = get_datatype('OptionReal', FeatureType.REAL)
-    OPTION_STRING = get_datatype('OptionString', FeatureType.STRING)
-    # The Option Boolean is not used, but defined for completeness
-    OPTION_BOOLEAN = get_datatype('OptionBoolean', FeatureType.BOOLEAN)  
+    def add_boolean_feature(self, name: str):
+        """Add a boolean feature with the given name."""
+        sel = z3.Bool(name)
+        self.features[name] = FeatureInfo(name=name, 
+                                          sel=sel, 
+                                          val=None, 
+                                          ftype=FeatureType.BOOLEAN, 
+                                          attributes={})
+        return sel
 
-    DEFAULT_PRECISION = 2
+    def add_typed_feature(self, 
+                          name: str, 
+                          ftype: FeatureType,
+                          const_value: Optional[Any]=None,
+                          neutral_when_unselected: Optional[Any]=None):
+        """Add a typed feature with the given name and type.
 
-    @staticmethod
-    def get_extension() -> str:
-        return 'z3'
-
-    def __init__(self) -> None:
-        self._boolean_features_variables: dict[str, z3.z3.ExprRef] = {}
-        self._typed_features_variables: dict[str, z3.z3.DatatypeRef] = {}
-        self._typed_variable_types: dict[str, z3.z3.DatatypeRef] = {}
-        self._formulas: list[z3.z3.ExprRef] = []
-        self.original_model: VariabilityModel
-
-    def add_variable(self, name: str, variable_type: FeatureType = FeatureType.BOOLEAN) -> None:
-        """Add a variable to the model.
-
-        It adds a variable to the z3 model considering that all variables are booleans, but
-        it also keeps track of the variable type for non-boolean variables.
+        It creates two variables: a boolean 'sel' indicating if the feature is selected,
+        and a 'val' variable of the given type (Integer, Real, String).
+        If const_value is given, it is imposed when the feature is selected.
+        If neutral_when_unselected is given, the value is set to that when the feature is
+        not selected (to avoid unwanted effects in optimization).
         """
-        if variable_type == FeatureType.BOOLEAN:
-            self._boolean_features_variables[name] = z3.Bool(name)
+        sel = z3.Bool(f"{name}_sel")
+        if ftype == FeatureType.INTEGER:
+            val = z3.Int(f"{name}_val")
+            neutral = z3.IntVal(0) if neutral_when_unselected is None else self._const(FeatureType.INTEGER, neutral_when_unselected)
+        elif ftype == FeatureType.REAL:
+            val = z3.Real(f"{name}_val")
+            neutral = z3.RealVal(0.0) if neutral_when_unselected is None else self._const(FeatureType.REAL, neutral_when_unselected)
+        elif ftype == FeatureType.STRING:
+            val = z3.String(f"{name}_val")
+            neutral = z3.StringVal("") if neutral_when_unselected is None else self._const(FeatureType.STRING, neutral_when_unselected)
         else:
-            # Create a variable of the specified type
-            if variable_type == FeatureType.INTEGER:
-                adt_type = Z3Model.OPTION_INT
-            elif variable_type == FeatureType.REAL:
-                adt_type = Z3Model.OPTION_REAL
-            elif variable_type == FeatureType.STRING:
-                adt_type = Z3Model.OPTION_STRING
-            else:
-                raise FlamaException(f'Unsupported variable type: {variable_type}')
-            typed_variable = z3.Const(name, adt_type)
-            self._typed_features_variables[name] = typed_variable
-            self._typed_variable_types[name] = adt_type
-        
-    def get_boolean_variable(self, name: str) -> Optional[z3.z3.ExprRef]:
-        """Get the boolean variable associated with the given name."""
-        variable = None
-        if name in self._boolean_features_variables:
-            variable = self._boolean_features_variables[name]
-        elif name in self._typed_features_variables:
-            var = self._typed_features_variables[name]
-            variable_type = self._typed_variable_types[name]
-            variable = variable_type.is_Some(var)
-        return variable
-    
-    def get_typed_variable(self, name: str) -> Optional[z3.z3.ExprRef]:
-        """Get the typed variable associated with the given name."""
-        variable = None
-        if name in self._typed_features_variables:
-            var = self._typed_features_variables[name]
-            variable_type = self._typed_variable_types[name]
-            variable = variable_type.val(var)
-        return variable
+            raise ValueError("Unsupported feature type")
 
-    def get_variable_type(self, name: str) -> Optional[z3.z3.DatatypeRef]:
-        """Get the type of the variable associated with the given name."""
-        if name in self._boolean_features_variables:
-            return FeatureType.BOOLEAN  # TODO: change return type
+        self.features[name] = FeatureInfo(name=name, sel=sel, val=val, ftype=ftype, attributes={})
+
+        # If const_value is given, it is imposed when the feature is selected.
+        if const_value is not None:  # Esto creo que se puede quitar
+            const_expr = self._const(ftype, const_value)
+            self.constraints.append(z3.Implies(sel, val == const_expr))
+
+        # Neutralize the value when not selected to avoid unwanted effects in optimization
+        # (this is optional depending on the semantics; useful if using Optimize without If(...))
+        self.constraints.append(z3.Implies(z3.Not(sel), val == neutral))
+
+        return sel, val
+
+    def get_variable(self, name: str) -> FeatureInfo:
+        """Get the FeatureInfo of a feature by name."""
+        return self.features.get(name, None)
+    
+    def add_attribute(self, 
+                      feature_name: str, 
+                      attr_name: str, 
+                      attr_type: FeatureType, 
+                      const_value: Optional[Any]=None):
+        """Add an attribute to a feature (attributes are typed variables)."""
+        if feature_name not in self.features:
+            raise KeyError(feature_name)
+        info = self.features[feature_name]
+        var_name = f"{feature_name}__attr__{attr_name}"
+        if attr_type == FeatureType.INTEGER:
+            var = z3.Int(var_name)
+        elif attr_type == FeatureType.REAL:
+            var = z3.Real(var_name)
+        elif attr_type == FeatureType.STRING:
+            var = z3.String(var_name)
+        elif attr_type == FeatureType.BOOLEAN:
+            var = z3.Bool(var_name)
         else:
-            return self._typed_variable_types.get(name, None)
-    
-    def get_variables(self) -> set[z3.z3.ExprRef | z3.z3.DatatypeRef]:
-        """Return all variables of the z3 model."""
-        return set(self._boolean_features_variables.values()) | set(self._typed_features_variables.values())
-    
-    def get_variables_names(self) -> set[str]:
-        """Return all variables names of the z3 model."""
-        return self._boolean_features_variables.keys() | self._typed_features_variables.keys()
-    
-    def has_variable(self, name: str) -> bool:
-        """Check if the variable associated with the given name is present in the model."""
-        return name in self._boolean_features_variables or \
-               name in self._typed_features_variables
-    
-    def add_formula(self, *formula: tuple[z3.z3.ExprRef]) -> None:
-        """Add a formula to the model."""
-        self._formulas.extend(formula)
+            raise ValueError("Unsupported attribute type")
 
-    @property
-    def formulas(self):
-        return self._formulas
-    
-    def __str__(self) -> str:
-        """Return a string representation of the z3 model."""
-        features = self._boolean_features_variables.keys() | self._typed_features_variables.keys()
-        res = f'Z3 MODEL: {len(features)} variables, {len(self._formulas)} formulas\n'
-        res += 'VARIABLES:\n'
-        
-        for number, feature in enumerate(features, 1):
-            res += f'{number}: {feature}'
-            if feature in self._boolean_features_variables:
-                res += f' (Boolean): {self._boolean_features_variables[feature]}\n'
-            elif feature in self._typed_features_variables:
-                feature_type = self.get_variable_type(feature)
-                variable = self._typed_features_variables[feature]
-                res += f' ({feature_type}): {variable}\n'
-        res += 'FORMULAS:\n'
-        for number, formula in enumerate(self._formulas, 1):
-            res += f'{number}: {formula}\n'
-        return res
+        info.attributes[attr_name] = {"var": var, "type": attr_type}
 
+        # If a const_value is given, it is imposed when the feature is selected.
+        if const_value is not None:
+            const_expr = self._const(attr_type, const_value)
+            self.constraints.append(z3.Implies(info.sel, var == const_expr))
+
+        return var
+
+    def add_constraint(self, constraint: z3.ExprRef):
+        """Add an arbitrary Z3 constraint to the model."""
+        self.constraints.append(constraint)
+
+    # Construir la suma total de un atributo numérico (solo considera features con dicho atributo)
+    # def sum_attribute(self, attr_name: str):
+    #     exprs = []
+    #     numeric_kind = None
+    #     for fname, info in self.features.items():
+    #         attr = info.attributes.get(attr_name)
+    #         if not attr:
+    #             continue
+    #         sel = info.sel
+    #         var = attr["var"]
+    #         t = attr["type"]
+    #         # Si mezcla int/real, hay que acordarlo a un único tipo (prefiere real)
+    #         if t == "int":
+    #             zero = IntVal(0)
+    #         elif t == "real":
+    #             zero = RealVal(0.0)
+    #         else:
+    #             raise ValueError("sum_attribute only supports numeric types (int/real)")
+    #         exprs.append(If(sel, var, zero))
+    #         if numeric_kind is None:
+    #             numeric_kind = t
+    #         elif numeric_kind != t:
+    #             # mezcla int/real detectada -> recomendable convertir Int->Real con ToReal si lo deseas
+    #             pass
+    #     if not exprs:
+    #         return IntVal(0)  # ó RealVal(0.0) según contexto
+    #     return Sum(exprs)
+
+    # # Optimización minimizando un atributo (ejemplo)
+    # def minimize_attribute(self, attr_name: str):
+    #     opt = Optimize()
+    #     for c in self.constraints:
+    #         opt.add(c)
+    #     total = self.sum_attribute(attr_name)
+    #     opt.minimize(total)
+    #     if opt.check() ==  sat:
+    #         m = opt.model()
+    #         return m, total
+    #     return None, None
+    

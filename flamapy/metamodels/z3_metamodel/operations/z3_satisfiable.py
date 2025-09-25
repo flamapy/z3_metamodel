@@ -27,5 +27,5 @@ class Z3Satisfiable(Satisfiable):
 
 def is_satisfiable(model: Z3Model) -> bool:
     solver = z3.Solver()
-    solver.add(model.formulas)
+    solver.add(model.constraints)
     return solver.check() == z3.sat

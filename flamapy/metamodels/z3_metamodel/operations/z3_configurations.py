@@ -6,6 +6,7 @@ from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import Configurations
 from flamapy.metamodels.configuration_metamodel.models import Configuration
 from flamapy.metamodels.z3_metamodel.models import Z3Model
+from flamapy.metamodels.fm_metamodel.models import FeatureType
 
 
 class Z3Configurations(Configurations):
@@ -27,9 +28,8 @@ class Z3Configurations(Configurations):
 
 
 def configurations(model: Z3Model) -> list[Configuration]:
-    variables = model.get_variables()
     solver = z3.Solver()
-    solver.add(model.formulas)
+    solver.add(model.constraints)
 
     configurations = []
     n_configs = 0
@@ -38,25 +38,24 @@ def configurations(model: Z3Model) -> list[Configuration]:
         config_elements = {}
         block = []
 
-        for variable in variables:
-            val = m.evaluate(variable, model_completion=True)
-            if isinstance(val, z3.z3.DatatypeRef):  #  is a typed feature
-                variable_type = model.get_variable_type(str(variable))
-                if z3.is_true(m.evaluate(variable_type.is_None(variable))):
-                    value = False
-                else:
-                    typed_variable = model.get_typed_variable(str(variable))
-                    value = m.evaluate(typed_variable)
-                    if variable_type == Z3Model.OPTION_INT:
+        for feature, feature_info in model.features.items():
+            selected = m.evaluate(feature_info.sel, model_completion=True)
+            if feature_info.ftype != FeatureType.BOOLEAN:  # typed feature
+                if z3.is_true(selected):
+                    value = m.evaluate(feature_info.val, model_completion=True)
+                    block.append(feature_info.val != value)  # block the value in the next iter.
+                    if feature_info.ftype == FeatureType.INTEGER:
                         value = value.as_long()
-                    elif variable_type == Z3Model.OPTION_REAL:
+                    elif feature_info.ftype == FeatureType.REAL:
                         value = value.as_decimal(Z3Model.DEFAULT_PRECISION)
-                    elif variable_type == Z3Model.OPTION_STRING:
+                    elif feature_info.ftype == FeatureType.STRING:
                         value = value.as_string()
-            else:  # boolean feature
-                value = z3.is_true(val)
-            config_elements[str(variable)] = value
-            block.append(variable != val)
+                else:
+                    value = False  # not selected
+            else: # boolean feature
+                value = z3.is_true(selected)
+            config_elements[feature] = value
+            block.append(feature_info.sel != selected)  # block this value in the next iteration
         n_configs += 1
         config = Configuration(config_elements)
         print(f'Config. {n_configs}: {config.elements}')
@@ -64,4 +63,3 @@ def configurations(model: Z3Model) -> list[Configuration]:
         solver.add(z3.Or(block))  # block this solution
 
     return configurations
-

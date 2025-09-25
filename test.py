@@ -1,5 +1,6 @@
 from flamapy.core.discover import DiscoverMetamodels
 
+from flamapy.metamodels.fm_metamodel.transformations import UVLReader
 from flamapy.metamodels.z3_metamodel.transformations import FmToZ3
 from flamapy.metamodels.z3_metamodel.operations import (
     Z3Satisfiable,
@@ -11,18 +12,20 @@ from flamapy.metamodels.z3_metamodel.operations import (
 )
 
 
-MODEL = 'resources/models/uvl_models/Electricity.uvl'
+MODEL = 'resources/models/uvl_models/fm01_z3.uvl'
 
 
 def main():
-    dm = DiscoverMetamodels()
-    fm_model = dm.use_transformation_t2m(MODEL, 'fm')
+    fm_model = UVLReader(MODEL).transform()
     print(fm_model)
     z3_model = FmToZ3(fm_model).transform()
     print(z3_model)
 
     result = Z3Satisfiable().execute(z3_model).get_result()
     print(f'Satisfiable: {result}')
+
+    configurations = Z3Configurations().execute(z3_model).get_result()
+    raise Exception
 
     core_features = Z3CoreFeatures().execute(z3_model).get_result()
     print(f'Core features: {core_features}')
