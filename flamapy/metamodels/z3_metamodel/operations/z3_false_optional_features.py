@@ -3,11 +3,11 @@ from typing import Any, cast
 
 import z3
 
+from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import FalseOptionalFeatures
-from flamapy.metamodels.z3_metamodel.models import Z3Model
-from flamapy.metamodels.fm_metamodel.models import FeatureModel
-from flamapy.core.models import VariabilityModel, VariabilityElement
 from flamapy.core.exceptions import FlamaException
+from flamapy.metamodels.fm_metamodel.models import FeatureModel, FeatureType
+from flamapy.metamodels.z3_metamodel.models import Z3Model
 
 
 LOGGER = logging.getLogger('PySATFalseOptionalFeatures')
@@ -37,7 +37,7 @@ class Z3FalseOptionalFeatures(FalseOptionalFeatures):
 
 def get_false_optional_features(model: Z3Model, feature_model: FeatureModel) -> list[Any]:
     solver = z3.Solver()
-    solver.add(model.formulas)
+    solver.add(model.constraints)
     false_optional_features = []
 
     real_optional_features = [f for f in feature_model.get_features()
@@ -45,14 +45,8 @@ def get_false_optional_features(model: Z3Model, feature_model: FeatureModel) -> 
 
     for feature in real_optional_features:
         parent_feature = feature.get_parent()
-        parent_variable = model.get_boolean_variable(parent_feature.name)
-        variable = model.get_boolean_variable(feature.name)
-        if isinstance(variable, z3.z3.DatatypeRef):  #  is a typed feature
-            variable_type = model.get_variable_type(str(variable))
-            if solver.check([parent_variable, variable_type.is_None(variable)]) == z3.unsat:
+        parent_variable = model.features.get(parent_feature.name).sel
+        variable = model.features.get(feature.name).sel
+        if solver.check([parent_variable, z3.Not(variable)]) == z3.unsat:
                 false_optional_features.append(feature.name)
-        else:  # boolean feature
-            if solver.check([parent_variable, z3.Not(variable)]) == z3.unsat:
-                false_optional_features.append(feature.name)
-
     return false_optional_features

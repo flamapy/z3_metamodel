@@ -2,10 +2,10 @@ from typing import Any, cast
 
 import z3
 
-from flamapy.core.operations import DeadFeatures
-from flamapy.metamodels.z3_metamodel.models import Z3Model
 from flamapy.core.models import VariabilityModel
-
+from flamapy.core.operations import DeadFeatures
+from flamapy.metamodels.fm_metamodel.models import FeatureType
+from flamapy.metamodels.z3_metamodel.models import Z3Model
 
 
 class Z3DeadFeatures(DeadFeatures):
@@ -27,15 +27,11 @@ class Z3DeadFeatures(DeadFeatures):
 
 def get_dead_features(model: Z3Model) -> list[Any]:
     solver = z3.Solver()
-    solver.add(model.formulas)
+    solver.add(model.constraints)
     dead_features = []
     if solver.check() == z3.sat:
-        for variable in model.get_variables():
-            if isinstance(variable, z3.z3.DatatypeRef):  #  is a typed feature
-                variable_type = model.get_variable_type(str(variable))
-                if solver.check([variable_type.is_Some(variable)]) == z3.unsat:
-                    dead_features.append(str(variable))
-            else:  # boolean feature
-                if solver.check([variable]) == z3.unsat:
-                    dead_features.append(str(variable))
+        for feature, feature_info in model.features.items():
+            variable = feature_info.sel
+            if solver.check([variable]) == z3.unsat:
+                dead_features.append(feature)
     return dead_features

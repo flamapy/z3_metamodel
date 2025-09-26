@@ -40,7 +40,9 @@ def configurations(model: Z3Model) -> list[Configuration]:
 
         for feature, feature_info in model.features.items():
             selected = m.evaluate(feature_info.sel, model_completion=True)
-            if feature_info.ftype != FeatureType.BOOLEAN:  # typed feature
+            if feature_info.ftype == FeatureType.BOOLEAN:  # boolean feature
+                value = z3.is_true(selected)
+            else:  # typed feature
                 if z3.is_true(selected):
                     value = m.evaluate(feature_info.val, model_completion=True)
                     block.append(feature_info.val != value)  # block the value in the next iter.
@@ -52,8 +54,6 @@ def configurations(model: Z3Model) -> list[Configuration]:
                         value = value.as_string()
                 else:
                     value = False  # not selected
-            else: # boolean feature
-                value = z3.is_true(selected)
             config_elements[feature] = value
             block.append(feature_info.sel != selected)  # block this value in the next iteration
         n_configs += 1

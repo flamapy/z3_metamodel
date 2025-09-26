@@ -25,7 +25,6 @@ def main():
     print(f'Satisfiable: {result}')
 
     configurations = Z3Configurations().execute(z3_model).get_result()
-    raise Exception
 
     core_features = Z3CoreFeatures().execute(z3_model).get_result()
     print(f'Core features: {core_features}')

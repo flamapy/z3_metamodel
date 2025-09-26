@@ -31,6 +31,9 @@ from flamapy.metamodels.fm_metamodel.transformations.refactorings import (
 from flamapy.metamodels.fm_metamodel.transformations import FMSecureFeaturesNames
 
 
+LOGGER = logging.getLogger('FmToZ3')
+
+
 class FmToZ3(ModelToModel):
 
     @staticmethod
@@ -84,9 +87,9 @@ class FmToZ3(ModelToModel):
             elif isinstance(attribute.default_value, str):
                 attr_type = FeatureType.STRING
             else:
-                logging.warning("FM to Z3: Unsupported attribute type: " + 
-                                f"{type(attribute.default_value)} for attribute " +
-                                f"'{attribute.name}' in feature '{feature.name}'")
+                LOGGER.warning("FM to Z3: Unsupported attribute type: " + 
+                               f"{type(attribute.default_value)} for attribute " +
+                               f"'{attribute.name}' in feature '{feature.name}'")
                 attr_type = None
             if attr_type is not None:
                 self.destination_model.add_attribute(feature.name, 
@@ -293,12 +296,12 @@ class FmToZ3(ModelToModel):
                 right_expr = self._get_expression(node.right, node) if node.right is not None else None
                 if node.data in [ASTOperation.SUM, ASTOperation.AVG]:
                     # TODO: check if aggregate functions can be applied over features too
+                    # Obtain the list of attribute variables to aggregate
                     attributes_vars = self.destination_model.attributes.get(left_expr, None)
-                    if right_expr is not None:
+                    if right_expr is not None:  # consider only the feature subtree
                         attributes_vars = []
                         feature = self.source_model.get_feature_by_name(right_expr.name)
                         for feat in get_subtree(feature):
-                            print(f'feature in subtree: {feat}')
                             feature_attributes = self.destination_model.get_variable(feat.name).attributes
                             if left_expr in feature_attributes:
                                 attributes_vars.append(feature_attributes[left_expr]['var'])
