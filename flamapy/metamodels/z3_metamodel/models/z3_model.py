@@ -23,6 +23,9 @@ class FeatureInfo:
 
 
 class Z3Model:
+
+    DEFAULT_PRECISION = 2
+    
     def __init__(self):
         self.features: dict[str, FeatureInfo] = {}
         self.attributes: dict[str, list[Any]] = {}  # attr_name -> [z3var]

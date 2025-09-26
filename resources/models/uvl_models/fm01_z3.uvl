@@ -3,10 +3,10 @@ features
         mandatory
             Container
                 alternative
-                    Cup {price 1.5, cost {value 0.5, unit 'euro'}}
-                    Cone {price 2.0}
-                    Stick {price 1.0}
+                    Cup {Price 1.5, cost {value 0.5, unit 'euro'}}
+                    Cone {Price 2.0}
+                    Stick {Price 1.0}
         optional
-            Integer Scoops {constraint Scoops.price == 1.0 * Scoops}
+            Integer Scoops {constraint Scoops.Price == 1.0 * Scoops}
 constraints
     Scoops >= 1 & Scoops <= 3

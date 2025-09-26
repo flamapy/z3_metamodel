@@ -51,27 +51,31 @@ def optimize(model: Z3Model, attributes: dict[Attribute, OptimizationGoal]) -> l
         solver_op.maximize(total)
     configurations = []
     if solver_op.check() == z3.sat:
-        m = solver_op.model()
-        config_elements = {}
-        for feature, feature_info in model.features.items():
-            selected = m.evaluate(feature_info.sel, model_completion=True)
-            if feature_info.ftype == FeatureType.BOOLEAN:  # boolean feature
-                value = z3.is_true(selected)
-            else:  # typed feature
-                if z3.is_true(selected):
-                    value = m.evaluate(feature_info.val, model_completion=True)
-                    if feature_info.ftype == FeatureType.INTEGER:
-                        value = value.as_long()
-                    elif feature_info.ftype == FeatureType.REAL:
-                        value = value.as_decimal(Z3Model.DEFAULT_PRECISION)
-                    elif feature_info.ftype == FeatureType.STRING:
-                        value = value.as_string()
-                else:
-                    value = False  # not selected
-            config_elements[feature] = value
-        config = Configuration(config_elements)
+        solution_model = solver_op.model()
+        config = extract_configuration(model, solution_model)
         configurations.append(config)
     return configurations
+
+
+def extract_configuration(model: Z3Model, solution_model: z3.ModelRef) -> Configuration:
+    config_elements = {}
+    for feature, feature_info in model.features.items():
+        selected = solution_model.evaluate(feature_info.sel, model_completion=True)
+        if feature_info.ftype == FeatureType.BOOLEAN:  # boolean feature
+            value = z3.is_true(selected)
+        else:  # typed feature
+            if z3.is_true(selected):
+                value = solution_model.evaluate(feature_info.val, model_completion=True)
+                if feature_info.ftype == FeatureType.INTEGER:
+                    value = value.as_long()
+                elif feature_info.ftype == FeatureType.REAL:
+                    value = value.as_decimal(Z3Model.DEFAULT_PRECISION)
+                elif feature_info.ftype == FeatureType.STRING:
+                    value = value.as_string()
+            else:
+                value = False  # not selected
+        config_elements[feature] = value
+    return Configuration(config_elements)
 
 
 def sum_attribute(model: Z3Model, attr_name: str) -> z3.ArithRef:
