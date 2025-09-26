@@ -43,7 +43,7 @@ def main():
     attribute = fm_model.get_attribute_by_name('price')
     attribute_optimization_op.set_attributes({attribute: OptimizationGoal.MAXIMIZE})
     configurations = attribute_optimization_op.execute(z3_model).get_result()
-    print(f'Configurations {OptimizationGoal.MAXIMIZE.name} {attribute.name}: {len(configurations)} configs.')
+    print(f'Configurations minimizing {attribute.name}: {len(configurations)}')
     for i, config in enumerate(configurations, 1):
         print(f'Config. {i}: {config.elements}')
     raise Exception

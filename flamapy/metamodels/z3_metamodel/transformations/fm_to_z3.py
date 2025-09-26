@@ -214,11 +214,20 @@ class FmToZ3(ModelToModel):
                             raise FlamaException(f'Unsupported operator: {parent.data}')
                     else:  # is not a feature, so it may be an attribute
                         if '.' in node.data:  # attribute of a feature
-                            feature_name, attr_name = find_feature_and_attribute(node.data)
+                            feature_name, attr_name = find_feature_and_attribute(self.destination_model, node.data)
                             feature_info = self.destination_model.get_variable(feature_name)
                             attribute_info = feature_info.attributes.get(attr_name, None)
                             if attribute_info is not None:
                                 expr = attribute_info['var']
+                            else:
+                                attribute = self.source_model.get_attribute_by_name(attr_name)
+                                if attribute is not None:
+                                    expr = self.destination_model.add_attribute(feature_name, 
+                                                                                attr_name, 
+                                                                                attribute.attribute_type, 
+                                                                                None)
+                                else:
+                                    expr = node.data
                         else:
                             expr = node.data
                             # if feature_info is None:
@@ -310,7 +319,7 @@ def is_valid_attribute(model: Z3Model, name: str) -> bool:
     return name in model.attributes
 
 
-def find_feature_and_attribute(identifier: str) -> Optional[tuple[str, str]]:
+def find_feature_and_attribute(model: Z3Model, identifier: str) -> Optional[tuple[str, str]]:
     parts = identifier.split('.')
     n = len(parts)
     if n == 0:
@@ -320,7 +329,7 @@ def find_feature_and_attribute(identifier: str) -> Optional[tuple[str, str]]:
         feature = ".".join(feature_parts)
         attribute_parts = parts[i:]
         attribute = ".".join(attribute_parts)
-        if is_valid_feature(feature) and is_valid_attribute(attribute):
+        if is_valid_feature(model, feature) and is_valid_attribute(model, attribute):
             return (feature, attribute)
     return None
 

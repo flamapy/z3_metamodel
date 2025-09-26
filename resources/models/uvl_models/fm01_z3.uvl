@@ -7,7 +7,6 @@ features
                     Cone {price 2.0}
                     Stick {price 1.0}
         optional
-            Integer Scoops {price 1.0}
+            Integer Scoops {constraint Scoops.price == 1.0 * Scoops}
 constraints
     Scoops >= 1 & Scoops <= 3
-    sum(price) == 2.5

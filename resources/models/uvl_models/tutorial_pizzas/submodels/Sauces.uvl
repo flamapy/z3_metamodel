@@ -1,0 +1,8 @@
+features
+    Sauces
+        or
+            BBQ
+            Yogurt
+            Sriracha
+constraints
+    BBQ => !Sriracha
