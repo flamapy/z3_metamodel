@@ -8,8 +8,10 @@ from flamapy.metamodels.z3_metamodel.operations import (
     Z3ConfigurationsNumber,
     Z3CoreFeatures,
     Z3DeadFeatures,
-    Z3FalseOptionalFeatures
+    Z3FalseOptionalFeatures,
+    Z3AttributeOptimization
 )
+from flamapy.metamodels.z3_metamodel.operations.interfaces import OptimizationGoal
 
 
 MODEL = 'resources/models/uvl_models/fm01_z3.uvl'
@@ -25,6 +27,8 @@ def main():
     print(f'Satisfiable: {result}')
 
     configurations = Z3Configurations().execute(z3_model).get_result()
+    for i, config in enumerate(configurations, 1):
+        print(f'Config. {i}: {config.elements}')
 
     core_features = Z3CoreFeatures().execute(z3_model).get_result()
     print(f'Core features: {core_features}')
@@ -35,6 +39,13 @@ def main():
     false_optional_features = Z3FalseOptionalFeatures().execute(z3_model).get_result()
     print(f'False optional features: {false_optional_features}')
 
+    attribute_optimization_op = Z3AttributeOptimization()
+    attribute = fm_model.get_attribute_by_name('price')
+    attribute_optimization_op.set_attributes({attribute: OptimizationGoal.MAXIMIZE})
+    configurations = attribute_optimization_op.execute(z3_model).get_result()
+    print(f'Configurations minimizing {attribute.name}: {len(configurations)}')
+    for i, config in enumerate(configurations, 1):
+        print(f'Config. {i}: {config.elements}')
     raise Exception
 
     configurations = Z3Configurations().execute(z3_model).get_result()

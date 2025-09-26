@@ -78,23 +78,10 @@ class FmToZ3(ModelToModel):
 
     def _declare_attributes(self, feature: Feature) -> None:
         for attribute in feature.get_attributes():
-            if isinstance(attribute.default_value, bool):
-                attr_type = FeatureType.BOOLEAN
-            elif isinstance(attribute.default_value, int):
-                attr_type = FeatureType.INTEGER
-            elif isinstance(attribute.default_value, float):
-                attr_type = FeatureType.REAL
-            elif isinstance(attribute.default_value, str):
-                attr_type = FeatureType.STRING
-            else:
-                LOGGER.warning("FM to Z3: Unsupported attribute type: " + 
-                               f"{type(attribute.default_value)} for attribute " +
-                               f"'{attribute.name}' in feature '{feature.name}'")
-                attr_type = None
-            if attr_type is not None:
+            if attribute.attribute_type is not None:
                 self.destination_model.add_attribute(feature.name, 
                                                      attribute.name, 
-                                                     attr_type, 
+                                                     attribute.attribute_type, 
                                                      attribute.default_value)
 
     def _traverse_feature_tree(self) -> None:

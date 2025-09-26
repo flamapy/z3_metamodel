@@ -58,8 +58,8 @@ def configurations(model: Z3Model) -> list[Configuration]:
             block.append(feature_info.sel != selected)  # block this value in the next iteration
         n_configs += 1
         config = Configuration(config_elements)
-        print(f'Config. {n_configs}: {config.elements}')
-        configurations.append(Configuration(config_elements))
+        #print(f'Config. {n_configs}: {config.elements}')
+        configurations.append(config)
         solver.add(z3.Or(block))  # block this solution
 
     return configurations

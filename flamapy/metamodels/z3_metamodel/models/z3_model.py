@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Optional
 from dataclasses import dataclass
 
@@ -6,7 +7,10 @@ import z3
 from flamapy.core.exceptions import FlamaException
 from flamapy.core.models import VariabilityModel, ASTOperation
 
-from flamapy.metamodels.fm_metamodel.models import FeatureType
+from flamapy.metamodels.fm_metamodel.models import FeatureType, AttributeType
+
+
+LOGGER = logging.getLogger('Z3Model')
 
 
 @dataclass
@@ -25,15 +29,15 @@ class Z3Model:
         self.constraints = []  # list of z3 expressions
         self.original_model: Optional[VariabilityModel] = None
 
-    def _const(self, ftype: FeatureType, value: Any) -> Any:
+    def _const(self, ftype: FeatureType | AttributeType, value: Any) -> Any:
         """Helper to create a Z3 constant of the given type with the given value."""
-        if ftype == FeatureType.INTEGER:
+        if ftype in [FeatureType.INTEGER, AttributeType.INTEGER]:
             return z3.IntVal(int(value))
-        if ftype == FeatureType.REAL:
+        if ftype in [FeatureType.REAL, AttributeType.REAL]:
             return z3.RealVal(float(value))
-        if ftype == FeatureType.STRING:
+        if ftype in [FeatureType.STRING, AttributeType.STRING]:
             return z3.StringVal(str(value))
-        if ftype == FeatureType.BOOLEAN:
+        if ftype in [FeatureType.BOOLEAN, AttributeType.BOOLEAN]:
             return z3.BoolVal(bool(value))
         raise ValueError("Unsupported type")
 
@@ -93,35 +97,39 @@ class Z3Model:
     def add_attribute(self, 
                       feature_name: str, 
                       attr_name: str, 
-                      attr_type: FeatureType, 
+                      attr_type: AttributeType, 
                       const_value: Optional[Any]=None):
         """Add an attribute to a feature (attributes are typed variables)."""
         if feature_name not in self.features:
             raise KeyError(feature_name)
         info = self.features[feature_name]
         var_name = f"{feature_name}.{attr_name}"
-        if attr_type == FeatureType.INTEGER:
+        if attr_type == AttributeType.INTEGER:
             var = z3.Int(var_name)
-        elif attr_type == FeatureType.REAL:
+        elif attr_type == AttributeType.REAL:
             var = z3.Real(var_name)
-        elif attr_type == FeatureType.STRING:
+        elif attr_type == AttributeType.STRING:
             var = z3.String(var_name)
-        elif attr_type == FeatureType.BOOLEAN:
+        elif attr_type == AttributeType.BOOLEAN:
             var = z3.Bool(var_name)
+        elif attr_type == AttributeType.NESTED:
+            LOGGER.warning(f"Warning: Attribute {var_name} has NESTED type, which is not currently supported in Z3Model. Ignored.")
+            var = None
         else:
             raise ValueError("Unsupported attribute type")
 
-        info.attributes[attr_name] = {"var": var, "type": attr_type}
+        if var is not None:
+            info.attributes[attr_name] = {"var": var, "type": attr_type}
 
-        # Create a global record of attributes as well to easy access attributes by name
-        if attr_name not in self.attributes:
-            self.attributes[attr_name] = []
-        self.attributes[attr_name].append(var)
+            # Create a global record of attributes as well to easy access attributes by name
+            if attr_name not in self.attributes:
+                self.attributes[attr_name] = []
+            self.attributes[attr_name].append(var)
 
-        # If a const_value is given, it is imposed when the feature is selected.
-        if const_value is not None:
-            const_expr = self._const(attr_type, const_value)
-            self.constraints.append(z3.Implies(info.sel, var == const_expr))
+            # If a const_value is given, it is imposed when the feature is selected.
+            if const_value is not None:
+                const_expr = self._const(attr_type, const_value)
+                self.constraints.append(z3.Implies(info.sel, var == const_expr))
 
         return var
 
