@@ -1,4 +1,4 @@
-from typing import Any, cast
+from typing import cast
 
 import z3
 
@@ -62,7 +62,7 @@ def optimize_pareto(z3_model: Z3Model,
 def optimize_single_objective(z3_model: Z3Model,
                               attribute: Attribute,
                               goal: OptimizationGoal
-                              ) -> list[tuple[Configuration, dict[str, Any]]]:
+                              ) -> list[tuple[Configuration, dict[str, int | float]]]:
     """Return all configurations achieving the optimal value of a single numerical attribute."""
     expr = sum_attribute(z3_model, attribute.name)
     solver_opt = z3.Optimize()
@@ -89,12 +89,12 @@ def optimize_single_objective(z3_model: Z3Model,
     solver_enum.add(z3_model.constraints)
     solver_enum.add(expr == opt_val)
 
-    results: list[tuple[Configuration, dict[str, float]]] = []
+    results: list[tuple[Configuration, dict[str, int | float]]] = []
 
     while solver_enum.check() == z3.sat:
         m = solver_enum.model()
         val = m.evaluate(expr, model_completion=True)
-        val = _z3_to_float(val)
+        val = _z3_to_number(val)
         config, block = extract_configuration(z3_model, m)
         results.append((config, {attribute.name: val}))
         solver_enum.add(z3.Or(block))
@@ -104,12 +104,12 @@ def optimize_single_objective(z3_model: Z3Model,
 
 def optimize_multi_objective(z3_model: Z3Model,
                              attributes: dict[Attribute, OptimizationGoal]
-                             ) -> list[tuple[Configuration, dict[str, Any]]]:
+                             ) -> list[tuple[Configuration, dict[str, int | float]]]:
     """Compute the Pareto front of non-dominated configurations."""
     objectives = [(attr.name, sum_attribute(z3_model, attr.name), goal)
                   for attr, goal in attributes.items()]
-    
-    pareto_solutions: list[tuple[Configuration, dict[str, float]]] = []
+
+    pareto_solutions: list[tuple[Configuration, dict[str, int | float]]] = []
 
     solver = z3.Optimize()
     solver.add(z3_model.constraints)
@@ -121,7 +121,7 @@ def optimize_multi_objective(z3_model: Z3Model,
         attr_values: dict[str, float] = {}
         for name, expr, goal in objectives:
             val = m.evaluate(expr, model_completion=True)
-            attr_values[name] = _z3_to_float(val)
+            attr_values[name] = _z3_to_number(val)
 
         # Extract configuration
         config, _ = extract_configuration(z3_model, m)
@@ -140,14 +140,20 @@ def optimize_multi_objective(z3_model: Z3Model,
     return pareto_solutions
 
 
-def _z3_to_float(val: z3.ExprRef) -> float:
-    """Convert Z3 numeric value to Python float safely."""
+def _z3_to_number(val: z3.ExprRef) -> int | float:
+    """Convert Z3 numeric value to Python float or int safely."""
+    # 1. Manage real values (RealSort) from Z3
     if hasattr(val, "as_decimal"):
         return float(val.as_decimal(10).rstrip('?'))
+    # 2. Manage integer values (IntSort) from Z3
     elif hasattr(val, "as_long"):
-        return float(val.as_long())
+        return val.as_long()
+    # 3. Fallback (for simple or literal values)
+    elif hasattr(val, "numeral_as_long"):
+        return val.numeral_as_long()
+    # Fallback to float if unknown numeric type
     else:
-        return float(val.numeral_as_long())
+        return float(val.as_string()) # Forced conversion if all else fails
 
 
 def sum_attribute(model: Z3Model, attr_name: str) -> z3.ArithRef:

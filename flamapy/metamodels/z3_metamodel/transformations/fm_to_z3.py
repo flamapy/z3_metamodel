@@ -41,7 +41,7 @@ class FmToZ3(ModelToModel):
 
     def __init__(self, source_model: FeatureModel) -> None:
         self.source_model = source_model
-        self.destination_model: Optional[Z3Model] = None
+        self.destination_model: Z3Model = Z3Model()
         self._counter: int = 0
 
     def transform(self) -> Z3Model:
@@ -51,7 +51,6 @@ class FmToZ3(ModelToModel):
             feature_model = FlatFM(feature_model).transform()
         self.source_model = feature_model
 
-        self.destination_model = Z3Model()
         self.destination_model.original_model = self.source_model
         self._declare_features()
         self._traverse_feature_tree()
@@ -82,7 +81,10 @@ class FmToZ3(ModelToModel):
             return None
         # The root is always present
         root_feature = self.source_model.root
-        formula = (self.destination_model.get_variable(root_feature.name).sel)
+        variable = self.destination_model.get_variable(root_feature.name)
+        if variable is None:
+            raise FlamaException(f'Unsupported root feature: {root_feature.name}')
+        formula = variable.sel
         self.destination_model.add_constraint(formula)
         features = [root_feature]
         while features:
@@ -110,29 +112,55 @@ class FmToZ3(ModelToModel):
             self._add_cardinality_formula(relation)
 
     def _add_mandatory_formula(self, relation: Relation) -> None:
-        parent = self.destination_model.get_variable(relation.parent.name).sel
-        child = self.destination_model.get_variable(relation.children[0].name).sel
+        parent_variable = self.destination_model.get_variable(relation.parent.name)
+        if parent_variable is None:
+            raise FlamaException(f'Unsupported feature: {relation.parent.name}')
+        parent = parent_variable.sel
+        child_variable = self.destination_model.get_variable(relation.children[0].name)
+        if child_variable is None:
+            raise FlamaException(f'Unsupported feature: {relation.children[0].name}')
+        child = child_variable.sel
         formula = (parent == child)
         self.destination_model.add_constraint(formula)
 
     def _add_optional_formula(self, relation: Relation) -> None:
-        parent = self.destination_model.get_variable(relation.parent.name).sel
-        child = self.destination_model.get_variable(relation.children[0].name).sel
+        parent_variable = self.destination_model.get_variable(relation.parent.name)
+        if parent_variable is None:
+            raise FlamaException(f'Unsupported feature: {relation.parent.name}')
+        parent = parent_variable.sel
+        child_variable = self.destination_model.get_variable(relation.children[0].name)
+        if child_variable is None:
+            raise FlamaException(f'Unsupported feature: {relation.children[0].name}')
+        child = child_variable.sel
         formula = z3.Implies(child, parent)
         self.destination_model.add_constraint(formula)
 
     def _add_or_formula(self, relation: Relation) -> None:
-        parent = self.destination_model.get_variable(relation.parent.name).sel
-        children = [self.destination_model.get_variable(child.name).sel
-                    for child in relation.children]
+        parent_variable = self.destination_model.get_variable(relation.parent.name)
+        if parent_variable is None:
+            raise FlamaException(f'Unsupported feature: {relation.parent.name}')
+        parent = parent_variable.sel
+        children = []
+        for child in relation.children:
+            child_variable = self.destination_model.get_variable(child.name)
+            if child_variable is None:
+                raise FlamaException(f'Unsupported feature: {child.name}')
+            children.append(child_variable.sel)
         formula = (parent == z3.Or(*children))
         self.destination_model.add_constraint(formula)
 
     def _add_alternative_formula(self, relation: Relation) -> None:
         formulas = []
-        parent = self.destination_model.get_variable(relation.parent.name).sel
-        children = [self.destination_model.get_variable(child.name).sel
-                    for child in relation.children]
+        parent_variable = self.destination_model.get_variable(relation.parent.name)
+        if parent_variable is None:
+            raise FlamaException(f'Unsupported feature: {relation.parent.name}')
+        parent = parent_variable.sel
+        children = []
+        for child in relation.children:
+            child_variable = self.destination_model.get_variable(child.name)
+            if child_variable is None:
+                raise FlamaException(f'Unsupported feature: {child.name}')
+            children.append(child_variable.sel)
         for child in children:
             children_negatives = set(children) - {child}
             formula = (child == z3.And([z3.Not(ch) for ch in children_negatives] + [parent]))
@@ -142,9 +170,16 @@ class FmToZ3(ModelToModel):
 
     def _add_mutex_formula(self, relation: Relation) -> None:
         formulas = []
-        parent = self.destination_model.get_variable(relation.parent.name).sel
-        children = {self.destination_model.get_variable(child.name).sel
-                    for child in relation.children}
+        parent_variable = self.destination_model.get_variable(relation.parent.name)
+        if parent_variable is None:
+            raise FlamaException(f'Unsupported feature: {relation.parent.name}')
+        parent = parent_variable.sel
+        children = set()
+        for child in relation.children:
+            child_variable = self.destination_model.get_variable(child.name)
+            if child_variable is None:
+                raise FlamaException(f'Unsupported feature: {child.name}')
+            children.add(child_variable.sel)
         for child in children:
             children_negatives = children - {child}
             formula = (child == z3.And([z3.Not(ch) for ch in children_negatives] + [parent]))
@@ -154,9 +189,16 @@ class FmToZ3(ModelToModel):
         self.destination_model.add_constraint(formula)
 
     def _add_cardinality_formula(self, relation: Relation) -> None:
-        parent = self.destination_model.get_variable(relation.parent.name).sel
-        children = {self.destination_model.get_variable(child.name).sel
-                    for child in relation.children}
+        parent_variable = self.destination_model.get_variable(relation.parent.name)
+        if parent_variable is None:
+            raise FlamaException(f'Unsupported feature: {relation.parent.name}')
+        parent = parent_variable.sel
+        children = set()
+        for child in relation.children:
+            child_variable = self.destination_model.get_variable(child.name)
+            if child_variable is None:
+                raise FlamaException(f'Unsupported feature: {child.name}')
+            children.add(child_variable.sel)
         or_ctc = []
         for k in range(relation.card_min, relation.card_max + 1):
             combi_k = list(itertools.combinations(children, k))
@@ -205,8 +247,16 @@ class FmToZ3(ModelToModel):
                             raise FlamaException(f'Unsupported operator: {parent.data}')
                     else:  # is not a feature, so it may be an attribute
                         if '.' in node.data:  # attribute of a feature
-                            feature_name, attr_name = find_feature_and_attribute(self.destination_model, node.data)
+                            feature_attribute = find_feature_and_attribute(self.destination_model, 
+                                                                           node.data)
+                            if feature_attribute is None:
+                                raise FlamaException('Unsupported feature or attribute: ' \
+                                                     f'{node.data}')
+                            feature_name, attr_name = feature_attribute
                             feature_info = self.destination_model.get_variable(feature_name)
+                            if feature_info is None:
+                                raise FlamaException('Unsupported feature in attribute: ' \
+                                                     f'{feature_name}')
                             attribute_info = feature_info.attributes.get(attr_name, None)
                             if attribute_info is not None:
                                 expr = attribute_info['var']
@@ -218,9 +268,9 @@ class FmToZ3(ModelToModel):
                                                                                 attribute.attribute_type, 
                                                                                 None)
                                 else:
-                                    expr = node.data
+                                    expr = z3.StringVal(node.data)
                         else:
-                            expr = node.data
+                            expr = z3.StringVal(node.data)
                             # if feature_info is None:
                             #     raise FlamaException(f'Unsupported feature in attribute: {feature_name}')
                             # attr_info = feature_info.attributes.get(attr_name, None)
@@ -289,12 +339,17 @@ class FmToZ3(ModelToModel):
                         attributes_vars = []
                         feature = self.source_model.get_feature_by_name(right_expr.name)
                         for feat in get_subtree(feature):
-                            feature_attributes = self.destination_model.get_variable(feat.name).attributes
+                            variable = self.destination_model.get_variable(feat.name)
+                            if variable is None:
+                                raise FlamaException(f'Unsupported feature: {feat.name}')
+                            feature_attributes = variable.attributes
                             if left_expr in feature_attributes:
                                 attributes_vars.append(feature_attributes[left_expr]['var'])
                     if node.data == ASTOperation.SUM:
                         expr = z3.Sum(attributes_vars)
                     elif node.data == ASTOperation.AVG:
+                        if attributes_vars is None or len(attributes_vars) == 0:
+                            raise FlamaException('Cannot compute average over empty set')
                         expr = z3.Sum(attributes_vars) / len(attributes_vars)
                 #elif node.data in [ASTOperation.LEN]:
                 else:

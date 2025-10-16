@@ -4,7 +4,6 @@ import z3
 
 from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import CoreFeatures
-from flamapy.metamodels.fm_metamodel.models import FeatureType
 from flamapy.metamodels.z3_metamodel.models import Z3Model
 
 

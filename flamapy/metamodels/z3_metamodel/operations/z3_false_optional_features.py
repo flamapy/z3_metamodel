@@ -6,7 +6,7 @@ import z3
 from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import FalseOptionalFeatures
 from flamapy.core.exceptions import FlamaException
-from flamapy.metamodels.fm_metamodel.models import FeatureModel, FeatureType
+from flamapy.metamodels.fm_metamodel.models import FeatureModel
 from flamapy.metamodels.z3_metamodel.models import Z3Model
 
 
@@ -45,8 +45,14 @@ def get_false_optional_features(model: Z3Model, feature_model: FeatureModel) -> 
 
     for feature in real_optional_features:
         parent_feature = feature.get_parent()
-        parent_variable = model.features.get(parent_feature.name).sel
-        variable = model.features.get(feature.name).sel
+        parent_variable = model.features.get(parent_feature.name)
+        if parent_variable is None:
+            raise FlamaException(f'Unsupported feature: {parent_feature.name}')
+        parent_variable = parent_variable.sel
+        variable = model.features.get(feature.name)
+        if variable is None:
+            raise FlamaException(f'Unsupported feature: {feature.name}')
+        variable = variable.sel
         if solver.check([parent_variable, z3.Not(variable)]) == z3.unsat:
                 false_optional_features.append(feature.name)
     return false_optional_features
