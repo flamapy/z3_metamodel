@@ -1,0 +1,24 @@
+features
+	Pizza {constraint Pizza.Price == sum(Price, Pizza)}
+		mandatory
+			Base {abstract}
+				mandatory
+					Mozzarella
+					Oregano
+				optional
+					Tomato
+		optional
+			Ingredients {abstract}
+				[1..6]
+					"York ham" {Price 1.00}
+					Mushrooms {Price 1.00}
+					Peppers {Price 1.00}
+			Size {abstract}
+				alternative
+					Normal {Price 6.00} 
+					Big {Price 8.50}
+					Integer Portions {constraints [Portions.Price == Portions * 2.00, 1 <= Portions & Portions < 8]}
+			Vegan
+			Calzone {Price 9.00}
+constraints
+	Calzone => !Size & !Calzone => Size

@@ -1,6 +1,7 @@
 from flamapy.core.discover import DiscoverMetamodels
 
 from flamapy.metamodels.fm_metamodel.transformations import UVLReader
+from flamapy.metamodels.fm_metamodel.operations import FMEvaluateAttribute
 from flamapy.metamodels.z3_metamodel.transformations import FmToZ3
 from flamapy.metamodels.z3_metamodel.operations import (
     Z3Satisfiable,
@@ -13,9 +14,9 @@ from flamapy.metamodels.z3_metamodel.operations import (
 )
 from flamapy.metamodels.z3_metamodel.operations.interfaces import OptimizationGoal
 
-
-MODEL = 'resources/models/uvl_models/fm01_z3.uvl'
-
+MODEL = 'resources/models/uvl_models/fm02_z3.uvl'
+#MODEL = 'resources/models/uvl_models/fm02_z3.uvl'
+#MODEL = 'resources/models/uvl_models/tutorial_pizzas/Pizzas_01.uvl'
 
 def main():
     fm_model = UVLReader(MODEL).transform()
@@ -27,6 +28,7 @@ def main():
     print(f'Satisfiable: {result}')
 
     configurations = Z3Configurations().execute(z3_model).get_result()
+    print(f'Configurations: {len(configurations)}')
     for i, config in enumerate(configurations, 1):
         print(f'Config. {i}: {config.elements}')
 
@@ -40,12 +42,17 @@ def main():
     print(f'False optional features: {false_optional_features}')
 
     attribute_optimization_op = Z3AttributeOptimization()
-    attribute = fm_model.get_attribute_by_name('price')
-    attribute_optimization_op.set_attributes({attribute: OptimizationGoal.MAXIMIZE})
-    configurations = attribute_optimization_op.execute(z3_model).get_result()
-    print(f'Configurations {OptimizationGoal.MAXIMIZE.name} {attribute.name}: {len(configurations)} configs.')
-    for i, config in enumerate(configurations, 1):
-        print(f'Config. {i}: {config.elements}')
+    attr_price = fm_model.get_attribute_by_name('Price')
+    attr_cost = fm_model.get_attribute_by_name('Cost')
+    attributes = {attr_price: OptimizationGoal.MAXIMIZE,
+                  attr_cost: OptimizationGoal.MINIMIZE}
+    attribute_optimization_op.set_attributes(attributes)
+    configurations_with_values = attribute_optimization_op.execute(z3_model).get_result()
+    print(f'Optimum configurations: {len(configurations_with_values)} configs.')
+    for i, config_value in enumerate(configurations_with_values, 1):
+        config, values = config_value
+        values_str = ', '.join(f'{k}={v}' for k,v in values.items())
+        print(f'Config. {i}: {config.elements} | Values: {values_str}')
     raise Exception
 
     configurations = Z3Configurations().execute(z3_model).get_result()

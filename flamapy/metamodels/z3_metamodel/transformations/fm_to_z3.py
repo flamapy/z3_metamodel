@@ -1,7 +1,6 @@
 import itertools
-import copy
 import logging
-from typing import Any, Optional
+from typing import Optional
 
 import z3
 
@@ -25,10 +24,6 @@ from flamapy.metamodels.fm_metamodel.models import (
 
 from flamapy.metamodels.z3_metamodel.models import Z3Model
 from flamapy.metamodels.fm_metamodel.transformations import FlatFM
-from flamapy.metamodels.fm_metamodel.transformations.refactorings import (
-    FeatureCardinalityRefactoring
-)
-from flamapy.metamodels.fm_metamodel.transformations import FMSecureFeaturesNames
 
 
 LOGGER = logging.getLogger('FmToZ3')
@@ -54,10 +49,6 @@ class FmToZ3(ModelToModel):
         feature_model = self.source_model
         if feature_model.imports:
             feature_model = FlatFM(feature_model).transform()
-        # Apply the feature cardinality refactoring to the source model
-        if FeatureCardinalityRefactoring(feature_model).is_applicable():
-            feature_model = copy.deepcopy(feature_model)
-            feature_model = FeatureCardinalityRefactoring(feature_model).transform()
         self.source_model = feature_model
 
         self.destination_model = Z3Model()
