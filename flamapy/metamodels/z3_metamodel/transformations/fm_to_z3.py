@@ -51,6 +51,7 @@ class FmToZ3(ModelToModel):
             feature_model = FlatFM(feature_model).transform()
         self.source_model = feature_model
 
+        self.destination_model = Z3Model()
         self.destination_model.original_model = self.source_model
         self._declare_features()
         self._traverse_feature_tree()

@@ -28,6 +28,7 @@ class Z3Model:
     def __init__(self) -> None:
         self.features: dict[str, FeatureInfo] = {}
         self.attributes: dict[str, list[Any]] = {}  # attr_name -> [z3var]
+        self.attributes_types: dict[str, AttributeType] = {}  # attr_name -> AttributeType
         self.constraints: list[Any] = []  # list of z3 expressions
         self.original_model: Optional[VariabilityModel] = None
 
@@ -135,6 +136,7 @@ class Z3Model:
 
             # Create a global record of attributes as well to easy access attributes by name
             if attr_name not in self.attributes:
+                self.attributes_types[attr_name] = attr_type
                 self.attributes[attr_name] = []
             self.attributes[attr_name].append(var)
 

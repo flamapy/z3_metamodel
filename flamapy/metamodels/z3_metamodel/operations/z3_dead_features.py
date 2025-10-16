@@ -25,12 +25,15 @@ class Z3DeadFeatures(DeadFeatures):
 
 
 def get_dead_features(model: Z3Model) -> list[Any]:
-    solver = z3.Solver()
-    solver.add(model.constraints)
+    context = z3.Context()
+    solver = z3.Solver(ctx=context)
+    constraints = [ctc.translate(context) for ctc in model.constraints]
+    solver.add(constraints)
+
     dead_features = []
     if solver.check() == z3.sat:
         for feature, feature_info in model.features.items():
-            variable = feature_info.sel
+            variable = feature_info.sel.translate(context)  # Translate to the new context
             if solver.check([variable]) == z3.unsat:
                 dead_features.append(feature)
     return dead_features

@@ -1,7 +1,5 @@
-from flamapy.core.discover import DiscoverMetamodels
 
 from flamapy.metamodels.fm_metamodel.transformations import UVLReader
-from flamapy.metamodels.fm_metamodel.operations import FMEvaluateAttribute
 from flamapy.metamodels.z3_metamodel.transformations import FmToZ3
 from flamapy.metamodels.z3_metamodel.operations import (
     Z3Satisfiable,
@@ -14,9 +12,9 @@ from flamapy.metamodels.z3_metamodel.operations import (
 )
 from flamapy.metamodels.z3_metamodel.operations.interfaces import OptimizationGoal
 
-MODEL = 'resources/models/uvl_models/fm02_z3.uvl'
-#MODEL = 'resources/models/uvl_models/fm02_z3.uvl'
-#MODEL = 'resources/models/uvl_models/tutorial_pizzas/Pizzas_01.uvl'
+
+MODEL = 'resources/models/uvl_models/icecream_attributes.uvl'
+
 
 def main():
     fm_model = UVLReader(MODEL).transform()
@@ -31,6 +29,9 @@ def main():
     print(f'Configurations: {len(configurations)}')
     for i, config in enumerate(configurations, 1):
         print(f'Config. {i}: {config.elements}')
+    
+    n_configs = Z3ConfigurationsNumber().execute(z3_model).get_result()
+    print(f'Configurations number: {n_configs}')
 
     core_features = Z3CoreFeatures().execute(z3_model).get_result()
     print(f'Core features: {core_features}')
@@ -42,10 +43,8 @@ def main():
     print(f'False optional features: {false_optional_features}')
 
     attribute_optimization_op = Z3AttributeOptimization()
-    attr_price = fm_model.get_attribute_by_name('Price')
-    attr_cost = fm_model.get_attribute_by_name('Cost')
-    attributes = {attr_price: OptimizationGoal.MAXIMIZE,
-                  attr_cost: OptimizationGoal.MINIMIZE}
+    attributes = {'Price': OptimizationGoal.MAXIMIZE,
+                  'Cost': OptimizationGoal.MINIMIZE}
     attribute_optimization_op.set_attributes(attributes)
     configurations_with_values = attribute_optimization_op.execute(z3_model).get_result()
     print(f'Optimum configurations: {len(configurations_with_values)} configs.')
@@ -53,21 +52,6 @@ def main():
         config, values = config_value
         values_str = ', '.join(f'{k}={v}' for k,v in values.items())
         print(f'Config. {i}: {config.elements} | Values: {values_str}')
-    raise Exception
-
-    configurations = Z3Configurations().execute(z3_model).get_result()
-    print(f'Configurations: {len(configurations)}')
-    for i, config in enumerate(configurations, 1):
-        features_str = []
-        for f,v in config.elements.items():
-            if isinstance(v, bool) and v:
-                features_str.append(str(f))
-            elif v:
-                features_str.append(f'{f}={v}')
-        print(f'{i}: {", ".join(features_str)}')
-
-    n_configs = Z3ConfigurationsNumber().execute(z3_model).get_result()
-    print(f'Configurations number: {n_configs}')
 
 
 if __name__ == "__main__":

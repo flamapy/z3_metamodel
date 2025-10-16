@@ -28,8 +28,10 @@ class Z3Configurations(Configurations):
 
 
 def configurations(model: Z3Model) -> list[Configuration]:
-    solver = z3.Solver()
-    solver.add(model.constraints)
+    context = z3.Context()
+    solver = z3.Solver(ctx=context)
+    constraints = [ctc.translate(context) for ctc in model.constraints]
+    solver.add(constraints)
 
     configurations = []
     n_configs = 0
@@ -39,14 +41,19 @@ def configurations(model: Z3Model) -> list[Configuration]:
         block = []
 
         for feature, feature_info in model.features.items():
-            selected = m.evaluate(feature_info.sel, model_completion=True)
-            block.append(feature_info.sel != selected)  # block this value in the next iteration
+            sel = feature_info.sel.translate(context)  # Translate to the new context
+            selected = m.evaluate(sel, model_completion=True)
+            block.append(sel != selected)  # block this value in the next iteration
             if feature_info.ftype == FeatureType.BOOLEAN:  # boolean feature
                 value = z3.is_true(selected)
             else:  # typed feature
                 if z3.is_true(selected):
-                    value = m.evaluate(feature_info.val, model_completion=True)
-                    block.append(feature_info.val != value)  # block the value in the next iter.
+                    val_expr = feature_info.val
+                    if val_expr is None:
+                        raise ValueError(f'Feature {feature} has no value expression.')
+                    val_expr = val_expr.translate(context)  # Translate to the new context
+                    value = m.evaluate(val_expr, model_completion=True)
+                    block.append(val_expr != value)  # block the value in the next iter.
                     if feature_info.ftype == FeatureType.INTEGER:
                         value = value.as_long()
                     elif feature_info.ftype == FeatureType.REAL:
@@ -61,5 +68,4 @@ def configurations(model: Z3Model) -> list[Configuration]:
         #print(f'Config. {n_configs}: {config.elements}')
         configurations.append(config)
         solver.add(z3.Or(block))  # block this solution
-
     return configurations
