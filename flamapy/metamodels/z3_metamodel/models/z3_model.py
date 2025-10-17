@@ -128,6 +128,10 @@ class Z3Model:
             LOGGER.warning(f"Warning: Attribute {var_name} has NESTED type, " \
                            "which is not currently supported in Z3Model. Ignored.")
             var = None
+        elif attr_type == AttributeType.VECTOR:
+            LOGGER.warning(f"Warning: Attribute {var_name} has VECTOR type, " \
+                           "which is not currently supported in Z3Model. Ignored.")
+            var = None
         else:
             raise ValueError("Unsupported attribute type")
 
