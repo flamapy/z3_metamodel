@@ -8,13 +8,17 @@ from flamapy.metamodels.z3_metamodel.operations import (
     Z3CoreFeatures,
     Z3DeadFeatures,
     Z3FalseOptionalFeatures,
-    Z3AttributeOptimization
+    Z3AttributeOptimization,
+    Z3SatisfiableConfiguration
 )
 from flamapy.metamodels.z3_metamodel.operations.interfaces import OptimizationGoal
+
+from flamapy.metamodels.configuration_metamodel.transformations import ConfigurationJSONReader
 
 
 MODEL = 'resources/models/uvl_models/icecream_attributes.uvl'
 #MODEL = 'resources/models/uvl_models/Pizza_z3.uvl'
+CONFIG = 'resources/configs/icecream_attributes.json'
 
 
 def main():
@@ -41,9 +45,14 @@ def main():
     false_optional_features = Z3FalseOptionalFeatures().execute(z3_model).get_result()
     print(f'False optional features: {false_optional_features}')
 
+    attributes = fm_model.get_attributes()
+    print('Attributes in the model')
+    for attr in attributes:
+        print(f' - {attr.name} ({attr.attribute_type})')
+    
     attribute_optimization_op = Z3AttributeOptimization()
-    attributes = {'Price': OptimizationGoal.MAXIMIZE,
-                  'Cost': OptimizationGoal.MINIMIZE}
+    attributes = {'Price': OptimizationGoal.MINIMIZE,
+                  'Cost': OptimizationGoal.MAXIMIZE}
     attribute_optimization_op.set_attributes(attributes)
     configurations_with_values = attribute_optimization_op.execute(z3_model).get_result()
     print(f'Optimum configurations: {len(configurations_with_values)} configs.')
@@ -59,6 +68,14 @@ def main():
 
     n_configs = Z3ConfigurationsNumber().execute(z3_model).get_result()
     print(f'Configurations number: {n_configs}')
+
+    configuration = ConfigurationJSONReader(CONFIG).transform()
+    configuration.set_full(False)
+    print(f'Configuration from {CONFIG}: {configuration.elements}')
+    satisfiable_configuration_op = Z3SatisfiableConfiguration()
+    satisfiable_configuration_op.set_configuration(configuration)
+    is_satisfiable = satisfiable_configuration_op.execute(z3_model).get_result()
+    print(f'Is the configuration satisfiable? {is_satisfiable}')
 
 if __name__ == "__main__":
     main()
