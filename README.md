@@ -1,13 +1,4 @@
 # z3 plugin for flamapy
-- [BDD plugin for flamapy](#bdd-plugin-for-flamapy)
-  - [Description](#description)
-  - [Requirements and Installation](#requirements-and-installation)
-  - [Functionality and usage](#functionality-and-usage)
-    - [Load a feature model in UVL and create the BDD](#load-a-feature-model-in-uvl-and-create-the-bdd)
-    - [Save the BDD in a file](#save-the-bdd-in-a-file)
-    - [Load the BDD from a file](#load-the-bdd-from-a-file)
-    - [Analysis operations](#analysis-operations)
-  - [Contributing to the BDD plugin](#contributing-to-the-bdd-plugin)
 
 
 ## Description

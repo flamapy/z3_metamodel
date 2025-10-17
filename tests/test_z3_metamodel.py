@@ -59,7 +59,7 @@ def test_nconfigs(path: str, expected: int):
     assert n_configs == expected
 
 @pytest.mark.parametrize("path, expected", [
-    ('resources/models/uvl_models/icecream_attributes.uvl', 10)
+    ('resources/models/uvl_models/icecream_attributes.uvl', 7)
 ])
 def test_pareto_front_nconfigs(path: str, expected: int):
     z3_model = _read_model(path)

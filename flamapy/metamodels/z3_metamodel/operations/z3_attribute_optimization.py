@@ -76,9 +76,9 @@ def optimize_single_objective(z3_model: Z3Model,
     solver_opt.add([c.translate(context) for c in z3_model.constraints])
 
     if goal == OptimizationGoal.MINIMIZE:
-        handle = solver_opt.minimize(expr)
+        _ = solver_opt.minimize(expr)
     else:
-        handle = solver_opt.maximize(expr)
+        _ = solver_opt.maximize(expr)
         
     if solver_opt.check() != z3.sat:
         return []
@@ -217,7 +217,7 @@ def optimize_multi_objective(z3_model: 'Z3Model',
 
     # B. Filtrado de Unicidad (por valores de objetivo)
     # Esto elimina múltiples configuraciones que tienen el MISMO par de valores óptimos.
-    unique_solutions: dict[tuple, tuple[Any, dict[str, int | float]]] = {}
+    unique_solutions: dict[tuple[int | float, ...], tuple[Any, dict[str, int | float]]] = {}
     
     for config, values in final_pareto_front:
         key = tuple(round(v, 6) if isinstance(v, float) else v for v in values.values())

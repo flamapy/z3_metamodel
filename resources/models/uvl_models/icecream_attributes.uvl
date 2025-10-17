@@ -3,9 +3,9 @@ features
         mandatory
             Container
                 alternative
-                    Cup {Price 1.5, Cost 100.25}
+                    Cup {Price 1.5, Cost 100.25, Alergens {Milk, Soy}}
                     Cone {Price 2.0, Cost 100.50}
-                    Stick {Price 1.0, Cost 0.10}
+                    Stick {Price 1.0, Cost 0.10, Vegan, Values [1,2,3,4,5]}
         optional
             Integer Scoops {constraint Scoops.Price == 1.0 * Scoops}
 constraints
