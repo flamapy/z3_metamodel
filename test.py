@@ -14,6 +14,7 @@ from flamapy.metamodels.z3_metamodel.operations.interfaces import OptimizationGo
 
 
 MODEL = 'resources/models/uvl_models/icecream_attributes.uvl'
+#MODEL = 'resources/models/uvl_models/Pizza_z3.uvl'
 
 
 def main():
@@ -28,10 +29,8 @@ def main():
     configurations = Z3Configurations().execute(z3_model).get_result()
     print(f'Configurations: {len(configurations)}')
     for i, config in enumerate(configurations, 1):
-        print(f'Config. {i}: {config.elements}')
-    
-    n_configs = Z3ConfigurationsNumber().execute(z3_model).get_result()
-    print(f'Configurations number: {n_configs}')
+        config_str = ', '.join(f'{f}={v}' if not isinstance(v, bool) else f'{f}' for f,v in config.elements.items() if config.is_selected(f))
+        print(f'Config. {i}: {config_str}')
 
     core_features = Z3CoreFeatures().execute(z3_model).get_result()
     print(f'Core features: {core_features}')
@@ -48,11 +47,18 @@ def main():
     attribute_optimization_op.set_attributes(attributes)
     configurations_with_values = attribute_optimization_op.execute(z3_model).get_result()
     print(f'Optimum configurations: {len(configurations_with_values)} configs.')
+    # for i, config_value in enumerate(configurations_with_values, 1):
+    #     config, values = config_value
+    #     values_str = ', '.join(f'{k}={v}' for k,v in values.items())
+    #     print(f'Config. {i}: {config.elements} | Values: {values_str}')
     for i, config_value in enumerate(configurations_with_values, 1):
         config, values = config_value
+        config_str = ', '.join(f'{f}={v}' if not isinstance(v, bool) else f'{f}' for f,v in config.elements.items() if config.is_selected(f))
         values_str = ', '.join(f'{k}={v}' for k,v in values.items())
-        print(f'Config. {i}: {config.elements} | Values: {values_str}')
+        print(f'Config. {i}: {config_str} | Values: {values_str}')
 
+    n_configs = Z3ConfigurationsNumber().execute(z3_model).get_result()
+    print(f'Configurations number: {n_configs}')
 
 if __name__ == "__main__":
     main()

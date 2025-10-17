@@ -346,7 +346,17 @@ class FmToZ3(ModelToModel):
                             feature_attributes = variable.attributes
                             if left_expr in feature_attributes:
                                 attributes_vars.append(feature_attributes[left_expr]['var'])
+                    else:
+                        attributes_vars = []
+                        for feat in get_subtree(self.source_model.root):
+                            variable = self.destination_model.get_variable(feat.name)
+                            if variable is None:
+                                raise FlamaException(f'Unsupported feature: {feat.name}')
+                            feature_attributes = variable.attributes
+                            if left_expr in feature_attributes:
+                                attributes_vars.append(feature_attributes[left_expr]['var'])
                     if node.data == ASTOperation.SUM:
+                        print(attributes_vars)
                         expr = z3.Sum(attributes_vars)
                     elif node.data == ASTOperation.AVG:
                         if attributes_vars is None or len(attributes_vars) == 0:

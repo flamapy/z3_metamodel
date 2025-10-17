@@ -1,14 +1,14 @@
 features
 	Pizza {abstract}
 		optional
-			CheesyCrust {Kcal 370, Price 1.00}
+			CheesyCrust {Kcal 370, Price 1.00, Alergens {Lactose}}
 			Integer SpicyLevel
 		mandatory
 			Topping {abstract}
 				or
 					Salami {Kcal 462}
 					Ham {Kcal 115}
-					Mozzarella {Kcal 310}
+					Mozzarella {Kcal 310, Alergens {Lactose}}
 					Anchovies {Kcal 210, Price 0.50}
 			Size {abstract}
 				alternative

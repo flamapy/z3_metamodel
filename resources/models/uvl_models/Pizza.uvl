@@ -2,7 +2,6 @@ features
 	Pizza {abstract}
 		optional
 			CheesyCrust {Kcal 370, Price 1.00}
-			Integer SpicyLevel
 		mandatory
 			Topping {abstract}
 				or
@@ -21,7 +20,3 @@ features
 constraints
 	(CheesyCrust & Sicilian) => Big
 	Neapolitan => (! Salami & ! Ham)
-	Pizza.Price == sum(Price)
-	Pizza.Kcal == sum(Kcal)
-	SpicyLevel >= 0 & SpicyLevel <= 5
-	SpicyLevel == 5 => SpicyLevel.Price == 1.00
