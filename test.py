@@ -1,4 +1,4 @@
-
+import logging
 from flamapy.metamodels.fm_metamodel.transformations import UVLReader
 from flamapy.metamodels.z3_metamodel.transformations import FmToZ3
 from flamapy.metamodels.z3_metamodel.operations import (
@@ -14,6 +14,12 @@ from flamapy.metamodels.z3_metamodel.operations import (
 from flamapy.metamodels.z3_metamodel.operations.interfaces import OptimizationGoal
 
 from flamapy.metamodels.configuration_metamodel.transformations import ConfigurationJSONReader
+
+
+logging.basicConfig(
+    level=logging.DEBUG, 
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 
 MODEL = 'resources/models/uvl_models/icecream_attributes.uvl'
@@ -76,6 +82,20 @@ def main():
     satisfiable_configuration_op.set_configuration(configuration)
     is_satisfiable = satisfiable_configuration_op.execute(z3_model).get_result()
     print(f'Is the configuration satisfiable? {is_satisfiable}')
+
+    configurations_op = Z3Configurations()
+    configurations_op.set_partial_configuration(configuration)
+    configurations = configurations_op.execute(z3_model).get_result()
+    print(f'Configurations with partial configurations: {len(configurations)}')
+    for i, config in enumerate(configurations, 1):
+        config_str = ', '.join(f'{f}={v}' if not isinstance(v, bool) else f'{f}' for f,v in config.elements.items() if config.is_selected(f))
+        print(f'Config. {i}: {config_str}')
+
+    n_configs_op = Z3ConfigurationsNumber()
+    n_configs_op.set_partial_configuration(configuration)
+    n_configs = n_configs_op.execute(z3_model).get_result()
+    print(f'Configurations number with partial configuration: {n_configs}')
+
 
 if __name__ == "__main__":
     main()

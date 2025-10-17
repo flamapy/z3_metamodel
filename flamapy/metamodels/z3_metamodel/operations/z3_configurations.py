@@ -1,4 +1,5 @@
-from typing import cast
+import logging
+from typing import cast, Optional
 
 import z3
 
@@ -9,12 +10,19 @@ from flamapy.metamodels.z3_metamodel.models import Z3Model
 from flamapy.metamodels.fm_metamodel.models import FeatureType
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 class Z3Configurations(Configurations):
     """Compute all solutions of a z3 model."""
 
     def __init__(self) -> None:
         self._result: list[Configuration] = []
+        self._partial_configuration: Optional[Configuration] = None
 
+    def set_partial_configuration(self, configuration: Configuration) -> None:
+        self._partial_configuration = configuration
+        
     def get_result(self) -> list[Configuration]:
         return self._result
 
@@ -23,18 +31,37 @@ class Z3Configurations(Configurations):
 
     def execute(self, model: VariabilityModel) -> 'Z3Configurations':
         z3_model = cast(Z3Model, model)
-        self._result = configurations(z3_model)
+        self._result = configurations(z3_model, self._partial_configuration)
         return self
 
 
-def configurations(model: Z3Model) -> list[Configuration]:
+def configurations(model: Z3Model, 
+                   partial_configuration: Optional[Configuration] = None) -> list[Configuration]:
     context = z3.Context()
     solver = z3.Solver(ctx=context)
+
+    # 1. Add the model constraints to the solver
     constraints = [ctc.translate(context) for ctc in model.constraints]
     solver.add(constraints)
 
+    # 2. Create constraints for the given partial configuration (if any)
+    if partial_configuration is not None:
+        if partial_configuration.is_full:
+            LOGGER.warning("Full configuration provided.")
+            return []  # Full configuration provided
+        config_constraints = []
+        for feature_name, feature_value in partial_configuration.elements.items():
+            if feature_name not in model.features:
+                LOGGER.error(f"ERROR: the feature '{feature_name}' of the partial "\
+                               "configuration does not exist in the Z3 model.")
+                return []
+            feature_info = model.features[feature_name]
+            constraints = Z3Model.create_feature_constraints(feature_value, feature_info, context)
+            config_constraints.extend(constraints)
+        solver.add(config_constraints)
+
+    # 3. Enumerate all solutions
     configurations = []
-    n_configs = 0
     while solver.check() == z3.sat:
         m = solver.model()
         config_elements = {}
@@ -63,9 +90,7 @@ def configurations(model: Z3Model) -> list[Configuration]:
                 else:
                     value = False  # not selected
             config_elements[feature] = value
-        n_configs += 1
         config = Configuration(config_elements)
-        #print(f'Config. {n_configs}: {config.elements}')
         configurations.append(config)
         solver.add(z3.Or(block))  # block this solution
     return configurations

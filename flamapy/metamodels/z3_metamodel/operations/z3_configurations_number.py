@@ -35,4 +35,7 @@ class Z3ConfigurationsNumber(ConfigurationsNumber):
 
 def configurations_number(model: Z3Model,
                           partial_configuration: Optional[Configuration] = None) -> int:
-    return len(Z3Configurations().execute(model).get_result())
+    configurations_op = Z3Configurations()
+    configurations_op.set_partial_configuration(partial_configuration)
+    configurations = configurations_op.execute(model).get_result()
+    return len(configurations)

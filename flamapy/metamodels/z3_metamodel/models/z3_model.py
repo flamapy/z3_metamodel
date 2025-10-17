@@ -182,3 +182,44 @@ class Z3Model:
             and self.attributes == other.attributes
             and sorted(self.constraints) == sorted(other.constraints)
         )
+
+    @staticmethod
+    def create_feature_constraints(feature_value: Any,
+                                   feature_info: FeatureInfo,
+                                   context: z3.Context) -> list[z3.ExprRef]:
+        """Create Z3 constraints for a single feature and its configured value."""
+        constraints = []
+        if feature_value is False:  # Case 1: Feature not selected (False)
+            # Constraint: the selection variable (sel) must be False.
+            constraints.append(feature_info.sel.translate(context) == z3.BoolVal(False, ctx=context))
+        else:  # Case 2: Feature selected (True, Integer, Real, String)
+            # Constraint A: the selection variable (sel) must be True.
+            sel_var = feature_info.sel.translate(context)
+            constraints.append(sel_var == z3.BoolVal(True, ctx=context))
+            # Constraint B (Only for Features with value):
+            if feature_info.ftype in [FeatureType.INTEGER, FeatureType.REAL, FeatureType.STRING]:
+                # The value variable (val) must be equal to the configuration value.
+                if feature_info.val is None:
+                    raise ValueError(f'Feature {feature_info.name} has no value expression.')
+                val_var = feature_info.val.translate(context)
+                z3_value = Z3Model.get_z3_value(feature_value, feature_info.ftype, context)
+                constraints.append(val_var == z3_value)    
+        return constraints
+    
+    @staticmethod
+    def get_z3_value(value: Any, ftype: FeatureType, context: z3.Context) -> z3.ExprRef:
+        """Return a Z3 expression for a given Python configuration value."""
+        z3_value = None
+        if ftype == FeatureType.BOOLEAN:
+            z3_value = z3.BoolVal(bool(value), ctx=context)
+        elif ftype == FeatureType.INTEGER:
+            z3_value = z3.IntVal(int(value), ctx=context)
+        elif ftype == FeatureType.REAL:
+            # Real values are mapped to RealVal. We use str() to preserve precision.
+            z3_value = z3.RealVal(str(value), ctx=context)
+        elif ftype == FeatureType.STRING:
+            # Strings are mapped to Z3 String
+            z3_value = z3.StringVal(str(value), ctx=context)
+        else:
+            raise ValueError(f"Feature type '{ftype}' not supported for Z3.")
+        return z3_value
