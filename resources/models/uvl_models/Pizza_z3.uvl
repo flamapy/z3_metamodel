@@ -3,6 +3,7 @@ features
 		optional
 			CheesyCrust {Kcal 370, Price 1.00}
 			Integer SpicyLevel
+			String Name
 		mandatory
 			Topping {abstract}
 				or
@@ -17,11 +18,12 @@ features
 			Dough {abstract}
 				alternative
 					Neapolitan 
-					Sicilian 
+					Sicilian {Price 0.50}
 constraints
 	(CheesyCrust & Sicilian) => Big
-	Neapolitan => (! Salami & ! Ham)
-	Pizza.Price == sum(Price)
-	Pizza.Kcal == sum(Kcal)
-	SpicyLevel >= 0 & SpicyLevel <= 5
-	SpicyLevel == 5 => SpicyLevel.Price == 1.00
+	Neapolitan => (!Salami & !Ham)
+	Name=> len(Name)<10 & Name=='Margherita'
+	SpicyLevel >= 1 & SpicyLevel <= 5
+	SpicyLevel==5 => SpicyLevel.Price==1.00
+	(SpicyLevel >= 1 & SpicyLevel < 5) => SpicyLevel.Price==0
+	sum(Price) < 15

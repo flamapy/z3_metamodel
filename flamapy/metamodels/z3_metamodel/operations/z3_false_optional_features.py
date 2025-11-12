@@ -40,7 +40,6 @@ def get_false_optional_features(model: Z3Model, feature_model: FeatureModel) -> 
     solver.add(model.constraints)
 
     false_optional_features = []
-
     real_optional_features = [f for f in feature_model.get_features()
                               if not f.is_root() and not f.is_mandatory()]
 
@@ -55,5 +54,5 @@ def get_false_optional_features(model: Z3Model, feature_model: FeatureModel) -> 
             raise FlamaException(f'Unsupported feature: {feature.name}')
         variable = variable.sel
         if solver.check([parent_variable, z3.Not(variable)]) == z3.unsat:
-                false_optional_features.append(feature.name)
+            false_optional_features.append(feature.name)
     return false_optional_features

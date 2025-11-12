@@ -22,11 +22,12 @@ class FeatureInfo:
 
 
 class Z3Model(VariabilityModel):
+    
+    DEFAULT_PRECISION = 4
+
     @staticmethod
     def get_extension() -> str:
         return "z3"
-
-    DEFAULT_PRECISION = 2
 
     def __init__(self) -> None:
         self.ctx = z3.Context()
@@ -122,12 +123,16 @@ class Z3Model(VariabilityModel):
         var_name = f"{feature_name}.{attr_name}"
         if attr_type == AttributeType.INTEGER:
             var = z3.Int(var_name, ctx=self.ctx)
+            default_value = self.create_const(AttributeType.INTEGER, 0)
         elif attr_type == AttributeType.REAL:
             var = z3.Real(var_name, ctx=self.ctx)
+            default_value = self.create_const(AttributeType.REAL, 0.0)
         elif attr_type == AttributeType.STRING:
             var = z3.String(var_name, ctx=self.ctx)
+            default_value = self.create_const(AttributeType.STRING, "")
         elif attr_type == AttributeType.BOOLEAN:
             var = z3.Bool(var_name, ctx=self.ctx)
+            default_value = self.create_const(AttributeType.BOOLEAN, False)
         elif attr_type == AttributeType.NESTED:
             LOGGER.warning(f"Warning: Attribute {var_name} has NESTED type, " \
                            "which is not currently supported in Z3Model. Ignored.")
@@ -152,6 +157,8 @@ class Z3Model(VariabilityModel):
             if const_value is not None:
                 const_expr = self.create_const(attr_type, const_value)
                 self.constraints.append(z3.Implies(info.sel, var == const_expr))
+            # Neutralize the attribute when the feature is not selected
+            self.constraints.append(z3.Implies(z3.Not(info.sel), var == default_value))
 
         return var
 
