@@ -21,7 +21,10 @@ class FeatureInfo:
     attributes: dict[str, dict[str, Any]]  # attr_name -> {"var": z3var, "type": ...}
 
 
-class Z3Model:
+class Z3Model(VariabilityModel):
+    @staticmethod
+    def get_extension() -> str:
+        return "z3"
 
     DEFAULT_PRECISION = 2
 
