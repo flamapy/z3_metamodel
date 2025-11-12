@@ -22,7 +22,7 @@ from flamapy.metamodels.fm_metamodel.models import (
     FeatureType
 )
 
-from flamapy.metamodels.z3_metamodel.models import Z3Model
+from flamapy.metamodels.z3_metamodel.models import Z3Model, FeatureInfo
 
 
 LOGGER = logging.getLogger('FmToZ3')
@@ -88,8 +88,17 @@ class FmToZ3(ModelToModel):
                 features.extend(relation.children)
         
     def _traverse_constraints(self) -> None:
+        # We first process non-aggregation constraints
+        # That is because aggregation constraints may depend on other constraints
+        # where other constraints may define variables used in the aggregation
+        aggregation_constraints = []
         for constraint in self.source_model.get_constraints():
-            self._add_constraint_formula(constraint)
+            if constraint.is_aggregation_constraint():
+                aggregation_constraints.append(constraint)
+            else:
+                self._add_constraint_formula(constraint)
+        for agg_ctc in aggregation_constraints:
+            self._add_constraint_formula(agg_ctc)
 
     def _add_relation_formula(self, relation: Relation) -> None:
         if relation.is_mandatory():
@@ -239,7 +248,7 @@ class FmToZ3(ModelToModel):
                             expr = variable  # the aggregation operator will handle it
                         else:
                             raise FlamaException(f'Unsupported operator: {parent.data}')
-                    else:  # is not a feature, so it may be an attribute
+                    else:  # is not a feature, so it may be an attribute or a constant
                         if '.' in node.data:  # attribute of a feature
                             feature_attribute = find_feature_and_attribute(self.destination_model, 
                                                                            node.data)
@@ -254,28 +263,19 @@ class FmToZ3(ModelToModel):
                             attribute_info = feature_info.attributes.get(attr_name, None)
                             if attribute_info is not None:
                                 expr = attribute_info['var']
-                            else:
+                            else:  # Create a new attribute variable in the Z3 model
                                 attribute = self.source_model.get_attribute_by_name(attr_name)
                                 if attribute is not None:
                                     expr = self.destination_model.add_attribute(feature_name, 
                                                                                 attr_name, 
                                                                                 attribute.attribute_type, 
                                                                                 None)
+                                    print(f'Created attribute variable for {feature_name}.{attr_name}')
                                 else:
-                                    expr = z3.StringVal(node.data.strip("'\""))
-                        else:
+                                    raise FlamaException(f'Unsupported attribute: {attr_name} in ' \
+                                                         f'feature {feature_name}')
+                        else:  # constant value
                             expr = z3.StringVal(node.data.strip("'\""))
-                            # if feature_info is None:
-                            #     raise FlamaException(f'Unsupported feature in attribute: {feature_name}')
-                            # attr_info = feature_info.attributes.get(attr_name, None)
-                            # if attr_info is None:
-                            #     raise FlamaException(f'Unsupported attribute: {attr_name} in feature {feature_name}')
-                            # expr = attr_info['var']
-                        #TODO: se debe guardar una referencia al atributo (no str).
-                        # attribute_var = self.destination_model.attributes.get(node.data, None)
-                        # if attribute_var is not None:
-                        #     expr = attribute_var
-                        # else:  # is a string or boolean constant
                 else:
                     expr = node.data
         else:  # is operation
@@ -328,6 +328,7 @@ class FmToZ3(ModelToModel):
                 if node.right is not None:
                     right_expr = self._get_expression(node.right, node)
                 if node.data in [ASTOperation.SUM, ASTOperation.AVG]:
+                    left_expr = str(left_expr).strip("'\"")
                     # TODO: check if aggregate functions can be applied over features too
                     # Obtain the list of attribute variables to aggregate
                     if right_expr is not None:  # consider only the feature subtree
@@ -358,10 +359,29 @@ class FmToZ3(ModelToModel):
                             raise FlamaException('Cannot compute average over empty set')
                         expr = z3.Sum(attributes_vars) / len(attributes_vars)
                 elif node.data in [ASTOperation.LEN]:
-                    #feature = self.source_model.get_feature_by_name(left_expr.name)
-                    #if feature is not None:
-                    print(f'Left expr in LEN:', left_expr)
-                    expr = z3.Length(left_expr.val)
+                    if isinstance(left_expr, FeatureInfo):  # len aggregation applied over feature
+                        variable = self.destination_model.get_variable(left_expr.name)
+                        if variable is None:
+                            raise FlamaException(f'Unsupported feature: {left_expr.name}')
+                        expr = z3.Length(variable.val)
+                    elif '.' in str(left_expr):
+                        feature_attribute = find_feature_and_attribute(self.destination_model, 
+                                                                       str(left_expr))
+                        if feature_attribute is None:
+                            raise FlamaException('Unsupported feature or attribute: ' \
+                                                 f'{str(left_expr)}')
+                        feature_name, attr_name = feature_attribute
+                        feature_info = self.destination_model.get_variable(feature_name)
+                        if feature_info is None:
+                            raise FlamaException('Unsupported feature in attribute: ' \
+                                                 f'{feature_name}')
+                        attribute_info = feature_info.attributes.get(attr_name, None)
+                        if attribute_info is not None:
+                            attr_var = attribute_info['var']
+                            expr = z3.Length(attr_var)
+                        else:
+                            raise FlamaException(f'Unsupported attribute: {attr_name} in ' \
+                                                 f'feature {feature_name}')
                 else:
                     raise FlamaException(f'Unsupported aggregation operator: {node.data}')
         return expr
