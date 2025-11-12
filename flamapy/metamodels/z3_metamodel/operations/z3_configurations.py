@@ -37,12 +37,10 @@ class Z3Configurations(Configurations):
 
 def configurations(model: Z3Model, 
                    partial_configuration: Optional[Configuration] = None) -> list[Configuration]:
-    context = z3.Context()
-    solver = z3.Solver(ctx=context)
+    solver = z3.Solver(ctx=model.ctx)
 
     # 1. Add the model constraints to the solver
-    constraints = [ctc.translate(context) for ctc in model.constraints]
-    solver.add(constraints)
+    solver.add(model.constraints)
 
     # 2. Create constraints for the given partial configuration (if any)
     if partial_configuration is not None:
@@ -56,7 +54,9 @@ def configurations(model: Z3Model,
                                "configuration does not exist in the Z3 model.")
                 return []
             feature_info = model.features[feature_name]
-            constraints = Z3Model.create_feature_constraints(feature_value, feature_info, context)
+            constraints = Z3Model.create_feature_constraints(feature_value, 
+                                                             feature_info, 
+                                                             model.ctx)
             config_constraints.extend(constraints)
         solver.add(config_constraints)
 
@@ -68,7 +68,7 @@ def configurations(model: Z3Model,
         block = []
 
         for feature, feature_info in model.features.items():
-            sel = feature_info.sel.translate(context)  # Translate to the new context
+            sel = feature_info.sel
             selected = m.evaluate(sel, model_completion=True)
             block.append(sel != selected)  # block this value in the next iteration
             if feature_info.ftype == FeatureType.BOOLEAN:  # boolean feature
@@ -78,7 +78,6 @@ def configurations(model: Z3Model,
                     val_expr = feature_info.val
                     if val_expr is None:
                         raise ValueError(f'Feature {feature} has no value expression.')
-                    val_expr = val_expr.translate(context)  # Translate to the new context
                     value = m.evaluate(val_expr, model_completion=True)
                     block.append(val_expr != value)  # block the value in the next iter.
                     if feature_info.ftype == FeatureType.INTEGER:

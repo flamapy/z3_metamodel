@@ -25,15 +25,13 @@ class Z3CoreFeatures(CoreFeatures):
 
 
 def get_core_features(model: Z3Model) -> list[Any]:
-    context = z3.Context()
-    solver = z3.Solver(ctx=context)
-    constraints = [ctc.translate(context) for ctc in model.constraints]
-    solver.add(constraints)
+    solver = z3.Solver(ctx=model.ctx)
+    solver.add(model.constraints)
 
     core_features = []
     if solver.check() == z3.sat:
         for feature, feature_info in model.features.items():
-            variable = feature_info.sel.translate(context)  # Translate to the new context
+            variable = feature_info.sel
             if solver.check([z3.Not(variable)]) == z3.unsat:
                 core_features.append(feature)
     return core_features

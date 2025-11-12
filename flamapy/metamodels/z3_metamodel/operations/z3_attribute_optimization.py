@@ -70,10 +70,9 @@ def optimize_single_objective(z3_model: Z3Model,
                               attribute: str,
                               goal: OptimizationGoal
                               ) -> list[tuple[Configuration, dict[str, int | float]]]:
-    context = z3.Context()
-    expr = sum_attribute(z3_model, attribute).translate(context)
-    solver_opt = z3.Optimize(ctx=context)
-    solver_opt.add([c.translate(context) for c in z3_model.constraints])
+    expr = Z3Model.sum_attribute(z3_model, attribute)
+    solver_opt = z3.Optimize(ctx=z3_model.ctx)
+    solver_opt.add(z3_model.constraints)
 
     if goal == OptimizationGoal.MINIMIZE:
         _ = solver_opt.minimize(expr)
@@ -91,8 +90,8 @@ def optimize_single_objective(z3_model: Z3Model,
     opt_val_py = _z3_to_number(opt_val_z3) # ¡Usando opt_val_py aquí!
 
     # 3. Inicializar el solucionador para enumerar TODAS las soluciones
-    solver_enum = z3.Solver(ctx=context)
-    solver_enum.add([c.translate(context) for c in z3_model.constraints])
+    solver_enum = z3.Solver(ctx=z3_model.ctx)
+    solver_enum.add(z3_model.constraints)
 
     # Se usa opt_val_z3 para la restricción de igualdad dentro de Z3 para máxima precisión.
     solver_enum.add(expr == opt_val_z3)
@@ -105,9 +104,9 @@ def optimize_single_objective(z3_model: Z3Model,
         
         # Usamos el valor Python óptimo ya calculado (opt_val_py) para el resultado. 
         # Sabemos que 'val' debe ser igual a 'opt_val_py' debido a la restricción añadida.
-        val = opt_val_py 
-        
-        config, block = extract_configuration(z3_model, m, context)
+        val = opt_val_py
+
+        config, block = extract_configuration(z3_model, m)
         # Aquí se usa el valor óptimo Python
         results.append((config, {attribute: val})) 
         
@@ -117,25 +116,23 @@ def optimize_single_objective(z3_model: Z3Model,
     return results
 
 
-def optimize_multi_objective(z3_model: 'Z3Model',
+def optimize_multi_objective(z3_model: Z3Model,
                              attributes: dict[str, 'OptimizationGoal']
                              ) -> list[tuple['Configuration', dict[str, int | float]]]:
     """
     Busca el Frente de Pareto de soluciones no-dominadas usando un algoritmo de bloqueo iterativo.
     """
-    context = z3.Context()
-
     # (nombre_attr, expr_z3, meta)
-    objectives = [(attr, sum_attribute(z3_model, attr).translate(context), goal)
+    objectives = [(attr, Z3Model.sum_attribute(z3_model, attr), goal)
                   for attr, goal in attributes.items()]
 
     pareto_solutions: list[tuple[Any, dict[str, int | float]]] = [] # Almacena candidatos a Pareto
 
-    solver = z3.Solver(ctx=context)
-    solver.add([c.translate(context) for c in z3_model.constraints]) 
+    solver = z3.Solver(ctx=z3_model.ctx)
+    solver.add(z3_model.constraints)
 
     # Definir una pequeña tolerancia para comparaciones de números reales en Z3
-    EPSILON = z3.RealVal('0.000001', ctx=context) # 1e-6
+    EPSILON = z3.RealVal('0.000001', ctx=z3_model.ctx) # 1e-6
     epsilon_py = 1e-6 # Tolerancia para el filtro de Python
 
     # Bucle para encontrar soluciones no-dominadas (candidatos a Pareto)
@@ -146,7 +143,7 @@ def optimize_multi_objective(z3_model: 'Z3Model',
         attr_values = {name: _z3_to_number(m.evaluate(expr, model_completion=True))
                        for name, expr, _ in objectives}
 
-        config, block = extract_configuration(z3_model, m, context)
+        config, block = extract_configuration(z3_model, m)
         
         # 2. Almacenar la nueva solución candidata
         pareto_solutions.append((config, attr_values))
@@ -164,8 +161,8 @@ def optimize_multi_objective(z3_model: 'Z3Model',
                 p_val = p_values[name]
                 
                 if isinstance(p_val, float):
-                    p_val_z3 = z3.RealVal(str(p_val), ctx=context)
-                    
+                    p_val_z3 = z3.RealVal(str(p_val), ctx=z3_model.ctx)
+
                     if goal == OptimizationGoal.MINIMIZE:
                         # Queremos expr < p_val_z3. Usamos tolerancia: expr <= p_val_z3 - EPSILON
                         at_least_one_better.append(expr <= p_val_z3 - EPSILON) 
@@ -173,7 +170,7 @@ def optimize_multi_objective(z3_model: 'Z3Model',
                         # Queremos expr > p_val_z3. Usamos tolerancia: expr >= p_val_z3 + EPSILON
                         at_least_one_better.append(expr >= p_val_z3 + EPSILON) 
                 else: # INTEGER
-                    p_val_z3 = z3.IntVal(p_val, ctx=context) 
+                    p_val_z3 = z3.IntVal(p_val, ctx=z3_model.ctx) 
                     
                     if goal == OptimizationGoal.MINIMIZE:
                         at_least_one_better.append(expr < p_val_z3) 
@@ -239,21 +236,8 @@ def _z3_to_number(val: z3.ExprRef) -> int | float:
         return float(val.as_string())
 
 
-def sum_attribute(model: Z3Model, attr_name: str) -> z3.ArithRef:
-    """Return a Z3 expression representing the sum of the given attribute across all features."""
-    exprs = []
-    for _, feature_info in model.features.items():
-        attr = feature_info.attributes.get(attr_name)
-        if attr is not None:
-            zero_val = z3.IntVal(0) if attr['type'] == AttributeType.INTEGER else z3.RealVal(0.0)
-            expr = z3.If(feature_info.sel, attr['var'], zero_val)
-            exprs.append(expr)
-    return z3.Sum(exprs) if exprs else z3.RealVal(0.0)
-
-
 def extract_configuration(z3_model: Z3Model, 
-                          solution_model: z3.ModelRef,
-                          context: z3.Context | None = None
+                          solution_model: z3.ModelRef
                           ) -> tuple[Configuration, list[z3.ExprRef]]:
     """
     Extract a configuration (feature -> value) and its blocking clause.
@@ -262,7 +246,7 @@ def extract_configuration(z3_model: Z3Model,
     block = []
 
     for feature, feature_info in z3_model.features.items():
-        sel = feature_info.sel.translate(context) if context else feature_info.sel
+        sel = feature_info.sel
         selected = solution_model.evaluate(sel, model_completion=True)
         block.append(sel != selected)
 
@@ -273,7 +257,7 @@ def extract_configuration(z3_model: Z3Model,
                 val_expr = feature_info.val
                 if val_expr is None:
                     raise ValueError(f'Feature {feature} has no value expression.')
-                val_expr = val_expr.translate(context) if context else feature_info.val
+                val_expr = feature_info.val
                 value = solution_model.evaluate(val_expr, model_completion=True)
                 block.append(val_expr != value)
 

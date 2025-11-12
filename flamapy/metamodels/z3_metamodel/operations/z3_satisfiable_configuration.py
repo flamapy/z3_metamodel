@@ -34,12 +34,10 @@ class Z3SatisfiableConfiguration(SatisfiableConfiguration):
 
 
 def satisfiable_configuration(z3_model: Z3Model, configuration: Configuration) -> bool:
-    context = z3.Context()
-    solver = z3.Solver(ctx=context)
+    solver = z3.Solver(ctx=z3_model.ctx)
 
     # 1. Add the model constraints to the solver
-    solver.add([c.translate(context) for c in z3_model.constraints])
-
+    solver.add(z3_model.constraints)
     # 2. Create constraints for the given configuration
     config_ctcs = []
     if not configuration.is_full:  # Partial configuration: iterate only over configured features
@@ -50,7 +48,9 @@ def satisfiable_configuration(z3_model: Z3Model, configuration: Configuration) -
                 return False
             feature_info = z3_model.features[feature_name]
             # Create and add the constraints for feature_name with feature_value
-            constraints = Z3Model.create_feature_constraints(feature_value, feature_info, context)
+            constraints = Z3Model.create_feature_constraints(feature_value, 
+                                                             feature_info, 
+                                                             z3_model.ctx)
             config_ctcs.extend(constraints)
     else:  # Complete (full) configuration: iterate over all features in the model
         model_features_set = set(z3_model.features.keys())
@@ -64,7 +64,9 @@ def satisfiable_configuration(z3_model: Z3Model, configuration: Configuration) -
         for feature_name, feature_info in z3_model.features.items():
             feature_value = configuration.elements.get(feature_name, False)
             # Create and add the constraints for feature_name with feature_value
-            constraints = Z3Model.create_feature_constraints(feature_value, feature_info, context)
+            constraints = Z3Model.create_feature_constraints(feature_value, 
+                                                             feature_info, 
+                                                             z3_model.ctx)
             config_ctcs.extend(constraints)
 
     # 3. Add the configuration constraints to the solver

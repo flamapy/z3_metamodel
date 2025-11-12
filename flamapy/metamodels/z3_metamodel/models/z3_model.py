@@ -26,27 +26,28 @@ class Z3Model:
     DEFAULT_PRECISION = 2
 
     def __init__(self) -> None:
+        self.ctx = z3.Context()
         self.features: dict[str, FeatureInfo] = {}
         self.attributes: dict[str, list[Any]] = {}  # attr_name -> [z3var]
         self.attributes_types: dict[str, AttributeType] = {}  # attr_name -> AttributeType
         self.constraints: list[Any] = []  # list of z3 expressions
         self.original_model: Optional[VariabilityModel] = None
 
-    def _const(self, ftype: FeatureType | AttributeType, value: Any) -> Any:
+    def create_const(self, ftype: FeatureType | AttributeType, value: Any) -> Any:
         """Helper to create a Z3 constant of the given type with the given value."""
         if ftype in [FeatureType.INTEGER, AttributeType.INTEGER]:
-            return z3.IntVal(int(value))
+            return z3.IntVal(int(value), ctx=self.ctx)
         if ftype in [FeatureType.REAL, AttributeType.REAL]:
-            return z3.RealVal(float(value))
+            return z3.RealVal(float(value), ctx=self.ctx)
         if ftype in [FeatureType.STRING, AttributeType.STRING]:
-            return z3.StringVal(str(value))
+            return z3.StringVal(str(value), ctx=self.ctx)
         if ftype in [FeatureType.BOOLEAN, AttributeType.BOOLEAN]:
-            return z3.BoolVal(bool(value))
+            return z3.BoolVal(bool(value), ctx=self.ctx)
         raise ValueError("Unsupported type")
 
     def add_boolean_feature(self, name: str) -> Any:
         """Add a boolean feature with the given name."""
-        sel = z3.Bool(name)
+        sel = z3.Bool(name, ctx=self.ctx)
         self.features[name] = FeatureInfo(name=name, 
                                           sel=sel, 
                                           val=None, 
@@ -67,25 +68,25 @@ class Z3Model:
         If neutral_when_unselected is given, the value is set to that when the feature is
         not selected (to avoid unwanted effects in optimization).
         """
-        sel = z3.Bool(f"{name}_sel")
+        sel = z3.Bool(f"{name}_sel", ctx=self.ctx)
         if ftype == FeatureType.INTEGER:
-            val = z3.Int(f"{name}_val")
+            val = z3.Int(f"{name}_val", ctx=self.ctx)
             if neutral_when_unselected is not None:
-                neutral = self._const(FeatureType.INTEGER, neutral_when_unselected)
+                neutral = self.create_const(FeatureType.INTEGER, neutral_when_unselected)
             else:
-                neutral = z3.IntVal(0)
+                neutral = z3.IntVal(0, ctx=self.ctx)
         elif ftype == FeatureType.REAL:
-            val = z3.Real(f"{name}_val")
+            val = z3.Real(f"{name}_val", ctx=self.ctx)
             if neutral_when_unselected is not None:
-                neutral = self._const(FeatureType.REAL, neutral_when_unselected)
+                neutral = self.create_const(FeatureType.REAL, neutral_when_unselected)
             else:
-                neutral = z3.RealVal(0.0)
+                neutral = z3.RealVal(0.0, ctx=self.ctx)
         elif ftype == FeatureType.STRING:
-            val = z3.String(f"{name}_val")
+            val = z3.String(f"{name}_val", ctx=self.ctx)
             if neutral_when_unselected is not None:
-                neutral = self._const(FeatureType.STRING, neutral_when_unselected)
+                neutral = self.create_const(FeatureType.STRING, neutral_when_unselected)
             else:
-                neutral = z3.StringVal("")
+                neutral = z3.StringVal("", ctx=self.ctx)
         else:
             raise ValueError("Unsupported feature type")
 
@@ -93,7 +94,7 @@ class Z3Model:
 
         # If const_value is given, it is imposed when the feature is selected.
         if const_value is not None:  # Esto creo que se puede quitar
-            const_expr = self._const(ftype, const_value)
+            const_expr = self.create_const(ftype, const_value)
             self.constraints.append(z3.Implies(sel, val == const_expr))
 
         # Neutralize the value when not selected to avoid unwanted effects in optimization
@@ -117,13 +118,13 @@ class Z3Model:
         info = self.features[feature_name]
         var_name = f"{feature_name}.{attr_name}"
         if attr_type == AttributeType.INTEGER:
-            var = z3.Int(var_name)
+            var = z3.Int(var_name, ctx=self.ctx)
         elif attr_type == AttributeType.REAL:
-            var = z3.Real(var_name)
+            var = z3.Real(var_name, ctx=self.ctx)
         elif attr_type == AttributeType.STRING:
-            var = z3.String(var_name)
+            var = z3.String(var_name, ctx=self.ctx)
         elif attr_type == AttributeType.BOOLEAN:
-            var = z3.Bool(var_name)
+            var = z3.Bool(var_name, ctx=self.ctx)
         elif attr_type == AttributeType.NESTED:
             LOGGER.warning(f"Warning: Attribute {var_name} has NESTED type, " \
                            "which is not currently supported in Z3Model. Ignored.")
@@ -146,7 +147,7 @@ class Z3Model:
 
             # If a const_value is given, it is imposed when the feature is selected.
             if const_value is not None:
-                const_expr = self._const(attr_type, const_value)
+                const_expr = self.create_const(attr_type, const_value)
                 self.constraints.append(z3.Implies(info.sel, var == const_expr))
 
         return var
@@ -191,17 +192,17 @@ class Z3Model:
         constraints = []
         if feature_value is False:  # Case 1: Feature not selected (False)
             # Constraint: the selection variable (sel) must be False.
-            constraints.append(feature_info.sel.translate(context) == z3.BoolVal(False, ctx=context))
+            constraints.append(feature_info.sel == z3.BoolVal(False, ctx=context))
         else:  # Case 2: Feature selected (True, Integer, Real, String)
             # Constraint A: the selection variable (sel) must be True.
-            sel_var = feature_info.sel.translate(context)
+            sel_var = feature_info.sel
             constraints.append(sel_var == z3.BoolVal(True, ctx=context))
             # Constraint B (Only for Features with value):
             if feature_info.ftype in [FeatureType.INTEGER, FeatureType.REAL, FeatureType.STRING]:
                 # The value variable (val) must be equal to the configuration value.
                 if feature_info.val is None:
                     raise ValueError(f'Feature {feature_info.name} has no value expression.')
-                val_var = feature_info.val.translate(context)
+                val_var = feature_info.val
                 z3_value = Z3Model.get_z3_value(feature_value, feature_info.ftype, context)
                 constraints.append(val_var == z3_value)    
         return constraints
@@ -223,3 +224,19 @@ class Z3Model:
         else:
             raise ValueError(f"Feature type '{ftype}' not supported for Z3.")
         return z3_value
+
+    @staticmethod
+    def sum_attribute(model: 'Z3Model', attr_name: str) -> z3.ArithRef:
+        """Return a Z3 expression representing the sum of the given attribute across 
+        all features."""
+        exprs = []
+        for _, feature_info in model.features.items():
+            attr = feature_info.attributes.get(attr_name)
+            if attr is not None:
+                if attr['type'] == AttributeType.INTEGER:
+                    zero_val = z3.IntVal(0, ctx=model.ctx)
+                else:  # REAL
+                    zero_val = z3.RealVal(0.0, ctx=model.ctx)
+                expr = z3.If(feature_info.sel, attr['var'], zero_val)
+                exprs.append(expr)
+        return z3.Sum(exprs) if exprs else z3.RealVal(0.0, ctx=model.ctx)

@@ -19,7 +19,8 @@ from flamapy.metamodels.fm_metamodel.models import (
     Feature, 
     Relation, 
     Constraint, 
-    FeatureType
+    FeatureType,
+    AttributeType
 )
 
 from flamapy.metamodels.z3_metamodel.models import Z3Model, FeatureInfo
@@ -275,9 +276,17 @@ class FmToZ3(ModelToModel):
                                     raise FlamaException(f'Unsupported attribute: {attr_name} in ' \
                                                          f'feature {feature_name}')
                         else:  # constant value
-                            expr = z3.StringVal(node.data.strip("'\""))
+                            expr = z3.StringVal(node.data.strip("'\""), 
+                                                ctx=self.destination_model.ctx)
                 else:
-                    expr = node.data
+                    if isinstance(node.data, bool):
+                        expr = z3.BoolVal(node.data, ctx=self.destination_model.ctx)
+                    elif isinstance(node.data, int):
+                        expr = z3.IntVal(node.data, ctx=self.destination_model.ctx)
+                    elif isinstance(node.data, float):
+                        expr = z3.RealVal(node.data, ctx=self.destination_model.ctx)
+                    else:
+                        raise FlamaException(f'Unsupported constant type: {type(node.data)}')
         else:  # is operation
             if node.is_binary_op():
                 left_expr = self._get_expression(node.left, node)
@@ -342,7 +351,14 @@ class FmToZ3(ModelToModel):
                                 raise FlamaException(f'Unsupported feature: {feat.name}')
                             feature_attributes = variable.attributes
                             if left_expr in feature_attributes:
-                                attributes_vars.append(feature_attributes[left_expr]['var'])
+                                if feature_attributes[left_expr]['type'] == AttributeType.INTEGER:
+                                    zero_val = z3.IntVal(0, ctx=self.destination_model.ctx)
+                                elif feature_attributes[left_expr]['type'] == AttributeType.REAL:
+                                    zero_val = z3.RealVal(0.0, ctx=self.destination_model.ctx)
+
+                                attributes_vars.append(z3.If(variable.sel, 
+                                                             feature_attributes[left_expr]['var'],
+                                                             zero_val))
                     else:
                         attributes_vars = []
                         for feat in get_subtree(self.source_model.root):
@@ -351,7 +367,13 @@ class FmToZ3(ModelToModel):
                                 raise FlamaException(f'Unsupported feature: {feat.name}')
                             feature_attributes = variable.attributes
                             if left_expr in feature_attributes:
-                                attributes_vars.append(feature_attributes[left_expr]['var'])
+                                if feature_attributes[left_expr]['type'] == AttributeType.INTEGER:
+                                    zero_val = z3.IntVal(0, ctx=self.destination_model.ctx)
+                                elif feature_attributes[left_expr]['type'] == AttributeType.REAL:
+                                    zero_val = z3.RealVal(0.0, ctx=self.destination_model.ctx)
+                                attributes_vars.append(z3.If(variable.sel, 
+                                                             feature_attributes[left_expr]['var'],
+                                                             zero_val))
                     if node.data == ASTOperation.SUM:
                         expr = z3.Sum(attributes_vars)
                     elif node.data == ASTOperation.AVG:

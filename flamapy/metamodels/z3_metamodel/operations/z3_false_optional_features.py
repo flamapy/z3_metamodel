@@ -36,10 +36,8 @@ class Z3FalseOptionalFeatures(FalseOptionalFeatures):
 
 
 def get_false_optional_features(model: Z3Model, feature_model: FeatureModel) -> list[Any]:
-    context = z3.Context()
-    solver = z3.Solver(ctx=context)
-    constraints = [ctc.translate(context) for ctc in model.constraints]
-    solver.add(constraints)
+    solver = z3.Solver(ctx=model.ctx)
+    solver.add(model.constraints)
 
     false_optional_features = []
 
@@ -51,11 +49,11 @@ def get_false_optional_features(model: Z3Model, feature_model: FeatureModel) -> 
         parent_variable = model.features.get(parent_feature.name)
         if parent_variable is None:
             raise FlamaException(f'Unsupported feature: {parent_feature.name}')
-        parent_variable = parent_variable.sel.translate(context)  # Translate to the new context
+        parent_variable = parent_variable.sel
         variable = model.features.get(feature.name)
         if variable is None:
             raise FlamaException(f'Unsupported feature: {feature.name}')
-        variable = variable.sel.translate(context)  # Translate to the new context
+        variable = variable.sel
         if solver.check([parent_variable, z3.Not(variable)]) == z3.unsat:
                 false_optional_features.append(feature.name)
     return false_optional_features
