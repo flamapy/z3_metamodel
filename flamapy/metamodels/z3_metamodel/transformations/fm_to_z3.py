@@ -23,7 +23,6 @@ from flamapy.metamodels.fm_metamodel.models import (
 )
 
 from flamapy.metamodels.z3_metamodel.models import Z3Model
-from flamapy.metamodels.fm_metamodel.transformations import FlatFM
 
 
 LOGGER = logging.getLogger('FmToZ3')
@@ -45,12 +44,6 @@ class FmToZ3(ModelToModel):
         self._counter: int = 0
 
     def transform(self) -> Z3Model:
-        # FlatFM if the feature model contains imports
-        feature_model = self.source_model
-        if feature_model.imports:
-            feature_model = FlatFM(feature_model).transform()
-        self.source_model = feature_model
-
         self.destination_model = Z3Model()
         self.destination_model.original_model = self.source_model
         self._declare_features()
@@ -269,9 +262,9 @@ class FmToZ3(ModelToModel):
                                                                                 attribute.attribute_type, 
                                                                                 None)
                                 else:
-                                    expr = z3.StringVal(node.data)
+                                    expr = z3.StringVal(node.data.strip("'\""))
                         else:
-                            expr = z3.StringVal(node.data)
+                            expr = z3.StringVal(node.data.strip("'\""))
                             # if feature_info is None:
                             #     raise FlamaException(f'Unsupported feature in attribute: {feature_name}')
                             # attr_info = feature_info.attributes.get(attr_name, None)
@@ -331,14 +324,17 @@ class FmToZ3(ModelToModel):
                     raise FlamaException(f'Unsupported unary operator: {node.data}')
             elif node.is_aggregate_op():
                 left_expr = self._get_expression(node.left, node)
-                right_expr = self._get_expression(node.right, node) if node.right is not None else None
+                right_expr = None
+                if node.right is not None:
+                    right_expr = self._get_expression(node.right, node)
                 if node.data in [ASTOperation.SUM, ASTOperation.AVG]:
                     # TODO: check if aggregate functions can be applied over features too
                     # Obtain the list of attribute variables to aggregate
-                    attributes_vars = self.destination_model.attributes.get(left_expr, None)
                     if right_expr is not None:  # consider only the feature subtree
                         attributes_vars = []
                         feature = self.source_model.get_feature_by_name(right_expr.name)
+                        if feature is None:
+                            raise FlamaException(f'Unsupported feature: {right_expr.name}')
                         for feat in get_subtree(feature):
                             variable = self.destination_model.get_variable(feat.name)
                             if variable is None:
@@ -356,13 +352,16 @@ class FmToZ3(ModelToModel):
                             if left_expr in feature_attributes:
                                 attributes_vars.append(feature_attributes[left_expr]['var'])
                     if node.data == ASTOperation.SUM:
-                        print(attributes_vars)
                         expr = z3.Sum(attributes_vars)
                     elif node.data == ASTOperation.AVG:
                         if attributes_vars is None or len(attributes_vars) == 0:
                             raise FlamaException('Cannot compute average over empty set')
                         expr = z3.Sum(attributes_vars) / len(attributes_vars)
-                #elif node.data in [ASTOperation.LEN]:
+                elif node.data in [ASTOperation.LEN]:
+                    #feature = self.source_model.get_feature_by_name(left_expr.name)
+                    #if feature is not None:
+                    print(f'Left expr in LEN:', left_expr)
+                    expr = z3.Length(left_expr.val)
                 else:
                     raise FlamaException(f'Unsupported aggregation operator: {node.data}')
         return expr
