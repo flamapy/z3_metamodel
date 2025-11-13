@@ -1,6 +1,5 @@
 import itertools
 import logging
-import math
 from typing import Optional
 
 import z3
