@@ -24,7 +24,7 @@ The following is an example of feature model and its BDD using complemented arcs
 </p> -->
 
 ## Requirements and Installation
-- Python 3.9+
+- Python 3.10
 - This plugin depends on the [flamapy core](https://github.com/flamapy/core) and on the [Feature Model plugin](https://github.com/flamapy/fm_metamodel).
 
 ```
