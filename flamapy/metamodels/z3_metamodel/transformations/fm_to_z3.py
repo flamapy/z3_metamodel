@@ -271,7 +271,6 @@ class FmToZ3(ModelToModel):
                                                                                 attr_name, 
                                                                                 attribute.attribute_type, 
                                                                                 None)
-                                    print(f'Created attribute variable for {feature_name}.{attr_name}')
                                 else:
                                     raise FlamaException(f'Unsupported attribute: {attr_name} in ' \
                                                          f'feature {feature_name}')
