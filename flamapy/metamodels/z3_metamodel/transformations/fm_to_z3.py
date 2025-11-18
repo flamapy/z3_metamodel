@@ -204,7 +204,11 @@ class FmToZ3(ModelToModel):
                 raise FlamaException(f'Unsupported feature: {child.name}')
             children.add(child_variable.sel)
         or_ctc = []
-        for k in range(relation.card_min, relation.card_max + 1):
+        min_cardinality = relation.card_min
+        max_cardinality = relation.card_max
+        if max_cardinality == -1:
+            max_cardinality = len(children)
+        for k in range(min_cardinality, max_cardinality + 1):
             combi_k = list(itertools.combinations(children, k))
             for positives in combi_k:
                 negatives = children - set(positives)
@@ -234,6 +238,7 @@ class FmToZ3(ModelToModel):
                     expr = self.destination_model.get_variable(node.data)
                     if expr is None:
                         raise FlamaException(f'Unsupported feature: {node.data}')
+                    expr = expr.sel
                 else:
                     raise FlamaException(f'Unsupported terminal feature: {type(node.data)}')
             else:
@@ -271,7 +276,6 @@ class FmToZ3(ModelToModel):
                                                                                 attr_name, 
                                                                                 attribute.attribute_type, 
                                                                                 None)
-                                    print(f'Created attribute variable for {feature_name}.{attr_name}')
                                 else:
                                     raise FlamaException(f'Unsupported attribute: {attr_name} in ' \
                                                          f'feature {feature_name}')
