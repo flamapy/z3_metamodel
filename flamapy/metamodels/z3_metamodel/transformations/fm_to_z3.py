@@ -204,7 +204,11 @@ class FmToZ3(ModelToModel):
                 raise FlamaException(f'Unsupported feature: {child.name}')
             children.add(child_variable.sel)
         or_ctc = []
-        for k in range(relation.card_min, relation.card_max + 1):
+        min_cardinality = relation.card_min
+        max_cardinality = relation.card_max
+        if max_cardinality == -1:
+            max_cardinality = len(children)
+        for k in range(min_cardinality, max_cardinality + 1):
             combi_k = list(itertools.combinations(children, k))
             for positives in combi_k:
                 negatives = children - set(positives)
@@ -224,6 +228,7 @@ class FmToZ3(ModelToModel):
         self.destination_model.add_constraint(formula)
 
     def _add_constraint_formula(self, ctc: Constraint) -> None:
+        print(f'Processing constraint: {ctc}')
         expr  = self._get_expression(ctc.ast.root, None)
         self.destination_model.add_constraint(expr)
 
