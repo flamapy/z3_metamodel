@@ -234,6 +234,7 @@ class FmToZ3(ModelToModel):
                     expr = self.destination_model.get_variable(node.data)
                     if expr is None:
                         raise FlamaException(f'Unsupported feature: {node.data}')
+                    expr = expr.sel
                 else:
                     raise FlamaException(f'Unsupported terminal feature: {type(node.data)}')
             else:
