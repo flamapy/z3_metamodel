@@ -228,7 +228,6 @@ class FmToZ3(ModelToModel):
         self.destination_model.add_constraint(formula)
 
     def _add_constraint_formula(self, ctc: Constraint) -> None:
-        print(f'Processing constraint: {ctc}')
         expr  = self._get_expression(ctc.ast.root, None)
         self.destination_model.add_constraint(expr)
 
