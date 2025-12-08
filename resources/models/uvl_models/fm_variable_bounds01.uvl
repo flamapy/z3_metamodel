@@ -1,0 +1,10 @@
+features
+    Icecream
+        mandatory
+            Container
+                alternative
+                    Cup
+                    Cone 
+                    Stick 
+        optional
+            Integer Scoops

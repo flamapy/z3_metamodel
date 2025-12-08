@@ -1,189 +1,183 @@
-# z3 plugin for flamapy
+# Automated Analysis of UVL using Satisfiability Modulo Theories
 
 
 ## Description
-This plugin supports z3 representations for feature models.
+This repository contains the plugin that supports z3 representations for feature models.
 
-The plugin is based on [flamapy](https://github.com/flamapy/core) and thus, it follows the same architecture:
-
-<!-- <p align="center">
-  <img width="750" src="doc/bdd_plugin.png">
-</p>
-
-The BDD plugin relies on the [dd](https://github.com/tulip-control/dd) library to manipulate BDDs.
-The complete documentation of such library is available [here](https://github.com/tulip-control/dd/blob/main/doc.md).
-
-The following is an example of feature model and its BDD using complemented arcs.
+The plugin is based on [flamapy](https://flamapy.github.io/), and relies on the [Z3 solver](https://github.com/Z3Prover/z3?tab=readme-ov-file) library. The architecture is as follows:
 
 <p align="center">
-  <img width="750" src="doc/fm_example.png">
+  <img width="750" src="resources/images/z3metamodel.png">
 </p>
 
-<p align="center">
-  <img width="750" src="doc/bdd_example.svg">
-</p> -->
 
 ## Requirements and Installation
-- Python 3.10
-- This plugin depends on the [flamapy core](https://github.com/flamapy/core) and on the [Feature Model plugin](https://github.com/flamapy/fm_metamodel).
+- [Python 3.11+](https://www.python.org/)
+- [Flamapy](https://www.flamapy.org/)
 
-```
-pip install flamapy flamapy-fm flamapy-z3
-```
+The framework has been tested in Linux and Windows 11 with Python 3.12. Python 3.13+ may not be still supported.
 
-We have tested the plugin on Linux, but Windows is also supported.
+### Download and installation
+1. Install [Python 3.11+](https://www.python.org/).
+2. Download/Clone this repository and enter into the main directory.
+3. Create a virtual environment: `python -m venv env`
+4. Activate the environment: 
+   
+   In Linux: `source env/bin/activate`
+
+   In Windows: `.\env\Scripts\Activate`
+
+5. Install dependencies (flamapy): `pip install -r requirements.txt`
+     
+    ** In case that you are running Ubuntu and get an error installing flamapy, please install the package python3-dev with the command `sudo apt update && sudo apt install python3-dev` and update wheel and setuptools with the command `pip  install --upgrade pip wheel setuptools` before step 5.
 
 
-<!-- ## Functionality and usage
-The executable script [test_bdd_metamodel.py](https://github.com/flamapy/bdd_metamodel/blob/master/tests/test_bdd_metamodel.py) serves as an entry point to show the plugin in action.
+## Functionality and usage
+The executable script [test.py](/test.py) serves as an entry point to show the plugin in action.
+
+Simply run: `python test.py` to see it in action over the running feature model presented in the paper.
 
 The following functionality is provided:
 
 
-### Load a feature model in UVL and create the BDD
+### Load a feature model in UVL and translate to SMT
 ```python
 from flamapy.metamodels.fm_metamodel.transformations import UVLReader
-from flamapy.metamodels.bdd_metamodel.transformations import FmToBDD
+from flamapy.metamodels.z3_metamodel.transformations import FmToZ3
 
 # Load the feature model from UVL
-feature_model = UVLReader('models/uvl_models/pizzas.uvl').transform()
-# Create the BDD from the feature model
-bdd_model = FmToBDD(feature_model).transform()
+fm_model = UVLReader('resources/models/uvl_models/Pizza_z3.uvl').transform()
+# Transform the feature model to SMT
+z3_model = FmToZ3(fm_model).transform()
 ```
-
-
-### Save the BDD in a file
-```python
-from flamapy.metamodels.bdd_metamodel.transformations import PNGWriter, DDDMPv3Writer
-# Save the BDD as an image in PNG
-PNGWriter(path='my_bdd.png', bdd_model).transform()
-# Save the BDD in a .dddmp file
-DDDMPv3Writer(f'my_bdd.dddmp', bdd_model).transform()
-```
-Writers available: DDDMPv3 ('dddmp'), DDDMPv2 ('dddmp'), JSON ('json'), Pickle ('p'), PDF ('pdf'), PNG ('png'), SVG ('svg').
-
-### Load the BDD from a file
-```python
-from flamapy.metamodels.bdd_metamodel.transformations import JSONReader
-# Load the BDD from a .json file
-bdd_model = JSONReader(path='path/to/my_bdd.json').transform()
-```
-Readers available: JSON ('json'), DDDMP ('dddmp'), Pickle ('p').
-
-*NOTE:* DDDMP and Pickle readers are not fully supported yet.
 
 ### Analysis operations
+The following operations are available:
+```python
+from flamapy.metamodels.z3_metamodel.operations import (
+    Z3Satisfiable,
+    Z3Configurations,
+    Z3ConfigurationsNumber,
+    Z3CoreFeatures,
+    Z3DeadFeatures,
+    Z3FalseOptionalFeatures,
+    Z3AttributeOptimization,
+    Z3SatisfiableConfiguration,
+    Z3FeatureBounds,
+    Z3AllFeatureBounds,
+)
+```
 
-- Satisfiable
+- **Satisfiable**
 
     Return whether the model is satisfiable (valid):
     ```python
-    from flamapy.metamodels.bdd_metamodel.operations import BDDSatisfiable
-    satisfiable = BDDSatisfiable().execute(bdd_model).get_result()
+    satisfiable = Z3Satisfiable().execute(z3_model).get_result()
     print(f'Satisfiable? (valid?): {satisfiable}')
     ```
 
-- Configurations number
+- **Core features**
 
-    Return the number of configurations:
+    Return the core features of the model:
     ```python
-    from flamapy.metamodels.bdd_metamodel.operations import BDDConfigurationsNumber
-    n_configs = BDDConfigurationsNumber().execute(bdd_model).get_result()
-    print(f'#Configurations: {n_configs}')
-    ```
-
-- Configurations
-
-    Enumerate the configurations of the model:
-    ```python
-    from flamapy.metamodels.bdd_metamodel.operations import BDDConfigurations
-    configurations = BDDConfigurations().execute(bdd_model).get_result()
-    for i, config in enumerate(configurations, 1):
-        print(f'Config {i}: {[feat for feat in config.elements if config.elements[feat]]}')
-    ```
-
-- Sampling
-
-    Return a sample of the given size of uniform random configurations with or without replacement:
-    ```python
-    from flamapy.metamodels.bdd_metamodel.operations import BDDSampling
-    sampling_op = BDDSampling()
-    sampling_op.set_sample_size(5)
-    sampling_op.set_with_replacement(False)  # Default False
-    sample = sampling_op.execute(bdd_model).get_result()
-    for i, config in enumerate(sample, 1):
-        print(f'Config {i}: {[feat for feat in config.elements if config.elements[feat]]}')
-    ```
-
-- Product Distribution
-
-    Return the number of products (configurations) having a given number of features:
-    ```python
-    from flamapy.metamodels.bdd_metamodel.operations import BDDProductDistribution
-    dist = BDDProductDistribution().execute(bdd_model).get_result()
-    print(f'Product Distribution: {dist}')
-    ```
-
-- Feature Inclusion Probability
-
-    Return the probability for a feature to be included in a valid configuration:
-    ```python
-    from flamapy.metamodels.bdd_metamodel.operations import BDDFeatureInclusionProbability
-    prob = BDDFeatureInclusionProbability().execute(bdd_model).get_result()
-    for feat in prob.keys():
-        print(f'{feat}: {prob[feat]}')
-    ```
-
-- Core features
-
-    Return the core features (those features that are present in all the configurations):
-    ```python
-    from flamapy.metamodels.bdd_metamodel.operations import BDDCoreFeatures
-    core_features = BDDCoreFeatures().execute(bdd_model).get_result()
+    core_features = Z3CoreFeatures().execute(z3_model).get_result()
     print(f'Core features: {core_features}')
     ```
 
-- Dead features
+- **Dead features**
 
-    Return the dead features (those features that are not present in any configuration):
+    Return the dead features of the model:
     ```python
-    from flamapy.metamodels.bdd_metamodel.operations import BDDDeadFeatures
-    dead_features = BDDDeadFeatures().execute(bdd_model).get_result()
+    dead_features = Z3DeadFeatures().execute(z3_model).get_result()
     print(f'Dead features: {dead_features}')
     ```
 
-Most analysis operations support also a partial configuration as an additional argument, so the operation will return the result taking into account the given partial configuration. For example:
+- **False-Optional features**
+
+    Return the false-optional features of the model:
+    ```python
+    false_optional_features = Z3FalseOptionalFeatures().execute(z3_model).get_result()
+    print(f'False-optional features: {false_optional_features}')
+    ```    
+
+- **Configurations**
+
+    Enumerate the configurations of the model:
+    ```python
+    configurations = Z3Configurations().execute(z3_model).get_result()
+    print(f'Configurations: {len(configurations)}')
+    for i, config in enumerate(configurations, 1):
+        config_str = ', '.join(f'{f}={v}' if not isinstance(v, bool) else f'{f}' for f,v in config.elements.items() if config.is_selected(f))
+        print(f'Config. {i}: {config_str}')
+    ```
+
+- **Configurations number**
+
+    Return the number of configurations:
+    ```python
+    n_configs = Z3ConfigurationsNumber().execute(z3_model).get_result()
+    print(f'Configurations number: {n_configs}')
+    ```
+
+- **Boundaries analysis of typed features**
+
+    Return the boundaries of the numerical features (Integer, Real, String) of the model:
+    ```python
+    attributes = fm_model.get_attributes()
+    print('Attributes in the model')
+    for attr in attributes:
+        print(f' - {attr.name} ({attr.attribute_type})')
+    
+    variable_bounds = Z3AllFeatureBounds().execute(z3_model).get_result()
+    print('Variable bounds for all typed variables:')
+    for var_name, bounds in variable_bounds.items():
+        print(f' - {var_name}: {bounds}')
+    ```    
+
+- **Configuration optimization based on feature attributes:**
+
+    Return the set of configurations that optimize the given goals (i.e., the pareto front):
+    ```python
+    attribute_optimization_op = Z3AttributeOptimization()
+    attributes = {'Price': OptimizationGoal.MAXIMIZE,
+                  'Kcal': OptimizationGoal.MINIMIZE}
+    attribute_optimization_op.set_attributes(attributes)
+    configurations_with_values = attribute_optimization_op.execute(z3_model).get_result()
+    print(f'Optimum configurations: {len(configurations_with_values)} configs.')
+    for i, config_value in enumerate(configurations_with_values, 1):
+        config, values = config_value
+        config_str = ', '.join(f'{f}={v}' if not isinstance(v, bool) else f'{f}' for f,v in config.elements.items() if config.is_selected(f))
+        values_str = ', '.join(f'{k}={v}' for k,v in values.items())
+        print(f'Config. {i}: {config_str} | Values: {values_str}')
+    ```    
+
+- Configuration validation:
+
+    Return whether a given partial or full configuration is valid:
+    ```python
+    from flamapy.metamodels.configuration_metamodel.transformations import ConfigurationJSONReader
+    configuration = ConfigurationJSONReader('resources/configs/pizza_z3_config1.json').transform()
+    configuration.set_full(False)
+    print(f'Configuration: {configuration.elements}')
+    satisfiable_configuration_op = Z3SatisfiableConfiguration()
+    satisfiable_configuration_op.set_configuration(configuration)
+    is_satisfiable = satisfiable_configuration_op.execute(z3_model).get_result()
+    print(f'Is the configuration satisfiable? {is_satisfiable}')
+    ```    
+
+**Note:** The Z3Configurations and Z3ConfigurationsNumber operations may takes longer if the number of configuration is huge, or even not finish if the model is unbounded.
+
+**Note:** The Z3Configurations and Z3ConfigurationsNumber operations support also a partial configuration as an additional argument, so the operation will return the result taking into account the given partial configuration. 
+For example:
 
 ```python
 from flamapy.core.models import Configuration
 # Create a partial configuration
-elements = {'Pizza': True, 'Big': True}
+elements = {'Pizza': True, 'SpicyLvl': 5}
 partial_config = Configuration(elements)
 # Calculate the number of configuration from the partial configuration
-configs_number_op = BDDConfigurationsNumber()
+configs_number_op = Z3ConfigurationsNumber()
 configs_number_op.set_partial_configuration(partial_config)
-n_configs = configs_number_op.execute(bdd_model).get_result()
+n_configs = configs_number_op.execute(z3_model).get_result()
 print(f'#Configurations: {n_configs}')
 ```
-
-
-## Contributing to the BDD plugin
-To contribute in the development of this plugin:
-
-1. Fork the repository into your GitHub account.
-2. Clone the repository: `git@github.com:<<username>>/bdd_metamodel.git`
-3. Create a virtual environment: `python -m venv env`
-4. Activate the virtual environment: `source env/bin/activate`
-5. Install the plugin dependencies: `pip install flamapy flamapy-fm`
-6. Install the BDD plugin from the source code: `pip install -e bdd_metamodel`
-
-Please try to follow the standards code quality to contribute to this plugin before creating a Pull Request:
-
-- To analyze your Python code and output information about errors, potential problems, convention violations and complexity, pass the prospector with:
-
-    `make lint`
-
-- To analyze the static type checker for Python and find bugs, pass the Mypy:
-
-    `make mypy`
- -->

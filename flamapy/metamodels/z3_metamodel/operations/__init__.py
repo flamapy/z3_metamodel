@@ -6,7 +6,8 @@ from .z3_dead_features import Z3DeadFeatures
 from .z3_false_optional_features import Z3FalseOptionalFeatures
 from .z3_attribute_optimization import Z3AttributeOptimization
 from .z3_satisfiable_configuration import Z3SatisfiableConfiguration
-
+from .z3_feature_bounds import Z3FeatureBounds
+from .z3_all_feature_bounds import Z3AllFeatureBounds
 
 __all__ = ['Z3Satisfiable',
            'Z3Configurations',
@@ -15,4 +16,6 @@ __all__ = ['Z3Satisfiable',
            'Z3DeadFeatures',
            'Z3FalseOptionalFeatures',
            'Z3AttributeOptimization',
-           'Z3SatisfiableConfiguration']
+           'Z3SatisfiableConfiguration',
+           'Z3FeatureBounds',
+           'Z3AllFeatureBounds']

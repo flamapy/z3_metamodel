@@ -1,0 +1,16 @@
+{
+    "Pizza": true,
+    "CheesyCrust": false,
+    "SpicyLvl": false,
+    "Topping": true,
+    "Salami": false,
+    "Ham": false,
+    "Mozzarella": true,
+    "Anchovies": true,
+    "Size": true,
+    "Normal": true,
+    "Big": false,
+    "Dough": true,
+    "Neapolitan": true,
+    "Sicilian": false
+}
