@@ -1,0 +1,64 @@
+features
+    Salad {abstract, Units {Price 'euro'}, Price 8.95}
+        mandatory
+            Base {abstract}
+                alternative
+                    "Mixed lettuce"
+                    "Lamb's lettuce"
+                    Spinach
+                    Pasta
+                    "Mix of lettuce & pasta"
+                    "Rocket salad"
+            Protein {abstract}
+                alternative
+                    "Free range chicken"
+                    "Spiced chicken"
+                    "Canned tuna"
+                    Tofu
+            Dairy {abstract}
+                alternative
+                    "Emmental cheese"
+                    "Fresh cheese"
+                    "Fresh mozzarella"
+                    "Feta cheese"
+                    "Goat cheese"
+                    "Parmesan cheese"
+            Energy {abstract}
+                alternative
+                    Raisins
+                    Croutons
+                    "Sunflower seeds"
+                    "Crushed toasted corn"
+                    "Pumkin seeds"
+                    Walnuts
+                    Pistachios {Price 0.50}
+                    Plums
+                    "Dried tomato"
+                    Couscous {note 'ECO'}
+                    Quinoa {note 'ECO'}
+            Vitamin {abstract}
+                alternative
+                    Tomato
+                    Cucumber
+                    Carrot
+                    Avocado {Price 1.00}
+                    Apple
+                    Pear
+                    Pineapple
+                    Mango {Price 1.00}
+                    Strawberry
+                    Banana
+                    Kiwi
+                    "Red carrot"
+                    "Crispy japanese"
+            Dressing {abstract, note 'ask about some new sauces'}
+                alternative
+                    "Honey & mustard"
+                    Balsamic
+                    Berries
+                    Vinaigrette
+                    "Herbal mustard with honey"
+                    Asian
+                    "Yoghurt sauce"
+constraints
+    Salad.Price == sum(Price, Salad)

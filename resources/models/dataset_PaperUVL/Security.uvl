@@ -1,0 +1,5 @@
+features
+    Security
+        alternative
+            High {Price 100}
+            Standard {Price 50}

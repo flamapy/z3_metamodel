@@ -1,0 +1,13 @@
+features
+    Premiums {Price 1.49}
+        or
+            Integer "Black Lentils" {Calories 90, TotalFat 1.5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 85, TotalCarbs 13, DietaryFiber 4, Sugars 0, Protein 6, vegan}
+            Integer "Bob's Red mill Hemp Hearts" {Calories 60, TotalFat 5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 0, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 3, vegan}
+            Integer "Chopped Almonds" {Calories 60, TotalFat 5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 50, TotalCarbs 2, DietaryFiber 1, Sugars 0, Protein 2, vegan, nuts}
+            Integer "Hass Avocado" {Calories 70, TotalFat 7, SaturatedFat 1, TransFat 0, Cholesterol 0, Sodium 0, TotalCarbs 4, DietaryFiber 3, Sugars 0, Protein 0, vegan}
+            Integer "Homemade Avocado Mash" {Calories 90, TotalFat 8, SaturatedFat 1, TransFat 0, Cholesterol 0, Sodium 170, TotalCarbs 5, DietaryFiber 4, Sugars 0, Protein 1, vegan}
+            Integer "Homemade Pico de Gallo" {Calories 15, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 350, TotalCarbs 3, DietaryFiber 0, Sugars 2, Protein 0, vegan}
+            Integer "Roasted Cauliflower" {Calories 25, TotalFat 2, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 75, TotalCarbs 2, DietaryFiber 1, Sugars 0, Protein 0.5, vegan}
+            Integer "Roasted Fajitas + Corn" {Calories 45, TotalFat 0.5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 200, TotalCarbs 10, DietaryFiber 1, Sugars 4, Protein 1, vegan}
+            Integer "Roasted Mushrooms" {Calories 50, TotalFat 3, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 200, TotalCarbs 6, DietaryFiber 2, Sugars 3, Protein 2, vegan}
+

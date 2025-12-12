@@ -1,0 +1,80 @@
+features
+    "Poke Bowl" {abstract, Units {Price 'euro'}}
+        mandatory
+            Size {abstract}
+                alternative
+                    Normal {Price 11.95}
+                    "SuperSIZE" {Price 13.95}
+            Base {abstract}
+                alternative
+                    "Sushi rice"
+                    "Mixed lettuce"
+                    "Lamb's lettuce"
+                    "Green & lamb's lettuce mix"
+                    "Mix rice & lettuce"
+                    Spinach
+                    Pasta
+                    "Mix of lettuce & pasta"
+                    "Rocket salad"
+            Protein {abstract}
+                alternative
+                    "Red almadabra tuna" {note 'sustainable'}
+                    "Spicy red almadraba tuna tartar" {Price 3}
+                    "Norwegian salmon"
+                    "Wild red Alaskan salmon" {note 'sustainable', Price 2}
+                    "Free range chicken"
+                    Tofu
+                    "Mix seafood" {note 'with Wild red Alaskan salmon', Price 2}
+            Marinate {abstract}
+                alternative
+                    "Japanese citrus"
+                    "Japanese BBQ sauce"
+                    "Japanese aromatic plant"
+                    "Soy & wasabi"
+                    "Citrus soybeans"
+                    Soy
+                    "Gluten free soy"
+                    "Marinated tuna tartar"
+            Spice {abstract}
+                [1..2]
+                    "Toasted sesame"
+                    "Black sesame"
+                    "Japanese seasoned furikake"
+                    "7 japanese species"
+                    "Spicy siracha"
+            Toppings {abstract}
+                [1..5]
+                    Quinoa
+                    Cucumber
+                    Carrot
+                    "Purple carrot"
+                    Chive
+                    "Sweet onion"
+                    Avocado {Price 1.00}
+                    Edamame
+                    Wakame
+                    Nori {Price 0.50}
+                    Ginger
+                    Tobiko
+                    Mango {Price 1.00}
+                    Pineapple
+                    Apple
+                    Pear
+                    "Japanese gherkins"
+                    Tempura
+                    "Chilli slices"
+            Dressing {abstract}
+                alternative
+                    "Wasabi mayonnaise" {Spicy}
+                    "Kimchei mayonnaise" {Spicy}
+                    "Japanese mayonnaise"
+                    "Japanese citrus"
+                    "Japanese BBQ sauce"
+                    "Japanese aromatic plant"
+                    "Soy & wasabi"
+                    "Soy"
+                    "Gluten free soy"
+                    "Soya citrus"
+        optional
+            "Extra fish" {Price 3}
+            "Extra sauce" {Price 1}

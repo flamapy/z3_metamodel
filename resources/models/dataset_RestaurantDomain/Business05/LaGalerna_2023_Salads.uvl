@@ -1,0 +1,53 @@
+features
+	Salads {abstract, version '2023', units {Price 'euro'}}
+		mandatory
+			Integer Table
+			String "Your name"
+			Salad
+				or
+					"Mixed Lettuce"
+					Cannons
+					Espinach
+					Pasta
+					Couscous
+					"Rocket Salad"
+					Quinoa
+					Tomato
+					Cucumber
+					Carrot
+					Avocado
+					Onion
+					Apple
+					Pineapple
+					Banana
+					Kiwi
+					Raisins
+					"Pumkin Seeds"
+					"Sunflower Seeds"
+					Walnuts
+					Dates
+					Plums
+					"Crushed Toasted Corn"
+					"Dried Tomato"
+					Croutons
+					Tofu
+					Tuna
+					"Free Range Chicken"
+					"Spice Free Range Chicken"
+					"Natural Bacon"
+					"Natural Smoked Bacon Dried"
+					"Fresh Cheese"
+					"Fresh Mozzarella"
+					Emmental
+					Camembert
+					Parmesan {Price 0.5}
+					"Goat Cheese"
+					"Curry & Mango Vinaigrette"
+					"Balsamic Vinaigrette"
+					"Yogurt Sauce"
+					"Honey & Mustard Vinaigrette"
+					Vinaigrette
+constraints
+	Table > 0
+	len("Your name") > 0
+	Salad.Price == 9.95

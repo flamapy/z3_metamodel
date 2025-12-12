@@ -1,0 +1,35 @@
+imports
+    Bausatz_2025_Ingredients as Ingredients
+features
+    "Pizza Bausatz" {abstract}
+        mandatory
+            Integer "Ticket number"
+            Integer "Table number"
+            "Pizza Options" {abstract}
+                alternative
+                    "Large Pizza" {Allergen {Gluten}}
+                    "Small Pizza" {Allergen {Gluten}}
+                    "Mini Pizza" {Allergen {Gluten}}
+            "Tomato Sauce"
+            Cheese {note 'no analog cheese'}
+            Oregano
+            "4Ingredients" cardinality [4..40] {abstract, note 'each additional ingredient costs extra'}
+                mandatory
+                    Ingredients.Ingredients
+constraints
+    !Ingredients."Barbecue Sauce"
+    !Ingredients.Carrots
+    !Ingredients.Cheddar
+    !Ingredients.Cucumber
+    !Ingredients."Green Salad"
+    !Ingredients.Mayonnaise
+    !Ingredients.Mustard
+    !Ingredients.Pickles
+    !Ingredients."Steak Tartare Sauce"
+    !Ingredients.Jalapenyos
+    !Ingredients."Crispy fried onions"
+    !Ingredients."Sour cream"
+    !Ingredients."Kidney beans"
+    !Ingredients."Bell pepper"
+    "Ticket number" > 0
+    "Table number" > 0

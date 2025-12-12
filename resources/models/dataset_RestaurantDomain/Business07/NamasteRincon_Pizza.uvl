@@ -1,0 +1,51 @@
+namespace Pizza
+
+features
+	Pizza {abstract true}
+		mandatory
+			Topping {abstract}
+				or
+					Tomato
+					Cream
+					"BBQ sauce"
+					"Curry sauce"
+					Cheese
+					Mozzarella
+					Gouda
+					Parmesan
+					Roquefort
+					Mushroom
+					Onion
+					Pepper
+					Corn
+					Broccoli
+					Spinach
+					Olives
+					"York ham"
+					Salami
+					Bacon
+					Pepperoni
+					Chicken
+					Beef
+					Mince
+					"Chicken kebab"
+					Tuna
+					Shrimps
+					Mussels
+					Spicy
+					Egg
+					Pineapple
+					Oregano
+			Size {abstract}
+				alternative
+					Medium
+					Big
+		optional
+			"Half & Half"
+			CustomMade
+
+constraints
+	Oregano
+	Tomato | Cream | "BBQ sauce" | "Curry sauce"
+	Cheese
+	Medium => !"Half & Half"

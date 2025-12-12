@@ -1,0 +1,40 @@
+features
+    Pizzas {abstract, Units {Price 'euro', size 'cm'}}
+        mandatory
+            Size {abstract}
+                alternative
+                    Medium {size 30, Price 6.50}
+                    Big {size 32, Price 7.50}
+                    Familiar {size 40, Price 11.50}
+        optional
+            Ingredients
+                or
+                    "Tomato sauce"
+                    Mozzarella
+                    Salami
+                    Ham
+                    Mushrooms
+                    "4 cheeses"
+                    Onion
+                    "Black olives"
+                    Tuna
+                    Pineapple
+                    "Roasted chicken meat"
+                    "Roasted beef meat"
+                    "Bell pepper"
+                    Chicken
+                    Shrimps
+                    Spinach
+                    "Minced chicken"
+                    "Kebab meat"
+                    Pepperoni
+                    Cream
+                    "Yogurt sauce"
+                    Turkey
+                    Egg
+                    Anchovies
+                    Capers
+            "Garlic bread"
+constraints
+    "Garlic bread" => !Ingredients
+    Ingredients => "Tomato sauce" & Mozzarella

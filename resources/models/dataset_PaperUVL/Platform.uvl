@@ -1,0 +1,8 @@
+features
+    Platform
+        [2..3]
+            "Desktop App" {Price 70}
+            Boolean "Mobile App" {Price 80}
+            String Browser {Price 20}
+constraints
+    len(Browser) < 30

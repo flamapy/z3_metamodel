@@ -1,0 +1,9 @@
+features
+    Greens
+        [1..3]
+            Arugula {Calories 15, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 20, TotalCarbs 2, DietaryFiber 1, Sugars 1, Protein 2, vegan, paleo}
+            "Baby Spinach" {Calories 15, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 40, TotalCarbs 2, DietaryFiber 1, Sugars 0, Protein 2, vegan, paleo}
+            "Extra Crisp Romaine" {Calories 30, TotalFat 0.5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 15, TotalCarbs 6, DietaryFiber 4, Sugars 2, Protein 2, vegan, paleo}
+            "Shredded Cabbage" {Calories 70, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 65, TotalCarbs 16, DietaryFiber 6, Sugars 8, Protein 4, vegan, paleo}
+            "Shredded Kale" {Calories 20, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 20, TotalCarbs 5, DietaryFiber 2, Sugars 1, Protein 2, vegan, paleo}
+            "Supergreens Blend" {Calories 25, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 35, TotalCarbs 5, DietaryFiber 2, Sugars 1, Protein 2, vegan, paleo}

@@ -1,0 +1,45 @@
+features
+	Sandwiches {abstract, version '2020', units {Price 'euro'}}
+		mandatory
+			Integer Table
+			String "Your name"
+			Sandwich {Price 4.90}
+				mandatory
+					Ingredients {abstract}
+						or
+							"Cooked Ham"
+							"Serrano Ham"
+							"Free Range Chicken"
+							"Spice Free Range Chicken"
+							Tuna
+							"Natural Smoked Bacon"
+							Emmental
+							"Fresh Cheese"
+							"Goat Cheese"
+							"Fresh Mozzarella"
+							Camembert
+							Parmesan
+							Cheddar
+							Tomato
+							"Prepared Tomato"
+							Avocado
+							"Dried Tomato"
+							"Mixed Lettuce"
+							Cannons
+							Espinach
+							"Rocket Salad"
+							"Yogurt Sauce"
+							"Wasabi Mayonnaise"
+							"Curry & Mango Mayonnaise"
+							"Mustard Sauce"
+							"Cajun Mayonnaise"
+					Bread {abstract, note 'Baked in wood-fired oven'}
+						alternative
+							"Organic multigrain bread"
+							"Organic spelled bread"
+							"Organic soy bread"
+							"Organic whole grain bread"
+							"Gluten-free bread"
+constraints
+	Table > 0
+	len("Your name") > 0

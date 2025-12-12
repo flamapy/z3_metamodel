@@ -24,7 +24,7 @@ logging.basicConfig(
 )
 
 
-MODEL = 'resources/models/uvl_models/Pizza_z3.uvl'
+MODEL = 'resources/models/others/Pizza_z3.uvl'
 CONFIG_1 = 'resources/configs/pizza_z3_config1.json'
 CONFIG_2 = 'resources/configs/pizza_z3_config2.json'
 

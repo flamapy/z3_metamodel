@@ -1,0 +1,41 @@
+imports
+    Bausatz_2025_Ingredients as Ingredients
+features
+    "Burger Bausatz" {abstract}
+        mandatory
+            String Name
+            Integer "Ticket number"
+            Integer "Table number"
+            "Burger Options" {abstract}
+                alternative
+                    "Classic Burger" {note '100% beef', Allergen {Gluten, Mustard, Sesame}}
+                    "Vegetarian Burger" {note 'vegetable patty', Allergen {Gluten, Egg, Mustard}}
+            "Homemade Sauce" {Allergen {Gluten, Egg, Lactose, Celery, Mustard}}
+            "French Fries"
+            Ketchup {Allergen {Gluten, Mustard}}
+            "4Ingredients" cardinality [4..45] {abstract, note 'each additional ingredient costs extra'}
+                mandatory
+                    Ingredients.Ingredients
+constraints
+    !Ingredients."Basil Pesto"
+    !Ingredients.Carrots
+    !Ingredients.Capers
+    !Ingredients.Cucumber
+    !Ingredients.Egg
+    !Ingredients.Olives
+    !Ingredients."Pumpkin Seed Oil"
+    !Ingredients."Runner Beans"
+    !Ingredients.Seafood
+    !Ingredients."Spicy pepperoni"
+    !Ingredients.Tofu
+    !Ingredients.Zucchini
+    !Ingredients."Gold Bears"
+    !Ingredients."Whipped Cream"
+    !Ingredients.Jalapenyos
+    !Ingredients."Crispy fried onions"
+    !Ingredients."Sour cream"
+    !Ingredients."Kidney beans"
+    !Ingredients."Bell pepper"
+    "Ticket number" > 0
+    "Table number" > 0
+    len(Name) > 0

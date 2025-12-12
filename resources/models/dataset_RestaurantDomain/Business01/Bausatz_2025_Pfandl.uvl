@@ -1,0 +1,42 @@
+imports
+    Bausatz_2025_Ingredients as Ingredients
+features
+    "Pfandl Bausatz" {abstract}
+        mandatory
+            Integer "Ticket number"
+            Integer "Table number"
+            Pfandl {abstract, Allergen {Gluten, Egg}}
+                alternative
+                    Large
+                    Small
+                    Mini
+            "Spatzle" {Allergen {Gluten, Egg}}
+            "Cheese" {note 'no imitation cheese', Allergen {Lactose}} 
+            "Homemade base sauce" {Allergen {Lactose}}
+            Sauce {abstract}
+                or
+                    "Tomato sauce"
+                    "Cream sauce" {Allergen {Lactose}}
+            "4Ingredients" cardinality [4..43] {abstract, note 'each additional ingredient costs extra'}
+                mandatory
+                    Ingredients.Ingredients
+constraints
+    !Ingredients.Arugula
+    !Ingredients."Barbecue Sauce"
+    !Ingredients.Carrots
+    !Ingredients.Cheddar
+    !Ingredients.Cucumber
+    !Ingredients."Crispy fried onions"
+    !Ingredients."Green Salad"
+    !Ingredients."Gold Bears"
+    !Ingredients.Jalapenyos
+    !Ingredients.Mayonnaise
+    !Ingredients."Kidney beans"
+    !Ingredients.Mozzarella
+    !Ingredients.Mustard
+    !Ingredients.Pickles
+    !Ingredients.Paprika
+    !Ingredients."Sour cream"
+    !Ingredients."Steak Tartare Sauce"
+    "Ticket number" > 0
+    "Table number" > 0

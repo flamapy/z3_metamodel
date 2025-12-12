@@ -1,0 +1,23 @@
+features
+    "Dessert Bausatz" {abstract}
+        mandatory
+            Base {abstract}
+                alternative
+                    Waffle {Price 4.60, Allergen {Gluten, Egg, Soy}}
+                    Cheesecake {Price 4.60, Allergen {Gluten, Soy, Lactose, Nuts}}
+                    "Apple Strudel with raisins" {Price 4.60, Allergen {Gluten}}
+            Toppings cardinality [2..10] {abstract, Price 1.00}
+                alternative
+                    "Whipped cream (with sugar)" {Allergen {Lactose}}
+                    "Whipped cream (without sugar)" {Allergen {Lactose}}
+                    "Vanilla sauce" {Allergen {Lactose}}
+                    Applesauce
+                    "Dark chocolate sauce"
+                    "White chocolate sauce" {Allergen {Lactose, Soy}}
+                    "Strawberry sauce"
+                    "Caramel sauce" {Allergen {Lactose}}
+                    "Hazelnut sauce" {Allergen {Lactose, Soy, Nuts}}
+                    "Honey"
+                    Nutella {Price 1.10, Allergen {Lactose, Soy, Nuts}}
+constraints
+    "Dessert Bausatz".Price == -2.00

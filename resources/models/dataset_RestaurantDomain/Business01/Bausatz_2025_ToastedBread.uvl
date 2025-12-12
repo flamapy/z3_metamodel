@@ -1,0 +1,37 @@
+imports
+    Bausatz_2025_Ingredients as Ingredients
+features
+    "Toasted Bread Bausatz" {abstract}
+        mandatory
+            Integer "Ticket number"
+            Integer "Table number"
+            "Bread Type" {abstract}
+                alternative
+                    "White Bread" {Allergen {Gluten}}
+                    "Brown Bread" {Allergen {Gluten}}
+            Cheese {Allergen {Lactose}}
+            Ketchup
+            "4Ingredients" cardinality [4..40] {abstract, note 'each additional ingredient costs extra'}
+                mandatory
+                    Ingredients.Ingredients
+constraints
+    !Ingredients.Arugula
+    !Ingredients."Barbecue Sauce"
+    !Ingredients.Carrots
+    !Ingredients.Cheddar
+    !Ingredients.Cucumber
+    !Ingredients.Egg
+    !Ingredients."Emmental Cheese"
+    !Ingredients."Green Salad"
+    !Ingredients."Gold Bears"
+    !Ingredients.Pickles
+    !Ingredients."Pumpkin Seed Oil"
+    !Ingredients."Spicy pepperoni"
+    !Ingredients."Spicy Salami"
+    !Ingredients."Steak Tartare Sauce"
+    !Ingredients."Whipped Cream"
+    !Ingredients.Zucchini
+    !Ingredients."Kidney beans"
+    !Ingredients."Bell pepper"
+    "Ticket number" > 0
+    "Table number" > 0

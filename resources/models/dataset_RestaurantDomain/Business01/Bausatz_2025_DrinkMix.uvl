@@ -1,0 +1,62 @@
+imports
+    Bausatz_2025_Spirits as Spirits
+features
+    "Drink Mix Bausatz" {abstract}
+        mandatory
+            String Name
+            Integer "Ticket number"
+            Integer "Table number"
+            Drink {abstract}
+                alternative
+                    Large
+                    Small
+        optional
+            "3Spirits" cardinality [3..3] {abstract}
+                mandatory
+                    Spirits.Spirits
+            "2Spirits" cardinality [2..2] {abstract}
+                mandatory
+                    Spirits.Spirits
+        mandatory
+            Syrup {abstract, Volume {value 1, unit 'cl'}}
+                alternative
+                    Pineapple
+                    Banana
+                    "Blue Curacao"
+                    Strawberry
+                    Grenadine
+                    Cherry
+                    Coconut {Allergen {Sulphites}}
+                    Lime {Allergen {Sulphites}}
+                    Mango
+                    "Passion fruit"
+                    Vanilla
+                    "Lemon juice"
+            Mixer {abstract, Volume {value 125, unit 'ml'}}
+                alternative
+                    "Pineapple juice"
+                    "Apple juice"
+                    "Bitter Lemon"
+                    Cola
+                    "Cranberry juice"
+                    "Ginger Ale"
+                    "Herbal soda"
+                    "Apricot juice"
+                    "Orange soda"
+                    "Orange juice"
+                    Soda
+                    Tonic
+        optional
+            "RedBull Upgrade" {abstract, Volume {value 0.25, unit 'l'}, note 'can of your choice for an additional fee'}
+                alternative
+                    "Red Bull Sugarfree"
+                    "Red Bull Edition" {note 'various types, ask the crew'}
+                    "Red Bull Simply Cola" {Allergen {Mustard}}
+                    "Red Bull ORGANICS"
+constraints
+    Large => "3Spirits"
+    Small => "2Spirits"
+    "3Spirits" => !"2Spirits"
+    "Ticket number" > 0
+    "Table number" > 0
+    len(Name) > 0

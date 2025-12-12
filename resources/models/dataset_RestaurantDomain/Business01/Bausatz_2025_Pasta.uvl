@@ -1,0 +1,55 @@
+imports
+    Bausatz_2025_Ingredients as Ingredients
+features
+    "Pasta Bausatz" {abstract}
+        mandatory
+            Integer "Ticket number"
+            Integer "Table number"
+            Pasta {abstract}
+                alternative
+                    Spaghetti  {Allergen {Gluten}}
+                    "Penne rigate" {Allergen {Gluten}}
+                    "Tortellini (meat)" {Allergen {Gluten, Egg}}
+                    "Tortellini (spinach-cheese)" {Allergen {Gluten, Lactose}}
+                    "Tortellini (porcini mushrooms)" {Allergen {Gluten, Lactose, Sulphites}}
+            Size {abstract}
+                alternative
+                    Large
+                    Small
+            "Homemade base sauce" {Allergen {Lactose}}
+            Basil
+            Sauce {abstract}
+                or
+                    "Tomato sauce"
+                    "Cream sauce" {Allergen {Lactose}}
+            "4Ingredients" cardinality [4..35] {abstract, note 'each additional ingredient costs extra'}
+                mandatory
+                    Ingredients.Ingredients
+constraints
+    !Ingredients.Arugula
+    !Ingredients."Barbecue Sauce"
+    !Ingredients.Capers
+    !Ingredients.Carrots
+    !Ingredients.Cheddar
+    !Ingredients.Cucumber
+    !Ingredients."Crispy fried onions"
+    !Ingredients.Egg
+    !Ingredients."Green Salad"
+    !Ingredients."Gold Bears"
+    !Ingredients.Jalapenyos
+    !Ingredients.Mayonnaise
+    !Ingredients."Kidney beans"
+    !Ingredients.Mozzarella
+    !Ingredients.Mustard
+    !Ingredients.Pickles
+    !Ingredients."Pumpkin Seeds"
+    !Ingredients.Salami
+    !Ingredients.Snails
+    !Ingredients."Spicy Salami"
+    !Ingredients."Sour cream"
+    !Ingredients."Steak Tartare Sauce"
+    !Ingredients."Sunflower Seeds"
+    !Ingredients."Whipped Cream"
+    !Ingredients."Bell pepper"
+    "Ticket number" > 0
+    "Table number" > 0

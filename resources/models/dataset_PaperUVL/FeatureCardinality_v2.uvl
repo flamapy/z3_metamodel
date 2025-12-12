@@ -1,0 +1,26 @@
+features
+    R
+        optional
+            A
+                [2..3]
+                    A_1
+                        optional
+                            B_1 
+                            C_1 
+                    A_2
+                        optional
+                            B_2 
+                            C_2 
+                    A_3
+                        optional
+                            B_3
+                            C_3 
+            D
+constraints
+    A_1 => (B_1 => C_1)
+    A_2 => (B_2 => C_2)
+    A_3 => (B_3 => C_3)
+    A_1 => (!D | (C_1 & B_1))
+    A_2 => (!D | (C_2 & B_2))
+    A_3 => (!D | (C_3 & B_3))
+    !D | ((C_1 | C_2 | C_3) & (B_1 | B_2 | B_3))

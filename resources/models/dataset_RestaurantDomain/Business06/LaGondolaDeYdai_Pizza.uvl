@@ -1,0 +1,73 @@
+namespace Pizza
+
+features
+	Pizza {abstract, Units {Price 'euro', size 'cm'}}
+		mandatory
+			Ingredients {abstract}
+				or
+					Tomato
+					Cream
+					"BBQ sauce"
+					"Yogurt sauce"
+					"Argentinian sauce"
+					"Special sauce"
+					Mozzarella
+					"Mozzarella pearls"
+					"Goat cheese"
+					Emmental
+					Parmesan
+					Roquefort
+					Gorgonzola
+					Mushroom
+					Onion
+					"Caramelized onion"
+					"Cherry tomato"
+					Rocket
+					Capers
+					Pickle
+					Artichokes
+					"Black olives"
+					Vegetables
+					"York ham"
+					"Serrano ham"
+					Salami
+					Bacon
+					"Spicy chorizo"
+					Frankfurt
+					Chicken
+					Meat
+					"Spicy meat"
+					Sirloin
+					Kebab
+					Tuna
+					Shrimps
+					Anchovies
+					"Crab stick"
+					Egg
+					Pineapple
+					Garlic
+					"French fries"
+			Size {abstract}
+				alternative
+					Mini {size 24, Price 6.25}
+					Medium {size 33, Price 10.95}
+					Big {size 50, Price 21.95}
+		optional
+			"Half & Half" {note 'extra cost'}
+			"Double base"
+			"Gluten free"
+			"Closed pizza"
+				alternative
+					"Traditional calzone"
+					Chapata
+					Bombaa {Price 1.00}
+					Strudell
+constraints
+	"Gluten free" => ! Big & ! "Closed pizza"
+	"Closed pizza" => ! "Gluten free"
+	"Closed pizza" => Medium | Big
+	"Double base" => Medium | Big
+	"Gluten free" & Mini => Pizza.Price == Pizza.Price + 0.50
+	"Gluten free" & Medium => Pizza.Price == Pizza.Price + 1.00
+	"Double base" & Medium => Pizza.Price == Pizza.Price + 1.00
+	"Double base" & Big => Pizza.Price == Pizza.Price + 2.00

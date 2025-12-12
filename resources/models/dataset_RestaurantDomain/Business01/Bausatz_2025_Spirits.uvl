@@ -1,0 +1,23 @@
+features
+    Spirits {abstract, Volume {value '2', unit 'cl'}}
+        alternative
+            Absinth
+            Aperol {Allergen {Sulphites}}
+            Averna {Allergen {Sulphites}}
+            Bacardi
+            "Captain Morgan"
+            "Exakt Vodka"
+            Gin
+            "Havana Club"
+            "Jagermeister"
+            "Jim Beam Bourbon" {Allergen {Gluten}}
+            "Jim Beam Honey" {Allergen {Gluten}}
+            Malibu
+            "Martini Bianco" {Allergen {Sulphites}}
+            "Martini Rosso" {Allergen {Sulphites}}
+            Ramazotti
+            "SOURZ Apple"
+            "SOURZ Blackcurrant"
+            "Tequila Gold"
+            "Triple sec"
+            "Whiskey" {note 'Jack Daniels', Allergen {Gluten, Sulphites}}

@@ -1,0 +1,27 @@
+features
+    Dressings {Price 0.99}
+        or
+            Integer "Bachan's Smoky BBQ Ranch" 
+            Integer "Balsamic Vinaigrette (Homemade)" {Calories 160, TotalFat 18, SaturatedFat 1.5, TransFat 0, Cholesterol 0, Sodium 45, TotalCarbs 2, DietaryFiber 0, Sugars 1, Protein 0, soy, vegan}
+            Integer "Balsamic Vinegar+Extra Virgin Olive Oil" {Calories 130, TotalFat 14, SaturatedFat 2, TransFat 0, Cholesterol 0, Sodium 0, TotalCarbs 2, DietaryFiber 0, Sugars 0, Protein 0, vegan}
+            Integer "Buttermilk Ranch (Homemade)" {Calories 120, TotalFat 13, SaturatedFat 2, TransFat 0, Cholesterol 10, Sodium 120, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 0, dairy, eggs, vegetarian}
+            Integer "Chipotle Vinaigrette (Homemade)" {Calories 150, TotalFat 17, SaturatedFat 1, TransFat 0, Cholesterol 0, Sodium 95, TotalCarbs 1, DietaryFiber 0, Sugars 0, Protein 0, soy, vegan}
+            Integer "Cilantro Lime Vinaigrette (Homemade)" {Calories 150, TotalFat 17, SaturatedFat 1.5, TransFat 0, Cholesterol 0, Sodium 250, TotalCarbs 2, DietaryFiber 0, Sugars 0, Protein 0, soy, vegan}
+            Integer "Creamy Caesar (Homemade)" {Calories 150, TotalFat 15, SaturatedFat 3.5, TransFat 0, Cholesterol 15, Sodium 240, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 3, dairy, fish, eggs, soy}
+            Integer "Cucumber Tzatziki (Homemade)"
+            Integer "Extra Virgin Olive Oil" {Calories 250, TotalFat 28, SaturatedFat 4, TransFat 0, Cholesterol 0, Sodium 0, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 0, vegan}
+            Integer "Extra Virgin Olive Oil + Fresh Lemon Juice" {Calories 130, TotalFat 14, SaturatedFat 2, TransFat 0, Cholesterol 0, Sodium 65, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 0, vegan}
+            Integer "Fresh Lemon" {Calories 10, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 0, TotalCarbs 3, DietaryFiber 0, Sugars 0, Protein 0, vegan}
+            Integer "Fresh Lime" {Calories 10, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 0, TotalCarbs 3, DietaryFiber 0, Sugars 0, Protein 0, vegan}
+            Integer "Green Aji Sauce (Homemade)"
+            Integer "Half Lemon + Balsamic Drizzle" {Calories 170, TotalFat 18, SaturatedFat 1.5, TransFat 0, Cholesterol 0, Sodium 50, TotalCarbs 7, DietaryFiber 2, Sugars 3, Protein 0, soy, vegan}
+            Integer "Honey Mustard Vinaigrette" {Calories 110, TotalFat 9, SaturatedFat 0.5, TransFat 0, Cholesterol 0, Sodium 140, TotalCarbs 8, DietaryFiber 0, Sugars 7, Protein 0, soy, vegetarian}
+            Integer "Kale-Pesto Vinaigrette (Homemade)" {Calories 100, TotalFat 11, SaturatedFat 1.5, TransFat 0, Cholesterol 4, Sodium 85, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 0.5, dairy, soy, vegetarian}
+            Integer "Lemon Basil Vinaigrette (Homemade)" {Calories 120, TotalFat 13, SaturatedFat 1, TransFat 0, Cholesterol 0, Sodium 75, TotalCarbs 1, DietaryFiber 0, Sugars 0, Protein 0, soy, vegan}
+            Integer "Miso Ginger Vinaigrette (Homemade)" {Calories 90, TotalFat 9, SaturatedFat 0.5, TransFat 0, Cholesterol 0, Sodium 490, TotalCarbs 2, DietaryFiber 0, Sugars 0, Protein 1, soy, sesame, vegan}
+            Integer "Red Wine Vinegar" {Calories 5, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 0, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 0, vegan}
+            Integer "Red Wine Vinegar+Extra Virgin Olive Oil" {Calories 130, TotalFat 14, SaturatedFat 2, TransFat 0, Cholesterol 0, Sodium 0, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 0, vegan}
+            Integer "Smoky Poblano Ranch (Homemade)" {Calories 130, TotalFat 13, SaturatedFat 2, TransFat 0, Cholesterol 10, Sodium 130, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 0, dairy, eggs, vegetarian}
+            Integer "Spicy Buffalo Ranch (Homemade)" {Calories 70, TotalFat 8, SaturatedFat 1, TransFat 0, Cholesterol 0, Sodium 520, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 0, dairy, eggs, vegetarian}
+            Integer "Sriracha" 
+            Integer "Thai Peanut" {Calories 130, TotalFat 13, SaturatedFat 1.5, TransFat 0, Cholesterol 0, Sodium 140, TotalCarbs 4, DietaryFiber 0, Sugars 3, Protein 1, dairy, vegetarian}

@@ -1,0 +1,16 @@
+features
+    PC 
+        mandatory
+            RAM 
+                or 
+                    "8GB"
+                    "16GB"
+            CPU 
+            "Power Unit"
+                alternative
+                    Large 
+                    Small 
+        optional 
+            "Designated GPU"
+constraints
+    "Designated GPU" => Large

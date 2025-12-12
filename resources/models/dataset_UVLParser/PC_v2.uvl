@@ -1,0 +1,15 @@
+imports
+    submodel as s
+features
+    PC 
+        mandatory
+            s.RAM
+            CPU 
+            "Power Unit"
+                alternative
+                    Large 
+                    Small 
+        optional 
+            "Designated GPU"
+constraints
+    "Designated GPU" => Large

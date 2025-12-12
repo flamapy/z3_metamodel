@@ -1,0 +1,44 @@
+features
+    Kebab {abstract}
+        mandatory
+            "Type" {abstract}
+                alternative
+                    "Durum kebab" {Price 5.00}
+                        mandatory
+                            Size
+                                alternative
+                                    Normal
+                                    XL {Price 1.00}
+                        optional
+                            "Grilled durum" {Price 1.00}
+                            "Grilled taco" {Price 1.00}
+                    Shawarma {Price 5.00}
+                    Lahmacun {Price 6.00}
+            Meat 
+                or
+                    Chicken
+                    Beef
+        optional
+            Fill {abstract}
+                alternative
+                    Complete
+                    "Only meat" {Price 0.50}
+            Vegetables {abstract}
+                or
+                    Lettuce
+                    Tomato
+                    Onion
+            Egg
+            Cheese
+            "Yogurt sauce"
+            "French fries"
+constraints
+    "Grilled taco" => !XL
+    Complete => Lettuce & Tomato & Onion & Egg & "Yogurt sauce"
+    "Only meat" => !Vegetables & !Egg & !Cheese
+    "Grilled taco" <=> "French fries"
+    "Grilled durum" | "Grilled taco" => !Vegetables
+    "Grilled durum" | "Grilled taco" => !Vegetables
+    Cheese <=> ("Grilled durum" | "Grilled taco")
+    Shawarma | Lahmacun => Fill
+    Fill => !Cheese

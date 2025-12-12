@@ -1,0 +1,58 @@
+features
+    Pizza {Alergens {Cereals, Milk, Sulphites}, Units {Price 'euro', size 'cm'}}
+        optional
+            Size {abstract}
+                alternative
+                    Medium {size 35, Price 8.50}
+                    Big {size 50, Price 11.00}
+                    Integer Portions {constraints [Portions.Price == Portions * 2.00, 1 <= Portions & Portions < 8 & Portions => Ingredients.Price == 0]}
+            Calzone {Price 10.00}
+            Vegan
+        mandatory
+            Base {abstract}
+                optional
+                    Tomato
+                mandatory
+                    Mozzarella
+                    Oregano
+            Ingredients cardinality [1..*] {abstract, Price 1.00}
+                alternative
+                    Bacon
+                    Ham
+                    Chorizo
+                    "Serrano ham"
+                    Beef
+                    Chicken
+                    Peppers
+                    Onion
+                    Mushrooms
+                    "Lamb's lettuce"
+                    "Fresh tomato"
+                    Egg
+                    Anchovies
+                    Capers
+                    Olives
+                    Tuna
+                    Pineapple
+                    Parmesan
+                    Gorgonzola
+                    Emmental
+                    "Barbecue sauce"
+                    "Carbonara sauce"
+                    Cream
+                    "Fresh longaniza"
+                    Rocket
+                    Eggplant
+                    "Caramelized onion"
+                    Spinach
+                    Pepperoni
+            Integer OrderNum
+            String CustomerName
+constraints
+    Calzone => !Size
+    !Calzone => Size
+    Calzone => Tomato & Ham & Mushrooms & Egg
+    Calzone => !(Bacon | Chorizo | "Serrano ham" | Beef | Chicken | Peppers | Onion | Mushrooms | "Lamb's lettuce" | "Fresh tomato" | Anchovies | Capers | Olives | Tuna | Pineapple | Parmesan | Gorgonzola | Emmental | "Barbecue sauce" | "Carbonara sauce" | Cream | "Fresh longaniza" | Rocket | Eggplant | "Caramelized onion" | Spinach | Pepperoni)
+    Big => Ingredients.Price == 1.50
+    len(CustomerName) > 0
+    OrderNum > 0
