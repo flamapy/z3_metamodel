@@ -24,19 +24,20 @@ def _read_model(path: str) -> Z3Model:
     return z3_model
 
 @pytest.mark.parametrize("path, expected", [
-    ('resources/models/uvl_models/Electricity.uvl', True),
-    ('resources/models/uvl_models/fm01_integer_unbounded.uvl', True),
-    ('resources/models/uvl_models/fm02_integer_bounded.uvl', True),
-    ('resources/models/uvl_models/fm03_integer_conditional_bounded.uvl', True),
-    ('resources/models/uvl_models/fm04_integer_dead_feature.uvl', True),
-    ('resources/models/uvl_models/fm05_string_unbounded.uvl', True),
-    ('resources/models/uvl_models/fm06_string_bounded.uvl', True),
-    ('resources/models/uvl_models/fm07_string_conditional_bounded.uvl', True),
-    ('resources/models/uvl_models/fm08_real_unbounded.uvl', True),
-    ('resources/models/uvl_models/fm09_real_bounded.uvl', True),
-    ('resources/models/uvl_models/fm10_real_conditional_bounded.uvl', True),
-    ('resources/models/uvl_models/fm11_real_bounded_infinite.uvl', True),
-    ('resources/models/uvl_models/icecream_attributes.uvl', True)
+    ('resources/models/testing_models/Electricity.uvl', True),
+    ('resources/models/testing_models/fm01_integer_unbounded.uvl', True),
+    ('resources/models/testing_models/fm02_integer_bounded.uvl', True),
+    ('resources/models/testing_models/fm03_integer_conditional_bounded.uvl', True),
+    ('resources/models/testing_models/fm04_integer_dead_feature.uvl', True),
+    ('resources/models/testing_models/fm05_string_unbounded.uvl', True),
+    ('resources/models/testing_models/fm06_string_bounded.uvl', True),
+    ('resources/models/testing_models/fm07_string_conditional_bounded.uvl', True),
+    ('resources/models/testing_models/fm08_real_unbounded.uvl', True),
+    ('resources/models/testing_models/fm09_real_bounded.uvl', True),
+    ('resources/models/testing_models/fm10_real_conditional_bounded.uvl', True),
+    ('resources/models/testing_models/fm11_real_bounded_infinite.uvl', True),
+    ('resources/models/testing_models/icecream_attributes.uvl', True),
+    ('resources/models/testing_models/group_cardinalities.uvl', True)
 ])
 def test_z3_satisfiable(path: str, expected: bool):
     z3_model = _read_model(path)
@@ -44,14 +45,15 @@ def test_z3_satisfiable(path: str, expected: bool):
     assert result == expected
 
 @pytest.mark.parametrize("path, expected", [
-    ('resources/models/uvl_models/fm02_integer_bounded.uvl', 9),
-    ('resources/models/uvl_models/fm03_integer_conditional_bounded.uvl', 4),
-    ('resources/models/uvl_models/fm04_integer_dead_feature.uvl', 3),
-    ('resources/models/uvl_models/fm06_string_bounded.uvl', 6),
-    ('resources/models/uvl_models/fm07_string_conditional_bounded.uvl', 5),
-    ('resources/models/uvl_models/fm09_real_bounded.uvl', 6),
-    ('resources/models/uvl_models/fm10_real_conditional_bounded.uvl', 3),
-    ('resources/models/uvl_models/icecream_attributes.uvl', 15)
+    ('resources/models/testing_models/fm02_integer_bounded.uvl', 9),
+    ('resources/models/testing_models/fm03_integer_conditional_bounded.uvl', 4),
+    ('resources/models/testing_models/fm04_integer_dead_feature.uvl', 3),
+    ('resources/models/testing_models/fm06_string_bounded.uvl', 6),
+    ('resources/models/testing_models/fm07_string_conditional_bounded.uvl', 5),
+    ('resources/models/testing_models/fm09_real_bounded.uvl', 6),
+    ('resources/models/testing_models/fm10_real_conditional_bounded.uvl', 3),
+    ('resources/models/testing_models/icecream_attributes.uvl', 15),
+    ('resources/models/testing_models/group_cardinalities.uvl', 16)
 ])
 def test_nconfigs(path: str, expected: int):
     z3_model = _read_model(path)
@@ -59,7 +61,7 @@ def test_nconfigs(path: str, expected: int):
     assert n_configs == expected
 
 @pytest.mark.parametrize("path, expected", [
-    ('resources/models/uvl_models/icecream_attributes.uvl', 7)
+    ('resources/models/testing_models/icecream_attributes.uvl', 7)
 ])
 def test_pareto_front_nconfigs(path: str, expected: int):
     z3_model = _read_model(path)
