@@ -193,39 +193,53 @@ class FmToZ3(ModelToModel):
         self.destination_model.add_constraint(formula)
 
     def _add_cardinality_formula(self, relation: Relation) -> None:
-        parent_variable = self.destination_model.get_variable(relation.parent.name)
-        if parent_variable is None:
+        parent_var = self.destination_model.get_variable(relation.parent.name)
+        if parent_var is None:
             raise FlamaException(f'Unsupported feature: {relation.parent.name}')
-        parent = parent_variable.sel
-        children = set()
+        
+        parent = parent_var.sel
+        children = []
         for child in relation.children:
-            child_variable = self.destination_model.get_variable(child.name)
-            if child_variable is None:
+            child_var = self.destination_model.get_variable(child.name)
+            if child_var is None:
                 raise FlamaException(f'Unsupported feature: {child.name}')
-            children.add(child_variable.sel)
-        or_ctc = []
-        min_cardinality = relation.card_min
-        max_cardinality = relation.card_max
-        if max_cardinality == -1:
-            max_cardinality = len(children)
-        for k in range(min_cardinality, max_cardinality + 1):
-            combi_k = list(itertools.combinations(children, k))
-            for positives in combi_k:
-                negatives = children - set(positives)
-                if positives:
-                    positives_and_ctc = z3.And(*positives)
-                if negatives:
-                    negatives_and_ctc = z3.And([z3.Not(ch) for ch in negatives])
-                if positives and negatives:
-                    and_ctc = z3.And(positives_and_ctc, negatives_and_ctc)
-                elif positives:
-                    and_ctc = positives_and_ctc
-                elif negatives: 
-                    and_ctc = negatives_and_ctc
-                or_ctc.append(and_ctc) 
-        formula_or_ctc = z3.Or(*or_ctc)
-        formula = (parent == formula_or_ctc)
-        self.destination_model.add_constraint(formula)
+            children.append(child_var.sel)
+
+        _min = relation.card_min
+        _max = relation.card_max
+        if _max == -1:
+            _max = len(children)
+
+        # 1. Restrictions when the PARENT is ACTIVE
+        # If the number of active children is not in [_min, _max], the parent cannot be active
+        for val in range(len(children) + 1):
+            if val < _min or val > _max:
+                for combination in itertools.combinations(children, val):
+                    # We generate a clause: "If this invalid combination occurs, the parent must be false"
+                    # Or seen another way: NOT (Parent AND child1 AND NOT child2...)
+                    literals = []
+                    for child in children:
+                        if child in combination:
+                            literals.append(child)
+                        else:
+                            literals.append(z3.Not(child))
+                    
+                    # This is equivalent to: parent => NOT (this_combination)
+                    self.destination_model.add_constraint(z3.Implies(parent, z3.Not(z3.And(*literals))))
+
+        # 2. Restrictions when the PARENT is INACTIVE
+        # If the parent is false, no combination of children (val > 0) can be active
+        for val in range(1, len(children) + 1):
+            for combination in itertools.combinations(children, val):
+                literals = []
+                for child in children:
+                    if child in combination:
+                        literals.append(child)
+                    else:
+                        literals.append(z3.Not(child))
+                
+                # This is equivalent to: NOT parent => NOT (this_combination)
+                self.destination_model.add_constraint(z3.Implies(z3.Not(parent), z3.Not(z3.And(*literals))))
 
     def _add_constraint_formula(self, ctc: Constraint) -> None:
         expr  = self._get_expression(ctc.ast.root, None)

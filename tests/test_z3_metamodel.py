@@ -36,7 +36,8 @@ def _read_model(path: str) -> Z3Model:
     ('resources/models/uvl_models/fm09_real_bounded.uvl', True),
     ('resources/models/uvl_models/fm10_real_conditional_bounded.uvl', True),
     ('resources/models/uvl_models/fm11_real_bounded_infinite.uvl', True),
-    ('resources/models/uvl_models/icecream_attributes.uvl', True)
+    ('resources/models/uvl_models/icecream_attributes.uvl', True),
+    ('resources/models/uvl_models/group_cardinalities.uvl', True)
 ])
 def test_z3_satisfiable(path: str, expected: bool):
     z3_model = _read_model(path)
@@ -51,7 +52,8 @@ def test_z3_satisfiable(path: str, expected: bool):
     ('resources/models/uvl_models/fm07_string_conditional_bounded.uvl', 5),
     ('resources/models/uvl_models/fm09_real_bounded.uvl', 6),
     ('resources/models/uvl_models/fm10_real_conditional_bounded.uvl', 3),
-    ('resources/models/uvl_models/icecream_attributes.uvl', 15)
+    ('resources/models/uvl_models/icecream_attributes.uvl', 15),
+    ('resources/models/uvl_models/group_cardinalities.uvl', 16)
 ])
 def test_nconfigs(path: str, expected: int):
     z3_model = _read_model(path)
