@@ -17,6 +17,8 @@ class Z3AttributeOptimization(AttributeOptimization):
     """This operation returns the configurations that optimize the given numerical attribute(s).
     
     The optimization is based on the sum of the attribute values across all selected features.
+
+    It returns all configurations in the Pareto front for the specified objetives.
     """
 
     def __init__(self) -> None:
@@ -116,112 +118,123 @@ def optimize_single_objective(z3_model: Z3Model,
     return results
 
 
-def optimize_multi_objective(z3_model: Z3Model,
-                             attributes: dict[str, 'OptimizationGoal']
-                             ) -> list[tuple['Configuration', dict[str, int | float]]]:
+def optimize_multi_objective(
+        z3_model: Z3Model,
+        attributes: dict[str, OptimizationGoal]
+) -> list[tuple[Configuration, dict[str, int | float]]]:
     """
-    Busca el Frente de Pareto de soluciones no-dominadas usando un algoritmo de bloqueo iterativo.
+    Enumerates Pareto-optimal solutions using iterative dominance blocking.
     """
-    # (nombre_attr, expr_z3, meta)
-    objectives = [(attr, Z3Model.sum_attribute(z3_model, attr), goal)
-                  for attr, goal in attributes.items()]
 
-    pareto_solutions: list[tuple[Any, dict[str, int | float]]] = [] # Almacena candidatos a Pareto
+    # Lista de objetivos: (nombre, expresión Z3, meta)
+    objectives = [
+        (attr, Z3Model.sum_attribute(z3_model, attr), goal)
+        for attr, goal in attributes.items()
+    ]
+
+    pareto_solutions: list[tuple[Configuration, dict[str, int | float]]] = []
 
     solver = z3.Solver(ctx=z3_model.ctx)
     solver.add(z3_model.constraints)
 
-    # Definir una pequeña tolerancia para comparaciones de números reales en Z3
-    EPSILON = z3.RealVal('0.000001', ctx=z3_model.ctx) # 1e-6
-    epsilon_py = 1e-6 # Tolerancia para el filtro de Python
-
-    # Bucle para encontrar soluciones no-dominadas (candidatos a Pareto)
     while solver.check() == z3.sat:
         m = solver.model()
-        
-        # 1. Obtener los valores de objetivo de la nueva solución encontrada
-        attr_values = {name: _z3_to_number(m.evaluate(expr, model_completion=True))
-                       for name, expr, _ in objectives}
 
-        config, block = extract_configuration(z3_model, m)
-        
-        # 2. Almacenar la nueva solución candidata
+        # -------------------------------
+        # 1. Obtener valores de objetivos
+        # -------------------------------
+        attr_values = {
+            name: _z3_to_number(m.evaluate(expr, model_completion=True))
+            for name, expr, _ in objectives
+        }
+
+        # -------------------------------
+        # 2. Extraer configuración
+        # -------------------------------
+        config, _ = extract_configuration(z3_model, m)
         pareto_solutions.append((config, attr_values))
 
-        # 3. Definir la restricción de No-Dominancia para la próxima iteración
-        non_dominance_constraints = []
-        
-        # El Solver debe encontrar una solución X que NO sea dominada por ninguna solución P ya encontrada.
-        for p_config, p_values in pareto_solutions:
-            
-            # X debe ser estrictamente mejor que P en AL MENOS UN objetivo (con tolerancia)
-            at_least_one_better = [] 
-            
-            for name, expr, goal in objectives:
-                p_val = p_values[name]
-                
-                if isinstance(p_val, float):
-                    p_val_z3 = z3.RealVal(str(p_val), ctx=z3_model.ctx)
+        # -------------------------------------------------
+        # 3. Añadir restricción de mejora estricta (Pareto)
+        # -------------------------------------------------
+        improve_constraints = []
 
-                    if goal == OptimizationGoal.MINIMIZE:
-                        # Queremos expr < p_val_z3. Usamos tolerancia: expr <= p_val_z3 - EPSILON
-                        at_least_one_better.append(expr <= p_val_z3 - EPSILON) 
-                    else: # MAXIMIZE
-                        # Queremos expr > p_val_z3. Usamos tolerancia: expr >= p_val_z3 + EPSILON
-                        at_least_one_better.append(expr >= p_val_z3 + EPSILON) 
-                else: # INTEGER
-                    p_val_z3 = z3.IntVal(p_val, ctx=z3_model.ctx) 
-                    
-                    if goal == OptimizationGoal.MINIMIZE:
-                        at_least_one_better.append(expr < p_val_z3) 
-                    else: # MAXIMIZE
-                        at_least_one_better.append(expr > p_val_z3) 
+        for name, expr, goal in objectives:
+            val = m.evaluate(expr, model_completion=True)
 
-            # Restricción: La próxima solución X DEBE satisfacer z3.Or(at_least_one_better) respecto a P.
-            non_dominance_constraints.append(z3.Or(at_least_one_better))
+            if goal == OptimizationGoal.MINIMIZE:
+                improve_constraints.append(expr < val)
+            else:
+                improve_constraints.append(expr > val)
 
-        # 4. Aplicar las restricciones al Solver
-        solver.add(z3.And(non_dominance_constraints))
-
-        # 5. Bloqueo de la configuración actual (para forzar una configuración diferente)
-        solver.add(z3.Or(block)) 
-
+        # Bloquear soluciones dominadas por la actual
+        solver.add(z3.Or(improve_constraints))
 
     # ================================================================
-    # FILTRADO FINAL DE DOMINANCIA Y UNICIDAD (Red de Seguridad)
+    # FILTRADO FINAL DE DOMINANCIA (red de seguridad)
     # ================================================================
+    final_pareto_front: list[tuple[Configuration, dict[str, int | float]]] = []
 
-    final_pareto_front: list[tuple[Any, dict[str, int | float]]] = []
-
-    # A. Filtrado de Dominancia: Eliminar soluciones que fueron dominadas
     for i in range(len(pareto_solutions)):
         config_i, values_i = pareto_solutions[i]
-        is_dominated_by_another = False
+        dominated = False
 
         for j in range(len(pareto_solutions)):
             if i == j:
                 continue
-            
-            config_j, values_j = pareto_solutions[j]
-            
-            # Verificar si la solución j DOMINA a la solución i
-            if is_dominated(values_i, values_j, attributes, epsilon=epsilon_py):
-                is_dominated_by_another = True
+
+            _, values_j = pareto_solutions[j]
+
+            if is_dominated(values_i, values_j, attributes):
+                dominated = True
                 break
-                
-        if not is_dominated_by_another:
+
+        if not dominated:
             final_pareto_front.append((config_i, values_i))
 
-    # B. Filtrado de Unicidad (por valores de objetivo)
-    # Esto elimina múltiples configuraciones que tienen el MISMO par de valores óptimos.
-    unique_solutions: dict[tuple[int | float, ...], tuple[Any, dict[str, int | float]]] = {}
-    
-    for config, values in final_pareto_front:
-        key = tuple(round(v, 6) if isinstance(v, float) else v for v in values.values())
-        if key not in unique_solutions:
-            unique_solutions[key] = (config, values)
+    # Expandir cada configuración del frente de Pareto para obtener todas las configuraciones que comparten esos valores objetivos.
+    expanded_results = []
 
-    return list(unique_solutions.values())
+    for config, values in final_pareto_front:
+        configs = enumerate_configurations_for_objectives(
+            z3_model,
+            objectives,
+            values
+        )
+
+        for c in configs:
+            expanded_results.append((c, values))
+
+    return expanded_results
+
+
+def enumerate_configurations_for_objectives(
+        z3_model: Z3Model,
+        objectives,
+        target_values
+):
+    solver = z3.Solver(ctx=z3_model.ctx)
+    solver.add(z3_model.constraints)
+
+    # fijar valores de objetivos
+    for name, expr, _ in objectives:
+        val = target_values[name]
+        if isinstance(val, float):
+            solver.add(expr == z3.RealVal(str(val), ctx=z3_model.ctx))
+        else:
+            solver.add(expr == z3.IntVal(val, ctx=z3_model.ctx))
+
+    results = []
+
+    while solver.check() == z3.sat:
+        m = solver.model()
+
+        config, block = extract_configuration(z3_model, m)
+        results.append(config)
+
+        solver.add(z3.Or(block))
+
+    return results
 
 
 def _z3_to_number(val: z3.ExprRef) -> int | float:
