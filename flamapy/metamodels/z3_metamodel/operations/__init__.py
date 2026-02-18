@@ -9,13 +9,15 @@ from .z3_satisfiable_configuration import Z3SatisfiableConfiguration
 from .z3_feature_bounds import Z3FeatureBounds
 from .z3_all_feature_bounds import Z3AllFeatureBounds
 
-__all__ = ['Z3Satisfiable',
+__all__ = [
+           'Z3AllFeatureBounds',
+           'Z3AttributeOptimization',
            'Z3Configurations',
            'Z3ConfigurationsNumber',
            'Z3CoreFeatures',
            'Z3DeadFeatures',
            'Z3FalseOptionalFeatures',
-           'Z3AttributeOptimization',
-           'Z3SatisfiableConfiguration',
            'Z3FeatureBounds',
-           'Z3AllFeatureBounds']
+           'Z3Satisfiable',
+           'Z3SatisfiableConfiguration',
+]

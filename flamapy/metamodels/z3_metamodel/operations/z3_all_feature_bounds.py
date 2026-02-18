@@ -12,7 +12,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Z3AllFeatureBounds(Operation):
-    """Computes the effective bounds (min/max) for ALL typed feature 
+    """Computes the effective bounds (min/max) for ALL typed feature
     (Integer, Real, String length) in the Z3 model.
     """
 
@@ -31,27 +31,27 @@ class Z3AllFeatureBounds(Operation):
     def execute(self, model: VariabilityModel) -> 'Z3AllFeatureBounds':
         z3_model = cast(Z3Model, model)
         all_bounds_result: dict[str, dict[str, Any]] = {}
-        
+
         # Instanciamos la operación de bajo nivel que ya definiste
         bounds_op = Z3FeatureBounds()
 
         # Iterar sobre todas las features del modelo Z3
         for var_name, feature_info in z3_model.features.items():
             ftype = feature_info.ftype
-            
+
             # Solo procesar variables tipadas (Integer, Real, String)
             if ftype in (FeatureType.INTEGER, FeatureType.REAL, FeatureType.STRING):
-                
+
                 try:
                     # 1. Configurar la operación con el nombre de la variable
                     bounds_op.set_variable_name(var_name)
-                    
+
                     # 2. Ejecutar la operación Z3VariableBounds para la variable actual
                     bounds_op.execute(z3_model)
-                    
+
                     # 3. Obtener el resultado unificado
                     bounds = bounds_op.get_result()
-                    
+
                     # 4. Almacenar el resultado en el diccionario final
                     if 'error' not in bounds:
                         # Aseguramos que solo guardamos los campos unificados y esenciales
@@ -62,14 +62,16 @@ class Z3AllFeatureBounds(Operation):
                             'bounded': bounds.get('bounded', False)
                         }
                     else:
-                        LOGGER.warning(f"Error calculating bounds for {var_name}: {bounds['error']}")
+                        LOGGER.warning(
+                            f"Error calculating bounds for {var_name}: {bounds['error']}"
+                        )
                         all_bounds_result[var_name] = {
                             'feature_type': ftype.name,
                             'min': 'ERROR',
                             'max': 'ERROR',
                             'bounded': False
                         }
-                        
+
                 except Exception as e:
                     LOGGER.error(f"Execution error for variable {var_name}: {e}")
                     all_bounds_result[var_name] = {

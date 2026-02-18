@@ -22,7 +22,7 @@ class FeatureInfo:
 
 
 class Z3Model(VariabilityModel):
-    
+
     DEFAULT_PRECISION = 4
 
     @staticmethod
@@ -52,15 +52,15 @@ class Z3Model(VariabilityModel):
     def add_boolean_feature(self, name: str) -> Any:
         """Add a boolean feature with the given name."""
         sel = z3.Bool(name, ctx=self.ctx)
-        self.features[name] = FeatureInfo(name=name, 
-                                          sel=sel, 
-                                          val=None, 
-                                          ftype=FeatureType.BOOLEAN, 
+        self.features[name] = FeatureInfo(name=name,
+                                          sel=sel,
+                                          val=None,
+                                          ftype=FeatureType.BOOLEAN,
                                           attributes={})
         return sel
 
-    def add_typed_feature(self, 
-                          name: str, 
+    def add_typed_feature(self,
+                          name: str,
                           ftype: FeatureType,
                           const_value: Optional[Any]=None,
                           neutral_when_unselected: Optional[Any]=None) -> tuple[Any, Any]:
@@ -110,39 +110,36 @@ class Z3Model(VariabilityModel):
     def get_variable(self, name: str) -> Optional[FeatureInfo]:
         """Get the FeatureInfo of a feature by name."""
         return self.features.get(name, None)
-    
-    def add_attribute(self, 
-                      feature_name: str, 
-                      attr_name: str, 
-                      attr_type: AttributeType, 
+
+    def _create_attribute_var(self,
+                              attr_type: AttributeType,
+                              var_name: str) -> tuple[Optional[Any], Optional[Any]]:
+        """Create a Z3 variable and default value for the given attribute type."""
+        if attr_type == AttributeType.INTEGER:
+            return z3.Int(var_name, ctx=self.ctx), self.create_const(AttributeType.INTEGER, 0)
+        if attr_type == AttributeType.REAL:
+            return z3.Real(var_name, ctx=self.ctx), self.create_const(AttributeType.REAL, 0.0)
+        if attr_type == AttributeType.STRING:
+            return z3.String(var_name, ctx=self.ctx), self.create_const(AttributeType.STRING, "")
+        if attr_type == AttributeType.BOOLEAN:
+            return z3.Bool(var_name, ctx=self.ctx), self.create_const(AttributeType.BOOLEAN, False)
+        if attr_type in (AttributeType.NESTED, AttributeType.VECTOR):
+            LOGGER.warning(f"Warning: Attribute {var_name} has {attr_type.name} type, "
+                           "which is not currently supported in Z3Model. Ignored.")
+            return None, None
+        raise ValueError("Unsupported attribute type")
+
+    def add_attribute(self,
+                      feature_name: str,
+                      attr_name: str,
+                      attr_type: AttributeType,
                       const_value: Optional[Any]=None) -> Optional[Any]:
         """Add an attribute to a feature (attributes are typed variables)."""
         if feature_name not in self.features:
             raise KeyError(feature_name)
         info = self.features[feature_name]
         var_name = f"{feature_name}.{attr_name}"
-        if attr_type == AttributeType.INTEGER:
-            var = z3.Int(var_name, ctx=self.ctx)
-            default_value = self.create_const(AttributeType.INTEGER, 0)
-        elif attr_type == AttributeType.REAL:
-            var = z3.Real(var_name, ctx=self.ctx)
-            default_value = self.create_const(AttributeType.REAL, 0.0)
-        elif attr_type == AttributeType.STRING:
-            var = z3.String(var_name, ctx=self.ctx)
-            default_value = self.create_const(AttributeType.STRING, "")
-        elif attr_type == AttributeType.BOOLEAN:
-            var = z3.Bool(var_name, ctx=self.ctx)
-            default_value = self.create_const(AttributeType.BOOLEAN, False)
-        elif attr_type == AttributeType.NESTED:
-            LOGGER.warning(f"Warning: Attribute {var_name} has NESTED type, " \
-                           "which is not currently supported in Z3Model. Ignored.")
-            var = None
-        elif attr_type == AttributeType.VECTOR:
-            LOGGER.warning(f"Warning: Attribute {var_name} has VECTOR type, " \
-                           "which is not currently supported in Z3Model. Ignored.")
-            var = None
-        else:
-            raise ValueError("Unsupported attribute type")
+        var, default_value = self._create_attribute_var(attr_type, var_name)
 
         if var is not None:
             info.attributes[attr_name] = {"var": var, "type": attr_type}
@@ -214,9 +211,9 @@ class Z3Model(VariabilityModel):
                     raise ValueError(f'Feature {feature_info.name} has no value expression.')
                 val_var = feature_info.val
                 z3_value = Z3Model.get_z3_value(feature_value, feature_info.ftype, context)
-                constraints.append(val_var == z3_value)    
+                constraints.append(val_var == z3_value)
         return constraints
-    
+
     @staticmethod
     def get_z3_value(value: Any, ftype: FeatureType, context: z3.Context) -> z3.ExprRef:
         """Return a Z3 expression for a given Python configuration value."""
@@ -237,7 +234,7 @@ class Z3Model(VariabilityModel):
 
     @staticmethod
     def sum_attribute(model: 'Z3Model', attr_name: str) -> z3.ArithRef:
-        """Return a Z3 expression representing the sum of the given attribute across 
+        """Return a Z3 expression representing the sum of the given attribute across
         all features."""
         exprs = []
         for _, feature_info in model.features.items():

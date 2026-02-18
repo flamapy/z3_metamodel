@@ -21,7 +21,7 @@ class AttributeOptimization(Operation):
     @abstractmethod
     def set_attributes(self, attributes: dict[Attribute, OptimizationGoal]) -> None:
         pass
-        
+
     @abstractmethod
     def optimize(self) -> list[Configuration]:
         pass

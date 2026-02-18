@@ -19,7 +19,7 @@ from flamapy.metamodels.configuration_metamodel.transformations import Configura
 
 
 logging.basicConfig(
-    level=logging.DEBUG, 
+    level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
@@ -29,70 +29,81 @@ CONFIG_1 = 'resources/configs/pizza_z3_config1.json'
 CONFIG_2 = 'resources/configs/pizza_z3_config2.json'
 
 
+def _show_analysis(z3_model):
+    result = Z3Satisfiable().execute(z3_model).get_result()
+    print(f'Satisfiable: {result}')
+    core_features = Z3CoreFeatures().execute(z3_model).get_result()
+    print(f'Core features: {core_features}')
+    dead_features = Z3DeadFeatures().execute(z3_model).get_result()
+    print(f'Dead features: {dead_features}')
+    false_optional = Z3FalseOptionalFeatures().execute(z3_model).get_result()
+    print(f'False optional features: {false_optional}')
+
+
+def _show_configurations(z3_model):
+    configurations = Z3Configurations().execute(z3_model).get_result()
+    print(f'Configurations: {len(configurations)}')
+    for i, config in enumerate(configurations, 1):
+        config_str = ', '.join(
+            f'{f}={v}' if not isinstance(v, bool) else f'{f}'
+            for f, v in config.elements.items()
+            if config.is_selected(f)
+        )
+        print(f'Config. {i}: {config_str}')
+    n_configs = Z3ConfigurationsNumber().execute(z3_model).get_result()
+    print(f'Configurations number: {n_configs}')
+
+
+def _show_attributes(fm_model, z3_model):
+    attributes = fm_model.get_attributes()
+    print('Attributes in the model')
+    for attr in attributes:
+        print(f' - {attr.name} ({attr.attribute_type})')
+    variable_bounds = Z3AllFeatureBounds().execute(z3_model).get_result()
+    print('Variable bounds for all typed variables:')
+    for var_name, bounds in variable_bounds.items():
+        print(f' - {var_name}: {bounds}')
+
+
+def _show_optimization(z3_model):
+    attribute_optimization_op = Z3AttributeOptimization()
+    attributes = {'Price': OptimizationGoal.MAXIMIZE, 'Kcal': OptimizationGoal.MINIMIZE}
+    attribute_optimization_op.set_attributes(attributes)
+    configs_with_values = attribute_optimization_op.execute(z3_model).get_result()
+    print(f'Optimum configurations: {len(configs_with_values)} configs.')
+    for i, config_value in enumerate(configs_with_values, 1):
+        config, values = config_value
+        config_str = ', '.join(
+            f'{f}={v}' if not isinstance(v, bool) else f'{f}'
+            for f, v in config.elements.items()
+            if config.is_selected(f)
+        )
+        values_str = ', '.join(f'{k}={v}' for k, v in values.items())
+        print(f'Config. {i}: {config_str} | Values: {values_str}')
+
+
+def _check_satisfiable_configuration(z3_model, config_file):
+    configuration = ConfigurationJSONReader(config_file).transform()
+    configuration.set_full(False)
+    print(f'Configuration from {config_file}: {configuration.elements}')
+    satisfiable_configuration_op = Z3SatisfiableConfiguration()
+    satisfiable_configuration_op.set_configuration(configuration)
+    is_satisfiable = satisfiable_configuration_op.execute(z3_model).get_result()
+    print(f'Is the configuration satisfiable? {is_satisfiable}')
+
+
 def main():
     fm_model = UVLReader(MODEL).transform()
     print(fm_model)
     z3_model = FmToZ3(fm_model).transform()
     print(z3_model)
 
-    result = Z3Satisfiable().execute(z3_model).get_result()
-    print(f'Satisfiable: {result}')
-
-    core_features = Z3CoreFeatures().execute(z3_model).get_result()
-    print(f'Core features: {core_features}')
-
-    dead_features = Z3DeadFeatures().execute(z3_model).get_result()
-    print(f'Dead features: {dead_features}')
-
-    false_optional_features = Z3FalseOptionalFeatures().execute(z3_model).get_result()
-    print(f'False optional features: {false_optional_features}')
-
-    configurations = Z3Configurations().execute(z3_model).get_result()
-    print(f'Configurations: {len(configurations)}')
-    for i, config in enumerate(configurations, 1):
-        config_str = ', '.join(f'{f}={v}' if not isinstance(v, bool) else f'{f}' for f,v in config.elements.items() if config.is_selected(f))
-        print(f'Config. {i}: {config_str}')
-
-    n_configs = Z3ConfigurationsNumber().execute(z3_model).get_result()
-    print(f'Configurations number: {n_configs}')
-
-    attributes = fm_model.get_attributes()
-    print('Attributes in the model')
-    for attr in attributes:
-        print(f' - {attr.name} ({attr.attribute_type})')
-    
-    variable_bounds = Z3AllFeatureBounds().execute(z3_model).get_result()
-    print('Variable bounds for all typed variables:')
-    for var_name, bounds in variable_bounds.items():
-        print(f' - {var_name}: {bounds}')
-
-    attribute_optimization_op = Z3AttributeOptimization()
-    attributes = {'Price': OptimizationGoal.MAXIMIZE,
-                  'Kcal': OptimizationGoal.MINIMIZE}
-    attribute_optimization_op.set_attributes(attributes)
-    configurations_with_values = attribute_optimization_op.execute(z3_model).get_result()
-    print(f'Optimum configurations: {len(configurations_with_values)} configs.')
-    for i, config_value in enumerate(configurations_with_values, 1):
-        config, values = config_value
-        config_str = ', '.join(f'{f}={v}' if not isinstance(v, bool) else f'{f}' for f,v in config.elements.items() if config.is_selected(f))
-        values_str = ', '.join(f'{k}={v}' for k,v in values.items())
-        print(f'Config. {i}: {config_str} | Values: {values_str}')
-
-    configuration = ConfigurationJSONReader(CONFIG_1).transform()
-    configuration.set_full(False)
-    print(f'Configuration from {CONFIG_1}: {configuration.elements}')
-    satisfiable_configuration_op = Z3SatisfiableConfiguration()
-    satisfiable_configuration_op.set_configuration(configuration)
-    is_satisfiable = satisfiable_configuration_op.execute(z3_model).get_result()
-    print(f'Is the configuration satisfiable? {is_satisfiable}')
-
-    configuration = ConfigurationJSONReader(CONFIG_2).transform()
-    configuration.set_full(False)
-    print(f'Configuration from {CONFIG_2}: {configuration.elements}')
-    satisfiable_configuration_op = Z3SatisfiableConfiguration()
-    satisfiable_configuration_op.set_configuration(configuration)
-    is_satisfiable = satisfiable_configuration_op.execute(z3_model).get_result()
-    print(f'Is the configuration satisfiable? {is_satisfiable}')
+    _show_analysis(z3_model)
+    _show_configurations(z3_model)
+    _show_attributes(fm_model, z3_model)
+    _show_optimization(z3_model)
+    _check_satisfiable_configuration(z3_model, CONFIG_1)
+    _check_satisfiable_configuration(z3_model, CONFIG_2)
 
     # Create a partial configuration
     elements = {'Pizza': True, 'SpicyLvl': 5}

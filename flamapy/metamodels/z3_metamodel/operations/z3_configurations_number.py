@@ -10,7 +10,7 @@ from flamapy.metamodels.z3_metamodel.operations import Z3Configurations
 class Z3ConfigurationsNumber(ConfigurationsNumber):
     """It computes the number of solutions of the z3 model.
 
-    This method does not scale well for large or infinite domains 
+    This method does not scale well for large or infinite domains
     (e.g., Integer variables without a bounded domain), since it iterates over all solutions.
     """
 

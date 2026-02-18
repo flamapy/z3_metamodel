@@ -1,5 +1,5 @@
 import logging
-from typing import cast, Optional
+from typing import Any, cast, Optional
 
 import z3
 
@@ -22,7 +22,7 @@ class Z3Configurations(Configurations):
 
     def set_partial_configuration(self, configuration: Configuration) -> None:
         self._partial_configuration = configuration
-        
+
     def get_result(self) -> list[Configuration]:
         return self._result
 
@@ -35,7 +35,32 @@ class Z3Configurations(Configurations):
         return self
 
 
-def configurations(model: Z3Model, 
+def _extract_feature_value(feature: str,
+                           feature_info: Any,
+                           m: z3.ModelRef,
+                           block: list[Any]) -> Any:
+    """Extract the value of a feature from a Z3 model, appending blocking clauses."""
+    sel = feature_info.sel
+    selected = m.evaluate(sel, model_completion=True)
+    block.append(sel != selected)
+    if feature_info.ftype == FeatureType.BOOLEAN:
+        return z3.is_true(selected)
+    if z3.is_true(selected):
+        val_expr = feature_info.val
+        if val_expr is None:
+            raise ValueError(f'Feature {feature} has no value expression.')
+        value = m.evaluate(val_expr, model_completion=True)
+        block.append(val_expr != value)
+        if feature_info.ftype == FeatureType.INTEGER:
+            return value.as_long()
+        if feature_info.ftype == FeatureType.REAL:
+            return value.as_decimal(Z3Model.DEFAULT_PRECISION)
+        if feature_info.ftype == FeatureType.STRING:
+            return value.as_string()
+    return False
+
+
+def configurations(model: Z3Model,
                    partial_configuration: Optional[Configuration] = None) -> list[Configuration]:
     solver = z3.Solver(ctx=model.ctx)
 
@@ -50,12 +75,12 @@ def configurations(model: Z3Model,
         config_constraints = []
         for feature_name, feature_value in partial_configuration.elements.items():
             if feature_name not in model.features:
-                LOGGER.error(f"ERROR: the feature '{feature_name}' of the partial "\
-                               "configuration does not exist in the Z3 model.")
+                LOGGER.error(f"ERROR: the feature '{feature_name}' of the partial "
+                             "configuration does not exist in the Z3 model.")
                 return []
             feature_info = model.features[feature_name]
-            constraints = Z3Model.create_feature_constraints(feature_value, 
-                                                             feature_info, 
+            constraints = Z3Model.create_feature_constraints(feature_value,
+                                                             feature_info,
                                                              model.ctx)
             config_constraints.extend(constraints)
         solver.add(config_constraints)
@@ -65,31 +90,9 @@ def configurations(model: Z3Model,
     while solver.check() == z3.sat:
         m = solver.model()
         config_elements = {}
-        block = []
-
+        block: list[Any] = []
         for feature, feature_info in model.features.items():
-            sel = feature_info.sel
-            selected = m.evaluate(sel, model_completion=True)
-            block.append(sel != selected)  # block this value in the next iteration
-            if feature_info.ftype == FeatureType.BOOLEAN:  # boolean feature
-                value = z3.is_true(selected)
-            else:  # typed feature
-                if z3.is_true(selected):
-                    val_expr = feature_info.val
-                    if val_expr is None:
-                        raise ValueError(f'Feature {feature} has no value expression.')
-                    value = m.evaluate(val_expr, model_completion=True)
-                    block.append(val_expr != value)  # block the value in the next iter.
-                    if feature_info.ftype == FeatureType.INTEGER:
-                        value = value.as_long()
-                    elif feature_info.ftype == FeatureType.REAL:
-                        value = value.as_decimal(Z3Model.DEFAULT_PRECISION)
-                    elif feature_info.ftype == FeatureType.STRING:
-                        value = value.as_string()
-                else:
-                    value = False  # not selected
-            config_elements[feature] = value
-        config = Configuration(config_elements)
-        configurations.append(config)
+            config_elements[feature] = _extract_feature_value(feature, feature_info, m, block)
+        configurations.append(Configuration(config_elements))
         solver.add(z3.Or(block))  # block this solution
     return configurations

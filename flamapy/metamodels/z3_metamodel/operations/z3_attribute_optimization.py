@@ -8,14 +8,14 @@ from flamapy.metamodels.configuration_metamodel.models import Configuration
 from flamapy.metamodels.fm_metamodel.models import AttributeType, FeatureType
 from flamapy.metamodels.z3_metamodel.models import Z3Model
 from flamapy.metamodels.z3_metamodel.operations.interfaces import (
-    AttributeOptimization, 
+    AttributeOptimization,
     OptimizationGoal
 )
 
 
 class Z3AttributeOptimization(AttributeOptimization):
     """This operation returns the configurations that optimize the given numerical attribute(s).
-    
+
     The optimization is based on the sum of the attribute values across all selected features.
 
     It returns all configurations in the Pareto front for the specified objetives.
@@ -50,7 +50,7 @@ class Z3AttributeOptimization(AttributeOptimization):
         return self
 
 
-def optimize_pareto(z3_model: Z3Model, 
+def optimize_pareto(z3_model: Z3Model,
                     attributes: dict[str, OptimizationGoal]
                     ) -> list[tuple[Configuration, dict[str, float]]]:
     """
@@ -66,7 +66,7 @@ def optimize_pareto(z3_model: Z3Model,
         return optimize_single_objective(z3_model, attr, goal)
     else:
         return optimize_multi_objective(z3_model, attributes)
-    
+
 
 def optimize_single_objective(z3_model: Z3Model,
                               attribute: str,
@@ -80,13 +80,13 @@ def optimize_single_objective(z3_model: Z3Model,
         _ = solver_opt.minimize(expr)
     else:
         _ = solver_opt.maximize(expr)
-        
+
     if solver_opt.check() != z3.sat:
         return []
 
     # 1. Obtener el modelo óptimo (la primera solución)
     m_opt = solver_opt.model()
-    
+
     # 2. Calcular el valor óptimo preciso en Z3 y su equivalente Python
     opt_val_z3 = m_opt.evaluate(expr, model_completion=True)
     opt_val_py = _z3_to_number(opt_val_z3) # ¡Usando opt_val_py aquí!
@@ -99,23 +99,39 @@ def optimize_single_objective(z3_model: Z3Model,
     solver_enum.add(expr == opt_val_z3)
 
     results: list[tuple[Configuration, dict[str, int | float]]] = []
-    
+
     # 4. Bucle para enumerar todas las configuraciones con el valor óptimo
     while solver_enum.check() == z3.sat:
         m = solver_enum.model()
-        
-        # Usamos el valor Python óptimo ya calculado (opt_val_py) para el resultado. 
+
+        # Usamos el valor Python óptimo ya calculado (opt_val_py) para el resultado.
         # Sabemos que 'val' debe ser igual a 'opt_val_py' debido a la restricción añadida.
         val = opt_val_py
 
         config, block = extract_configuration(z3_model, m)
         # Aquí se usa el valor óptimo Python
-        results.append((config, {attribute: val})) 
-        
+        results.append((config, {attribute: val}))
+
         # Bloquear la configuración actual para forzar una diferente
-        solver_enum.add(z3.Or(block)) 
+        solver_enum.add(z3.Or(block))
 
     return results
+
+
+def _filter_pareto_front(
+        pareto_solutions: list[tuple[Configuration, dict[str, int | float]]],
+        attributes: dict[str, OptimizationGoal]
+) -> list[tuple[Configuration, dict[str, int | float]]]:
+    """Filter out dominated solutions, returning only the Pareto front."""
+    final_pareto_front = []
+    for i, (config_i, values_i) in enumerate(pareto_solutions):
+        dominated = any(
+            i != j and is_dominated(values_i, pareto_solutions[j][1], attributes)
+            for j in range(len(pareto_solutions))
+        )
+        if not dominated:
+            final_pareto_front.append((config_i, values_i))
+    return final_pareto_front
 
 
 def optimize_multi_objective(
@@ -140,69 +156,30 @@ def optimize_multi_objective(
     while solver.check() == z3.sat:
         m = solver.model()
 
-        # -------------------------------
-        # 1. Obtener valores de objetivos
-        # -------------------------------
         attr_values = {
             name: _z3_to_number(m.evaluate(expr, model_completion=True))
             for name, expr, _ in objectives
         }
-
-        # -------------------------------
-        # 2. Extraer configuración
-        # -------------------------------
         config, _ = extract_configuration(z3_model, m)
         pareto_solutions.append((config, attr_values))
 
-        # -------------------------------------------------
-        # 3. Añadir restricción de mejora estricta (Pareto)
-        # -------------------------------------------------
         improve_constraints = []
-
         for name, expr, goal in objectives:
             val = m.evaluate(expr, model_completion=True)
-
             if goal == OptimizationGoal.MINIMIZE:
                 improve_constraints.append(expr < val)
             else:
                 improve_constraints.append(expr > val)
-
-        # Bloquear soluciones dominadas por la actual
         solver.add(z3.Or(improve_constraints))
 
-    # ================================================================
-    # FILTRADO FINAL DE DOMINANCIA (red de seguridad)
-    # ================================================================
-    final_pareto_front: list[tuple[Configuration, dict[str, int | float]]] = []
+    # Filtrado final de dominancia (red de seguridad)
+    final_pareto_front = _filter_pareto_front(pareto_solutions, attributes)
 
-    for i in range(len(pareto_solutions)):
-        config_i, values_i = pareto_solutions[i]
-        dominated = False
-
-        for j in range(len(pareto_solutions)):
-            if i == j:
-                continue
-
-            _, values_j = pareto_solutions[j]
-
-            if is_dominated(values_i, values_j, attributes):
-                dominated = True
-                break
-
-        if not dominated:
-            final_pareto_front.append((config_i, values_i))
-
-    # Expandir cada configuración del frente de Pareto para obtener todas las configuraciones que comparten esos valores objetivos.
+    # Expandir cada configuración del frente de Pareto para obtener todas las
+    # configuraciones que comparten esos valores objetivos.
     expanded_results = []
-
     for config, values in final_pareto_front:
-        configs = enumerate_configurations_for_objectives(
-            z3_model,
-            objectives,
-            values
-        )
-
-        for c in configs:
+        for c in enumerate_configurations_for_objectives(z3_model, objectives, values):
             expanded_results.append((c, values))
 
     return expanded_results
@@ -210,9 +187,9 @@ def optimize_multi_objective(
 
 def enumerate_configurations_for_objectives(
         z3_model: Z3Model,
-        objectives,
-        target_values
-):
+        objectives: list[tuple[str, z3.ExprRef, OptimizationGoal]],
+        target_values: dict[str, int | float]
+) -> list[Configuration]:
     solver = z3.Solver(ctx=z3_model.ctx)
     solver.add(z3_model.constraints)
 
@@ -249,7 +226,7 @@ def _z3_to_number(val: z3.ExprRef) -> int | float:
         return float(val.as_string())
 
 
-def extract_configuration(z3_model: Z3Model, 
+def extract_configuration(z3_model: Z3Model,
                           solution_model: z3.ModelRef
                           ) -> tuple[Configuration, list[z3.ExprRef]]:
     """
@@ -265,74 +242,74 @@ def extract_configuration(z3_model: Z3Model,
 
         if feature_info.ftype == FeatureType.BOOLEAN:
             value = z3.is_true(selected)
-        else:
-            if z3.is_true(selected):
-                val_expr = feature_info.val
-                if val_expr is None:
-                    raise ValueError(f'Feature {feature} has no value expression.')
-                val_expr = feature_info.val
-                value = solution_model.evaluate(val_expr, model_completion=True)
-                block.append(val_expr != value)
+        elif z3.is_true(selected):
+            val_expr = feature_info.val
+            if val_expr is None:
+                raise ValueError(f'Feature {feature} has no value expression.')
+            val_expr = feature_info.val
+            value = solution_model.evaluate(val_expr, model_completion=True)
+            block.append(val_expr != value)
 
-                if feature_info.ftype == FeatureType.INTEGER:
-                    value = value.as_long()
-                elif feature_info.ftype == FeatureType.REAL:
-                    # **CORRECCIÓN CRÍTICA:** Usar alta precisión (ej. 20) al evaluar Real.
-                    # El valor Python debe ser exacto para el bloqueo.
-                    value = float(value.as_decimal(20).rstrip('?')) 
-                elif feature_info.ftype == FeatureType.STRING:
-                    value = value.as_string()
-            else:
-                value = False
+            if feature_info.ftype == FeatureType.INTEGER:
+                value = value.as_long()
+            elif feature_info.ftype == FeatureType.REAL:
+                # **CORRECCIÓN CRÍTICA:** Usar alta precisión (ej. 20) al evaluar Real.
+                # El valor Python debe ser exacto para el bloqueo.
+                value = float(value.as_decimal(20).rstrip('?'))
+            elif feature_info.ftype == FeatureType.STRING:
+                value = value.as_string()
+        else:
+            value = False
 
         config_elements[feature] = value
 
     return Configuration(config_elements), block
 
 
-def is_dominated(values_i: dict[str, Any], 
-                 values_j: dict[str, Any], 
+def is_dominated(values_i: dict[str, Any],
+                 values_j: dict[str, Any],
                  attributes: dict[str, OptimizationGoal],
                  epsilon: float = 1e-6) -> bool:
     """
     Verifica si la solución 'i' es dominada por la solución 'j'.
-    
+
     j domina a i si:
     1. j es mejor o igual a i en TODOS los objetivos.
     2. j es ESTRICTAMENTE mejor que i en AL MENOS UN objetivo (considerando epsilon).
     """
     is_better_in_at_least_one = False
     is_worse_in_any = False
-    
+
     for attr, goal in attributes.items():
         val_i = values_i[attr]
         val_j = values_j[attr]
-        
+
         if goal == OptimizationGoal.MAXIMIZE:
             # i es PEOR que j si val_i < val_j
             # j es MEJOR que i si val_j > val_i
-            
+
             # Condición de dominancia: j debe ser >= i en todos.
             if val_j < val_i - epsilon: # j es PEOR que i (val_j < val_i)
                 is_worse_in_any = True
-                break 
-            
+                break
+
             # Condición de dominancia: j debe ser > i en al menos uno.
             if val_j > val_i + epsilon: # j es ESTRICTAMENTE MEJOR que i
                 is_better_in_at_least_one = True
-                
+
         elif goal == OptimizationGoal.MINIMIZE:
             # i es PEOR que j si val_i > val_j
             # j es MEJOR que i si val_j < val_i
-            
+
             # Condición de dominancia: j debe ser <= i en todos.
             if val_j > val_i + epsilon: # j es PEOR que i (val_j > val_i)
                 is_worse_in_any = True
                 break
-            
+
             # Condición de dominancia: j debe ser < i en al menos uno.
             if val_j < val_i - epsilon: # j es ESTRICTAMENTE MEJOR que i
                 is_better_in_at_least_one = True
-                
-    # Si j no fue peor que i en ningún objetivo Y fue estrictamente mejor en al menos uno, entonces j domina a i.
+
+    # Si j no fue peor que i en ningún objetivo Y fue estrictamente mejor en al menos uno,
+    # entonces j domina a i.
     return not is_worse_in_any and is_better_in_at_least_one

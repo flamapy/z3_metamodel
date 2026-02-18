@@ -1,7 +1,7 @@
 import logging
 from typing import cast
 
-import z3 
+import z3
 
 from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import SatisfiableConfiguration
@@ -48,8 +48,8 @@ def satisfiable_configuration(z3_model: Z3Model, configuration: Configuration) -
                 return False
             feature_info = z3_model.features[feature_name]
             # Create and add the constraints for feature_name with feature_value
-            constraints = Z3Model.create_feature_constraints(feature_value, 
-                                                             feature_info, 
+            constraints = Z3Model.create_feature_constraints(feature_value,
+                                                             feature_info,
                                                              z3_model.ctx)
             config_ctcs.extend(constraints)
     else:  # Complete (full) configuration: iterate over all features in the model
@@ -60,12 +60,12 @@ def satisfiable_configuration(z3_model: Z3Model, configuration: Configuration) -
             LOGGER.error(f"ERROR: The configuration contains extra features that do not exist "
                          f"in the model: {extra_features}")
             return False
-        
+
         for feature_name, feature_info in z3_model.features.items():
             feature_value = configuration.elements.get(feature_name, False)
             # Create and add the constraints for feature_name with feature_value
-            constraints = Z3Model.create_feature_constraints(feature_value, 
-                                                             feature_info, 
+            constraints = Z3Model.create_feature_constraints(feature_value,
+                                                             feature_info,
                                                              z3_model.ctx)
             config_ctcs.extend(constraints)
 

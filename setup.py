@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 def read_requirements(file):
     with open(file, "r") as fh:
         return fh.read().splitlines()
-    
+
 # Read requirements from the requirements.txt file
 requirements = read_requirements("requirements.txt")
 
