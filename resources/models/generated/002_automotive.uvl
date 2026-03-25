@@ -1,0 +1,30 @@
+namespace Automotive
+
+features
+	Automotive {abstract}
+		mandatory
+			Engine {abstract}
+				alternative
+					Gasoline
+					Diesel
+					Electric
+						optional
+							RangeExtender
+			Transmission {abstract}
+				alternative
+					Manual
+					Automatic
+			Safety {abstract}
+				mandatory
+					ABS
+				optional
+					ParkingSensors
+		optional
+			Infotainment {abstract}
+				or
+					Bluetooth
+					NavigationSystem
+constraints
+	Electric => Automatic
+	ParkingSensors => Automatic
+	NavigationSystem => !Diesel

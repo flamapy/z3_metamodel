@@ -1,0 +1,18 @@
+imports
+    JustSalad_2025_Salad as Salad
+    JustSalad_2025_Bowl as Bowl
+    JustSalad_2025_Wraps as Wrap
+features
+    "Just Salad" {abstract, version '2025', Price {units 'dolar'}, Calories {units 'g'}, TotalFat {units 'g'}, SaturatedFat {units 'g'}, TransFat {units 'g'}, Cholesterol {units 'mg'}, Sodium {units 'mg'}, TotalCarbs {units 'g'}, DietaryFiber {units 'g'}, Sugars {units 'g'}, Protein {units 'g'} } 
+        optional
+            Salads cardinality [1..*]
+                mandatory
+                    Salad.Salad
+            Bowls cardinality [1..*]
+                mandatory
+                    Bowl.Bowl
+            Wraps cardinality [1..*]
+                mandatory 
+                    Wrap.Wrap
+            Utensils
+            Additions

@@ -23,8 +23,9 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
+Z3_TACTICS = ['simplify', 'propagate-values', 'solve-eqs', 'purify-arith', 'tseitin-cnf', 'bit-blast', 'lia2pb', 'fpa2bv', 'smt']  # tactic 1
 
-MODEL = 'resources/models/uvl_models/Pizza_z3.uvl'
+MODEL = 'resources/models/others/Pizza_z3.uvl'
 CONFIG_1 = 'resources/configs/pizza_z3_config1.json'
 CONFIG_2 = 'resources/configs/pizza_z3_config2.json'
 
@@ -98,7 +99,10 @@ def main():
     z3_model = FmToZ3(fm_model).transform()
     print(z3_model)
 
+    z3_model.set_tactics(Z3_TACTICS)  # Set the tactics to be used for satisfiability checking.
+    
     _show_analysis(z3_model)
+    raise Exception('Stop after analysis')  # Stop here for now, as the rest of the operations are not working yet.
     _show_configurations(z3_model)
     _show_attributes(fm_model, z3_model)
     _show_optimization(z3_model)

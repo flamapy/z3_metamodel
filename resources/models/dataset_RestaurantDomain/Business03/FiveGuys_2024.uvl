@@ -1,0 +1,92 @@
+features
+	"Five Guys" {abstract, Units {Price 'euro', Volume 'cl', Alcohol '%'}, constraint "Five Guys".Price == Burger.Price + Dogs.Price + Sandwiches.Price + Drinks.Price}
+		optional
+			Burger {abstract, constraint Burger.Price == sum(Price, Burger)}
+				mandatory
+					Hamburger {Price 9.25}
+						optional
+							Little {Price -2.25}
+				optional
+					Cheese {Price 1.50}
+					Bacon {Price 1.50}
+					Drinks {abstract}
+			Dogs {abstract, constraint Dogs.Price == sum(Price, Dogs)}
+				mandatory
+					"Hot Dog" {Price 6.00}
+				optional
+					"Cheese Dog" {Price 1.00}
+					"Bacon Dog" {Price 1.50}
+			Sandwiches {abstract, constraint Sandwiches.Price == sum(Price, Sandwiches)}
+				alternative
+					"Veggie Sandwich" {Price 5.75}
+						optional
+							"Cheese Veggie Sandwich" {Price 1.25}
+					"Grilled Cheese" {Price 5.50}
+					BLT {Price 7.25}
+						optional
+							"Cheese BLT" {Price 1.25}
+			Fries
+				mandatory
+					Style {asbtract}
+						alternative
+							"Five Guys Style"
+							"Cajun Style"
+					Size {abstract}
+						alternative
+							Little {Price 3.90}
+							Regular {Price 5.50}
+							Large {Price 6.50}
+			Toppings {abstract}
+				optional
+					"All The Way" {abstract}
+				mandatory
+					Ingredients {abstract}
+						or
+							Lettuce
+							Pickles
+							Tomatoes
+							"Grilled Onions"
+							Mayo 
+							Mustard
+							"Grilled Mushrooms"
+							Ketchup
+							"Green Peppers"
+							Relish
+							Onions
+							"Jalapeno Peppers"
+							"Hot Sauce"
+							"Steak Sauce"
+							"BBQ Sauce"
+			Milkshakes {Price 6.25}
+				mandatory
+					"Mixins" {abstract}
+						or
+							Popcorn
+							Vanilla
+							Biscoff
+							"Peanut Butter"
+							"Salted Caramel"
+							Oreo
+							Mango
+							Chocolate
+							Strawberry
+							Banana
+							Bacon
+				optional
+					"Whipped Cream"
+			Drinks {abstract}
+				alternative
+					"Unlimited Freestyle" {Price 3.75}
+					"Mineral Water" {Trademark 'Evian', Volume 50, Price 2.90}
+					Budweiser {Volume 33, Alcohol 5.0, Price 4.75}
+					Corona {Volume 36, Alcohol 4.5, Price 4.75}
+					"All Day IPA" {Volume 36, Alcohol 4.7, Price 5.25}
+			Bunless
+constraints
+	Toppings => Burger | Dogs | Sandwiches
+	Bunless => Burger | Dogs
+	"All The Way" => Lettuce & Pickles & Tomatoes & "Grilled Onions" & Mayo & Mustard & "Grilled Mushrooms" & Ketchup
+	Little => Cheese.Price == 1.25
+	!Little & Cheese & Bacon => Hamburger.Price == Hamburger.Price - 0.50
+	Little & Cheese & Bacon => Hamburger.Price == Hamburger.Price - 0.75
+	"Cheese Dog" & "Bacon Dog" => "Hot Dog".Price == "Hot Dog".Price - 0.50

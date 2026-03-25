@@ -34,11 +34,40 @@ class Z3FalseOptionalFeatures(FalseOptionalFeatures):
         self._result = get_false_optional_features(z3_model, feature_model)
         return self
 
+    def execute_solver(self, model: VariabilityModel, solver: z3.Solver) -> 'Z3FalseOptionalFeatures':
+        z3_model = cast(Z3Model, model)
+        try:
+            feature_model = cast(FeatureModel, model.original_model)
+        except FlamaException:
+            LOGGER.exception("The transformation didn't attach the source model, "
+                             "which is required for this operation.")
+        self._result = get_false_optional_features_with_solver(z3_model, feature_model, solver)
+        return self
+
 
 def get_false_optional_features(model: Z3Model, feature_model: FeatureModel) -> list[Any]:
-    solver = z3.Solver(ctx=model.ctx)
-    solver.add(model.constraints)
+    solver = model.get_solver()
 
+    false_optional_features = []
+    real_optional_features = [f for f in feature_model.get_features()
+                              if not f.is_root() and not f.is_mandatory()]
+
+    for feature in real_optional_features:
+        parent_feature = feature.get_parent()
+        parent_variable = model.features.get(parent_feature.name)
+        if parent_variable is None:
+            raise FlamaException(f'Unsupported feature: {parent_feature.name}')
+        parent_variable = parent_variable.sel
+        variable = model.features.get(feature.name)
+        if variable is None:
+            raise FlamaException(f'Unsupported feature: {feature.name}')
+        variable = variable.sel
+        if solver.check([parent_variable, z3.Not(variable)]) == z3.unsat:
+            false_optional_features.append(feature.name)
+    return false_optional_features
+
+
+def get_false_optional_features_with_solver(model: Z3Model, feature_model: FeatureModel, solver: z3.Solver) -> list[Any]:
     false_optional_features = []
     real_optional_features = [f for f in feature_model.get_features()
                               if not f.is_root() and not f.is_mandatory()]

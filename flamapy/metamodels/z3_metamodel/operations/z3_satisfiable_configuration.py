@@ -34,10 +34,8 @@ class Z3SatisfiableConfiguration(SatisfiableConfiguration):
 
 
 def satisfiable_configuration(z3_model: Z3Model, configuration: Configuration) -> bool:
-    solver = z3.Solver(ctx=z3_model.ctx)
+    solver = z3_model.get_solver()
 
-    # 1. Add the model constraints to the solver
-    solver.add(z3_model.constraints)
     # 2. Create constraints for the given configuration
     config_ctcs = []
     if not configuration.is_full:  # Partial configuration: iterate only over configured features

@@ -1,0 +1,47 @@
+features
+    Ingredients {Price 0.89}
+        or 
+            Integer "Basmati Rice" {Calories 45, TotalFat 0.5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 65, TotalCarbs 9, DietaryFiber 0, Sugars 0, Protein 0, vegan, paleo}
+            Integer "Bob's Red Mill Hemp Hearts" {Calories 60, TotalFat 5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 0, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 3, vegan} 
+            Integer "Cabbage slaw (carrots, red cabbage, corn)" 
+            Integer "Chopped Almonds" {Calories 60, TotalFat 5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 50, TotalCarbs 2, DietaryFiber 1, Sugars 0, Protein 2, vegan, nuts}
+            Integer "Crispy Onions" {Calories 35, TotalFat 2, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 65, TotalCarbs 4, DietaryFiber 0, Sugars 0, Protein 0, vegetarian}
+            Integer "Crumbled Feta" {Calories 100, TotalFat 8, SaturatedFat 6, TransFat 0, Cholesterol 35, Sodium 350, TotalCarbs 2, DietaryFiber 0, Sugars 2, Protein 5, dairy, vegetarian}
+            Integer "Crunchy Tortilla" {Calories 90, TotalFat 4, SaturatedFat 0.5, TransFat 0, Cholesterol 0, Sodium 65, TotalCarbs 13, DietaryFiber 1, Sugars 0, Protein 1, vegan}   
+            Integer "Crunchy Wonton Strips" {Calories 15, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 20, TotalCarbs 2, DietaryFiber 1, Sugars 1, Protein 2, gluten, eggs, soy, vegetarian}
+            Integer "Dried Cranberries" {Calories 15, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 20, TotalCarbs 2, DietaryFiber 1, Sugars 1, Protein 2, vegan}
+            Integer "Edamame" {Calories 15, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 20, TotalCarbs 2, DietaryFiber 1, Sugars 1, Protein 2, soy, vegan, paleo}
+            Integer "Fresh Cilantro" {Calories 15, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 20, TotalCarbs 2, DietaryFiber 1, Sugars 1, Protein 2, vegan, paleo}
+            Integer "Garlic Butter Croutons" {Calories 15, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 20, TotalCarbs 2, DietaryFiber 1, Sugars 1, Protein 2, gluten, dairy, vegetarian}
+            Integer "Grated Cotija" {Calories 50, TotalFat 4.5, SaturatedFat 2.5, TransFat 0, Cholesterol 15, Sodium 210, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 3, dairy, vegetarian}
+            Integer "Greek Medley (red onion, cucumber + schikpeas)" {Calories 45, TotalFat 2.5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 50, TotalCarbs 4, DietaryFiber 0, Sugars 1, Protein 1, vegan}
+            Integer "Hass Avocado" {Calories 70, TotalFat 7, SaturatedFat 1, TransFat 0, Cholesterol 0, Sodium 0, TotalCarbs 4, DietaryFiber 3, Sugars 0, Protein 0, vegan}
+            Integer "Homemade Avocado Mash" {Calories 15, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 20, TotalCarbs 2, DietaryFiber 1, Sugars 1, Protein 2, vegan}
+            Integer "Homemade Pico de Gallo" {Calories 90, TotalFat 8, SaturatedFat 1, TransFat 0, Cholesterol 0, Sodium 350, TotalCarbs 3, DietaryFiber 0, Sugars 2, Protein 0, vegan}
+            Integer "Hot Honey Goat Cheese" {Calories 110, TotalFat 8, SaturatedFat 6, TransFat 0, Cholesterol 20, Sodium 180, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 7, vegan, paleo}
+            Integer "Japanese Furikake Shake" {Calories 5, TotalFat 0.5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 20, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 0, sesame, vegan}
+            Integer "Kale + Chickpea salad" {Calories 110, TotalFat 7, SaturatedFat 1, TransFat 0, Cholesterol 0, Sodium 450, TotalCarbs 7, DietaryFiber 2, Sugars 0, Protein 3, vegan}
+            Integer "Lundberg Basmati Rice" {Calories 45, TotalFat 0.5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 65, TotalCarbs 9, DietaryFiber 0, Sugars 0, Protein 0, vegan, paleo}
+            Integer "Overnight Pickled Onions" {Calories 15, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 70, TotalCarbs 3, DietaryFiber 0, Sugars 2, Protein 0, vegan}
+            Integer Parsley {Calories 15, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 20, TotalCarbs 2, DietaryFiber 1, Sugars 1, Protein 2, vegan, paleo}
+            Integer "Pickled Red Cabbage" 
+            Integer "Regenerative Organic Chickpeas"
+            Integer "Regenerative Organic Quinoa" {Calories 90, TotalFat 3, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 5, TotalCarbs 13, DietaryFiber 2, Sugars 0, Protein 3, vegan, paleo}
+            Integer "Roasted Beets" {Calories 50, TotalFat 3.5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 100, TotalCarbs 5, DietaryFiber 1, Sugars 4, Protein 0, vegan, paleo}
+            Integer "Roasted Cauliflower" {Calories 25, TotalFat 2, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 75, TotalCarbs 2, DietaryFiber 1, Sugars 0, Protein 0.5, vegan}
+            Integer "Roasted Corn" {Calories 35, TotalFat 0.5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 0, TotalCarbs 8, DietaryFiber 0, Sugars 2, Protein 1, vegan}
+            Integer "Roasted Fajitas + Corn" {Calories 45, TotalFat 0.5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 200, TotalCarbs 10, DietaryFiber 1, Sugars 4, Protein 1, vegan}
+            Integer "Roasted Mushrooms" {Calories 50, TotalFat 3, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 200, TotalCarbs 6, DietaryFiber 2, Sugars 3, Protein 2, vegan}
+            Integer "Roasted Sweet Potatoes" {Calories 100, TotalFat 5, SaturatedFat 1, TransFat 0, Cholesterol 0, Sodium 85, TotalCarbs 12, DietaryFiber 2, Sugars 4, Protein 1, vegan, paleo}
+            Integer "Shaved Broccoli" {Calories 15, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 15, TotalCarbs 3, DietaryFiber 1, Sugars 0, Protein 1, vegan, paleo}
+            Integer "Shaved Parmesan" {Calories 120, TotalFat 8, SaturatedFat 4.5, TransFat 0, Cholesterol 25, Sodium 500, TotalCarbs 4, DietaryFiber 0, Sugars 0, Protein 8, dairy, vegetarian} 
+            Integer "Shredded Cabbage" {Calories 70, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 65, TotalCarbs 16, DietaryFiber 6, Sugars 8, Protein 4, vegan, paleo}
+            Integer "Sliced Apples" {Calories 20, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 0, TotalCarbs 6, DietaryFiber 1, Sugars 4, Protein 2, vegan, paleo}
+            Integer "Sliced Carrots" {Calories 15, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 25, TotalCarbs 3, DietaryFiber 1, Sugars 1, Protein 0, vegan, paleo}
+            Integer "Sliced Cucumbers" {Calories 10, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 0, TotalCarbs 2, DietaryFiber 0, Sugars 0, Protein 0, vegan, paleo}
+            Integer "Sliced Grape Tomatoes" {Calories 10, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 0, TotalCarbs 2, DietaryFiber 0, Sugars 1, Protein 0, vegan, paleo}
+            Integer "Sliced Pepperoncini" {Calories 15, TotalFat 0, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 860, TotalCarbs 4, DietaryFiber 0, Sugars 2, Protein 0, vegan}
+            Integer "Spicy Harissa Pita" {Calories 80, TotalFat 2.5, SaturatedFat 0, TransFat 0, Cholesterol 0, Sodium 150, TotalCarbs 12, DietaryFiber 0, Sugars 0, Protein 2, gluten, vegan}
+            Integer "Tajin Spiced Pumpkin Seeds" {Calories 140, TotalFat 6, SaturatedFat 1, TransFat 0, Cholesterol 0, Sodium 340, TotalCarbs 17, DietaryFiber 6, Sugars 0, Protein 6, nuts, vegan}
+            Integer "Tillamook White Cheddar" 
+            Integer "Violife Creamy Vegan Feta" {Calories 60, TotalFat 4.5, SaturatedFat 4.5, TransFat 0, Cholesterol 0, Sodium 210, TotalCarbs 3, DietaryFiber 0, Sugars 0, Protein 0, vegan}

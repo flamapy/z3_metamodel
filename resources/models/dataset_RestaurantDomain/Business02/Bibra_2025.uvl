@@ -1,0 +1,10 @@
+imports
+    Bibra_2025_Salad as Salad
+    Bibra_2025_Pokebowls as Pokebowls
+    Bibra_2025_Wraps as Wraps
+features
+    Bibra {abstract, version '2025', units {Price 'euro'}}
+        optional
+            Salad
+            Pokebowls
+            Wraps

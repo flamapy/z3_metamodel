@@ -1,0 +1,31 @@
+namespace HealthMonitoringSystem
+
+features
+	HealthMonitoringSystem {abstract}
+		mandatory
+			DataCollection {abstract}
+				mandatory
+					VitalSigns {abstract}
+						or
+							HeartRate {PowerDraw 1.5, Cost 12}
+							BloodPressure {PowerDraw 2.0, Cost 20}
+							SpO2 {PowerDraw 1.0, Cost 8}
+				optional
+					ActivityTracking {PowerDraw 0.8, Cost 5}
+			Alerts {abstract}
+				alternative
+					SMS {MonthlyCost 5}
+					Email {MonthlyCost 2}
+					PushNotification {MonthlyCost 1}
+		optional
+			DataStorage {abstract}
+				or
+					CloudStorage {MonthlyCost 10, Capacity 500}
+					LocalStorage {MonthlyCost 0, Capacity 64}
+			PowerManagement {BatteryCapacity 300}
+
+constraints
+	HeartRate.PowerDraw + BloodPressure.PowerDraw + SpO2.PowerDraw <= 4.0
+	CloudStorage.MonthlyCost + SMS.MonthlyCost <= 12
+	BloodPressure => CloudStorage
+	CloudStorage => PushNotification

@@ -1,0 +1,29 @@
+namespace Agriculture
+
+features
+	Agriculture {abstract}
+		mandatory
+			CropType {abstract}
+				alternative
+					Grain {abstract}
+						alternative
+							Wheat
+							Rice
+					Vegetable
+			Fertilizer {abstract}
+				or
+					Organic
+					Chemical
+		optional
+			IrrigationSystem {abstract}
+				alternative
+					Drip
+					Sprinkler
+			PestControl {abstract}
+				or
+					Biological
+					Pesticide
+constraints
+	Rice => IrrigationSystem
+	Organic => !Pesticide
+	Pesticide => Chemical

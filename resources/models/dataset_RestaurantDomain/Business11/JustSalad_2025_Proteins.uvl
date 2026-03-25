@@ -1,0 +1,10 @@
+features
+    Proteins 
+        or
+            Integer "Braised Chicken" {Price 3.69, Calories 200, TotalFat 13, SaturatedFat 3.5, TransFat 0, Cholesterol 115, Sodium 370, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 21, soy}
+            Integer "Cage-Free Jammy Egg" {Price 1.99, Calories 70, TotalFat 4.5, SaturatedFat 1.5, TransFat 0, Cholesterol 185, Sodium 70, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 6, eggs, vegetarian, paleo}
+            Integer "Fable BBQ Shitake" {Price 3.69}
+            Integer "Impossible Chicken (Plan-Based)" {Price 3.49, Calories 110, TotalFat 5, SaturatedFat 0.5, TransFat 0, Cholesterol 0, Sodium 250, TotalCarbs 9, DietaryFiber 2, Sugars 0, Protein 6, gluten, soy, vegan}
+            Integer "Organic Sesame Tofu" {Price 2.5, Calories 80, TotalFat 6, SaturatedFat 1, TransFat 0, Cholesterol 0, Sodium 120, TotalCarbs 1, DietaryFiber 0, Sugars 0, Protein 7, soy, sesame, vegan}
+            Integer "Oven Crispy Chicken" {Price 3.69, Calories 210, TotalFat 10, SaturatedFat 2, TransFat 0, Cholesterol 30, Sodium 510, TotalCarbs 17, DietaryFiber 0, Sugars 0, Protein 13, gluten, soy}
+            Integer "Oven Roasted Chicken"  {Price 3.69, Calories 130, TotalFat 3, SaturatedFat 1, TransFat 0, Cholesterol 65, Sodium 220, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 24, soy} 

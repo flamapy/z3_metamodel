@@ -1,0 +1,30 @@
+namespace AgricultureManagementSystem
+
+features
+	AgricultureManagementSystem {abstract}
+		mandatory
+			CropManagement {abstract}
+				alternative
+					Wheat {Cost 200, Yield 40}
+					Rice {Cost 350, Yield 55}
+					Corn {Cost 280, Yield 65}
+			Irrigation {abstract}
+				alternative
+					Drip {Cost 500, Water 30.0}
+					Sprinkler {Cost 300, Water 55.0}
+					Flood {Cost 150, Water 80.0}
+		optional
+			Monitoring {abstract}
+				or
+					SoilSensor {Cost 120, Accuracy 92.0}
+					WeatherStation {Cost 250, Accuracy 88.0}
+					Drone {Cost 800, Accuracy 95.0}
+						optional
+							ThermalImaging {Cost 400, Accuracy 97.0}
+			Marketplace {Cost 100, Commission 5.5}
+
+constraints
+	Drone => !Flood
+	ThermalImaging => WeatherStation
+	sum(Cost) < 2000
+	avg(Accuracy) >= 90.0

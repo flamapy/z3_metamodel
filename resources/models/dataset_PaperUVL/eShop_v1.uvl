@@ -1,0 +1,21 @@
+features
+    eShop
+        mandatory
+            Security
+                alternative
+                    High {Price 100}
+                    Standard {Price 50}
+            Catalogue
+        optional
+            SEO
+            Payment
+                alternative
+                    "Bank Transfer" {Price 10, SEPA true}
+                    "Credit Card" {Price 20}
+            Platform
+                or
+                    "Mobile App"
+                    Browser
+constraints
+    !("Bank Transfer" & "Mobile App")
+    "Credit Card" => High

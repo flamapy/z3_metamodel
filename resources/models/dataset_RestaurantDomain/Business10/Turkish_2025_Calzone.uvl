@@ -1,0 +1,20 @@
+imports
+    Turkish_2025_Ingredients as IngredientsFM
+features
+    Calzone {Price 8.00}
+        mandatory
+            Ingredients cardinality [1..*]
+                mandatory
+                    IngredientsFM.Ingredients
+            Base
+                alternative
+                    Turkish
+                    Carbonara
+                    BBQ
+                    Prosciutto
+constraints
+    Base => IngredientsFM.Mozzarella & IngredientsFM.Tomato & IngredientsFM."Shawarma meat"
+    Turkish => IngredientsFM."Yogurt sauce"
+    Carbonara => IngredientsFM.Cream
+    BBQ => IngredientsFM."BBQ sauce"
+    Prosciutto => IngredientsFM.Ham & IngredientsFM."Yogurt sauce"

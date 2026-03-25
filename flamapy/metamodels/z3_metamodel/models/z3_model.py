@@ -36,6 +36,7 @@ class Z3Model(VariabilityModel):
         self.attributes_types: dict[str, AttributeType] = {}  # attr_name -> AttributeType
         self.constraints: list[Any] = []  # list of z3 expressions
         self.original_model: Optional[VariabilityModel] = None
+        self._tactics: list[str] = ['simplify', 'smt']  # Default tactic for the solver
 
     def create_const(self, ftype: FeatureType | AttributeType, value: Any) -> Any:
         """Helper to create a Z3 constant of the given type with the given value."""
@@ -247,3 +248,14 @@ class Z3Model(VariabilityModel):
                 expr = z3.If(feature_info.sel, attr['var'], zero_val)
                 exprs.append(expr)
         return z3.Sum(exprs) if exprs else z3.RealVal(0.0, ctx=model.ctx)
+    
+    def set_tactics(self, tactics: list[str]) -> None:
+        """Set the tactics to be used for satisfiability checking."""
+        self._tactics = tactics
+
+    def get_solver(self) -> z3.Solver:
+        """Helper to create a Z3 solver with the model's constraints."""
+        tactic = z3.Then(*self._tactics, ctx=self.ctx)
+        solver = tactic.solver()
+        solver.add(self.constraints)
+        return solver

@@ -1,0 +1,31 @@
+namespace AutomotiveConfigurationSystem
+
+features
+	Vehicle {abstract}
+		mandatory
+			Engine {abstract}
+				alternative
+					GasolineEngine {Price 25000, Horsepower 200, Weight 180.0}
+					DieselEngine {Price 28000, Horsepower 170, Weight 200.0}
+					ElectricMotor {Price 35000, Horsepower 300, Weight 120.0}
+			Transmission {abstract}
+				alternative
+					ManualTransmission {Price 1500, Weight 45.0}
+					AutomaticTransmission {Price 3000, Weight 60.0}
+			Safety {abstract}
+				mandatory
+					ABS {Price 800, Weight 8.0}
+		optional
+			Comfort {abstract}
+				or
+					HeatedSeats {Price 600, Weight 5.0}
+					Navigation {abstract}
+						alternative
+							BasicNav {Price 1200, Weight 1.5}
+							PremiumNav {Price 2500, Weight 3.0}
+
+constraints
+	ElectricMotor => AutomaticTransmission
+	PremiumNav => HeatedSeats
+	GasolineEngine.Price + AutomaticTransmission.Price <= 28000
+	sum(Price) < 40000

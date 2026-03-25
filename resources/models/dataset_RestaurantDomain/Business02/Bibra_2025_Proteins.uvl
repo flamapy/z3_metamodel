@@ -1,0 +1,18 @@
+features
+    Proteins {abstract}
+        alternative
+            Chicken
+            "Teriyaki chicken"
+            Tofu {vegan}
+            "Canned tuna"
+            Heura {vegan, Price 1.00}
+            "Kimchi chicken" {spicy}
+            "Curry chicken"
+            "Beetroot falafel" {vegan}
+            "Sriracha tofu" {vegan, spicy}
+            "Confit duck" {Price 1.00}
+            "Marinated tuna"
+            "Marinated salmon"
+            "Ponzu-marinated salmon" {Price 1.00}
+            "Flambeed teriyaki salmon" {Price 2.00}
+            "Tuna marinated in soy and sesame oil" {Price 1.00}

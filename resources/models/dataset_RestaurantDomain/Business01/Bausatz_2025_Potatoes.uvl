@@ -1,0 +1,35 @@
+imports
+    Bausatz_2025_Ingredients as Ingredients
+features
+    "Potatoes Bausatz" {abstract, note 'Sliced peeled potatoes from STMK, baked with cheese'}
+        mandatory
+            Integer "Ticket number"
+            Integer "Table number"
+            "Potatoes Options" {abstract}
+                alternative
+                    "Large Potato Pan" {Allergen {Gluten}}
+                    "Small Potato Pan" {Allergen {Gluten}}
+                    "Mini Potato Pan" {Allergen {Gluten}}
+            "Homemade Cream Sauce" {Allergen {Lactose}}
+            "4Ingredients" cardinality [4..43] {abstract, note 'each additional ingredient costs extra'}
+                mandatory
+                    Ingredients.Ingredients
+constraints
+    !Ingredients.Arugula
+    !Ingredients."Barbecue Sauce"
+    !Ingredients.Carrots
+    !Ingredients.Cheddar
+    !Ingredients.Cucumber
+    !Ingredients."Green Salad"
+    !Ingredients."Gold Bears"
+    !Ingredients.Mayonnaise
+    !Ingredients.Mustard
+    !Ingredients.Pickles
+    !Ingredients."Steak Tartare Sauce"
+    !Ingredients.Jalapenyos
+    !Ingredients."Crispy fried onions"
+    !Ingredients."Sour cream"
+    !Ingredients."Kidney beans"
+    !Ingredients."Bell pepper"
+    "Ticket number" > 0
+    "Table number" > 0

@@ -1,0 +1,41 @@
+features
+	Burgers {abstract, version '2020', units {Price 'euro'}}
+		mandatory
+			Integer Table
+			String "Your name"
+			Burger {Price 7.80}
+				mandatory
+					"Main ingredient" {abstract}
+						alternative
+							"Eco Veal" {note 'from Valle de Ollo'}
+							"Free Range Chicken" {note 'Certified'}
+							Vegan
+					Bread {abstract, note 'Baked in wood-fired oven'}
+						alternative
+							"Eco baguette bread"
+							"Eco whole wheat brioche"
+							"Gluten-free bread"
+					Ingredients
+						or 
+							"Natural Smoked Bacon"
+							"Grilled egg"
+							"Mixed Lettuce"
+							Cannons
+							Espinach
+							"Rocket Salad"
+							Cheddar
+							Emmental
+							Camembert
+							"Goat Cheese"
+							Parmesan
+							"Dried Tomato"
+							Avocado
+							Tomato
+							Cucumber
+							Ketchup
+							Mustard
+							Mayonnaise
+							"Wasabi Mayonnaise"
+							Chimichurri
+							"Curry & Mango Mayonnaise"
+							"Cajun Sauce"

@@ -1,0 +1,62 @@
+features
+    Ingredients {abstract}
+        alternative
+            Anchovies {Allergen {Fish}}
+            Artichokes
+            Arugula {note 'fresh'}
+            "Basil Pesto" {Allergen {Lactose, Nuts}}
+            "Barbecue Sauce" {Allergen {Mustard}}
+            "Bell pepper" {note 'fresh'}
+            "Blue Cheese" {note 'Gorgonzola', Allergen {Lactose}}
+            "Brie Cheese" {Allergen {Lactose}}
+            Broccoli
+            Capers
+            Carrots
+            "Cayenne Pepper"
+            Cheddar {note 'original burger cheese', Allergen {Lactose}}
+            "Cooked Ham" {note 'Austrian, no pizza block'}
+            Corn
+            "Crispy fried onions"
+            Cucumber
+            "Curry Sauce" {Allergen {Lactose, Celery, Mustard}}
+            Egg {note 'Austrian, BIO Free-range', Allergen {Egg}}
+            "Emmental Cheese" {Allergen {Lactose}}
+            "Feta Cheese" {note 'Sheep Cheese', Allergen {Lactose}}
+            Garlic {Allergen {Lactose, Mustard}}
+            "Gold Bears" {note 'Haribo'}
+            "Green Salad"
+            Jalapenyos
+            "Kidney beans"
+            Leek {note 'fresh'}
+            Mayonnaise {Allergen {Egg, Mustard}}
+            "Mild pepperoni" {Allergen {Soy, Mustard}}
+            Mozzarella {Allergen {Lactose}}
+            Mushrooms {note 'fresh'}
+            Mustard {Allergen {Mustard}}
+            Olives
+            Onion {note 'fresh'}
+            Paprika {note 'fresh'}
+            "Parmesan Cheese" {Allergen {Egg, Lactose}}
+            Pickles {Allergen {Mustard}}
+            Pineapple
+            "Piri-Piri" {Allergen {Lactose}}
+            Prosciutto {note 'Italian'}
+            "Pumpkin Seeds"
+            "Pumpkin Seed Oil"
+            "Runner Beans"
+            Salami {Allergen {Mustard}}
+            Seafood {Allergen {Gluten, Crustaceans, Fish, Mollusks}}
+            Snails {Allergen {Mollusks}}
+            Speck
+            "Spicy pepperoni" {Allergen {Soy, Mustard}}
+            "Spicy Salami" {Allergen {Mustard}}
+            Spinach
+            "Sour cream" {Allergen {Egg, Lactose, Mustard}}
+            "Steak Tartare Sauce" {Allergen {Egg, Mustard}}
+            "Sunflower Seeds" {Allergen {Gluten, Peanuts, Soy, Lactose, Nuts, Mustard, Sesame}}
+            Tabasco
+            Tofu {note 'Austrian, BIO smoked', Allergen {Gluten, Soy, Celery}}
+            Tomato {note 'fresh slices'}
+            Tuna {note 'Dolphin-safe caught', Allergen {Fish, Soy}}
+            "Whipped Cream" {Allergen {Lactose}}
+            Zucchini {note 'BIO fresh'}

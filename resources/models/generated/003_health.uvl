@@ -1,0 +1,30 @@
+namespace Health
+
+features
+	Health {abstract}
+		mandatory
+			PatientRecord {abstract}
+				mandatory
+					Demographics
+				optional
+					MedicalHistory {abstract}
+						or
+							Allergies
+							ChronicConditions
+							FamilyHistory
+			Treatment {abstract}
+				alternative
+					Medication
+					Surgery
+					Therapy
+		optional
+			Insurance {abstract}
+				alternative
+					Public
+					Private
+			Monitoring
+
+constraints
+	Surgery => Private
+	ChronicConditions => Monitoring
+	FamilyHistory => Insurance

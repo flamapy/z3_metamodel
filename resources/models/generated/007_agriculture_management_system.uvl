@@ -1,0 +1,25 @@
+namespace AgricultureManagementSystem
+
+features
+	AgricultureManagementSystem {abstract}
+		mandatory
+			String FarmName
+			CropManagement {abstract}
+				alternative
+					Grain
+					Vegetable
+						optional
+							PestControl
+					Fruit
+			Integer FieldSize
+		optional
+			IrrigationSystem {abstract}
+				or
+					DripIrrigation
+					SprinklerIrrigation
+			Boolean OrganicCertified
+
+constraints
+	OrganicCertified => !PestControl
+	FieldSize > 0
+	len(FarmName) > 2

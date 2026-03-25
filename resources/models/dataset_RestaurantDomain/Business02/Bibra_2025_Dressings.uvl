@@ -1,0 +1,17 @@
+features
+    Dressings {abstract}
+        alternative
+            "Honey mustard vinaigrette"
+            "Extra virgin olive oil, vinegar & salt" {vegan}
+            "Strawberry vinaigrette" {vegan}
+            "Curry mayo" {vegan}
+            "Balsamic vinaigrette" {vegan}
+            Teriyaki {vegan}
+            "Lebanese dressing" {vegan}
+            "Teriyaki mayo"
+            "Japanese mayo"
+            "Truffle mayo"
+            Soy {vegan}
+            "Wasabi mayo" {spicy}
+            "Kimchi mayo" {spicy}
+            "Homemade hummus" {vegan}

@@ -23,11 +23,24 @@ class Z3DeadFeatures(DeadFeatures):
         self._result = get_dead_features(z3_model)
         return self
 
+    def execute_solver(self, model: VariabilityModel, solver: z3.Solver) -> 'Z3DeadFeatures':
+        self._result = get_dead_features_with_solver(cast(Z3Model, model), solver)
+        return self
+    
 
 def get_dead_features(model: Z3Model) -> list[Any]:
-    solver = z3.Solver(ctx=model.ctx)
-    solver.add(model.constraints)
+    solver = model.get_solver()
 
+    dead_features = []
+    if solver.check() == z3.sat:
+        for feature, feature_info in model.features.items():
+            variable = feature_info.sel
+            if solver.check([variable]) == z3.unsat:
+                dead_features.append(feature)
+    return dead_features
+
+
+def get_dead_features_with_solver(model: Z3Model, solver: z3.Solver) -> list[Any]:
     dead_features = []
     if solver.check() == z3.sat:
         for feature, feature_info in model.features.items():

@@ -1,0 +1,16 @@
+features
+    PC 
+        mandatory
+            RAM 
+                or 
+                    "8GB" cardinality [1..4] {Power 5}
+                    "16GB" {Power 8}
+            CPU {Power 100}
+            "Power Unit"
+                alternative
+                    Large 
+                    Small 
+        optional 
+            "Designated GPU" {Power 50}
+constraints
+    sum(Power) > 120 => Large

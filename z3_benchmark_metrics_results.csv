@@ -1,0 +1,43 @@
+Model_Name,UVL_Level,N_Boolean_Features,N_Integer_Features,N_Real_Features,N_String_Features,N_Boolean_Constraints,N_Arithmetic_Constraints,N_Aggregate_Constraints,N_Boolean_Variables,N_Typed_Variables,N_Attribute_Variables,N_C_Structure,N_C_Cross,N_C_Link,N_C_Attribute,Total_Constraints_SMT,N_Unbounded_Variables,Satisfiable,Error
+LaGalerna_2020_Salads,TYPE,42,1,0,1,0,2,1,42,2,3,4,2,2,6,15,2,True,None
+LaGalerna_2020_Burgers,TYPE,33,1,0,1,0,0,0,33,2,6,9,0,2,12,24,2,True,None
+LaGalerna_2023_Salads,TYPE,44,1,0,1,0,3,1,44,2,4,4,3,2,8,17,2,True,None
+LaGalerna_2020_Sandwiches,TYPE,35,1,0,1,0,2,1,35,2,4,7,2,2,8,20,2,True,None
+Bibra_2025_Wraps,ARITHMETIC,86,0,0,0,13,1,0,77,0,27,17,14,0,54,85,0,True,None
+Bibra_2025_Pokebowls,BOOLEAN,94,0,0,0,18,0,0,83,0,35,20,18,0,70,109,0,True,None
+Bibra_2025_Ingredients,BOOLEAN,27,0,0,0,0,0,0,27,0,5,1,0,0,10,12,0,True,None
+Bibra_2025,ARITHMETIC,4,0,0,0,46,2,0,,,,3,48,,,,,,ERROR: reading FM model from resources/models/dataset_RestaurantDomain/Business02/Bibra_2025.uvl: Unsupported feature or attribute: Bibra_2025_Bases.Sushi rice
+Bibra_2025_Proteins,BOOLEAN,16,0,0,0,0,0,0,16,0,11,1,0,0,22,24,0,True,None
+Bibra_2025_Salad,ARITHMETIC,83,0,0,0,15,1,0,74,0,27,15,16,0,54,85,0,True,None
+Turkish_2025_Kebab,BOOLEAN,24,0,0,0,9,0,0,24,0,7,16,9,0,14,40,0,True,None
+Turkish_2025_Calzone,BOOLEAN,34,0,0,0,5,0,0,33,0,1,5,5,0,2,13,0,False,None
+Turkish_2025_Pizzas,ARITHMETIC,33,0,0,0,0,3,0,32,0,4,6,3,0,8,18,0,True,None
+Fuengirola_Pizzas,BOOLEAN,32,0,0,0,2,0,0,32,0,8,5,2,0,16,24,0,True,None
+Bausatz_2025_Pfandl,TYPE,72,2,0,0,17,2,0,72,2,78,12,19,2,156,190,2,True,None
+Bausatz_2025_ScrambledEggs,TYPE,127,2,0,0,27,2,0,67,2,143,11,29,2,286,329,2,False,None
+Bausatz_2025_Pasta,TYPE,76,2,0,0,25,2,0,76,2,81,13,27,2,162,205,2,True,None
+Bausatz_2022_Desserts,ARITHMETIC,21,0,0,0,0,1,0,21,0,22,4,1,0,44,49,0,True,None
+Bausatz_2025_DrinkMix,TYPE,79,2,0,1,3,3,1,58,3,33,17,6,3,66,93,3,False,None
+Bausatz_2025_Potatoes,TYPE,67,2,0,0,16,2,0,67,2,75,8,18,2,150,179,2,True,None
+Bausatz_2025_Pizzas,TYPE,69,2,0,0,14,2,0,69,2,74,10,16,2,148,177,2,True,None
+Bausatz_2025_Desserts,ARITHMETIC,17,0,0,0,0,1,0,17,0,26,4,1,0,52,57,0,True,None
+Bausatz_2025_Burgers,TYPE,68,2,0,1,19,3,1,68,3,85,11,22,3,170,207,3,True,None
+Bausatz_2025_ToastedBread,TYPE,67,2,0,0,18,2,0,67,2,73,9,20,2,146,178,2,True,None
+Bausatz_2025_Salads,TYPE,75,2,0,0,6,2,0,75,2,89,9,8,2,178,198,2,True,None
+FiveGuys_2024,ARITHMETIC,64,0,0,0,3,8,3,61,0,38,30,11,0,76,113,0,True,None
+JustSalad_2025_Dressings,TYPE,1,24,0,0,0,0,0,1,24,241,1,0,24,482,508,24,True,None
+JustSalad_2025_Proteins,TYPE,1,7,0,0,0,0,0,1,7,80,1,0,7,160,169,7,True,None
+JustSalad_2025_Premiums,TYPE,1,9,0,0,0,0,0,1,9,101,1,0,9,202,213,9,True,None
+JustSalad_2025,TYPE,53,265,0,0,31,2,0,,,,54,33,,,,,,ERROR: reading FM model from resources/models/dataset_RestaurantDomain/Business11/JustSalad_2025.uvl: sort mismatch
+JustSalad_2025_Greens,BOOLEAN,7,0,0,0,0,0,0,7,0,72,1,0,0,144,231,0,True,None
+JustSalad_2025_Salad,TYPE,24,92,0,0,14,8,0,22,80,1043,20,22,80,2086,2305,64,True,None
+JustSalad_2025_Essentials,TYPE,1,44,0,0,0,0,0,1,44,469,1,0,44,938,984,44,True,None
+JustSalad_2025_Cheese,TYPE,1,6,0,0,0,7,0,1,6,77,1,7,6,154,169,0,True,None
+JustSalad_2025_Other,TYPE,1,2,0,0,0,0,0,1,2,2,1,0,2,4,8,2,True,None
+JustSalad_2025_Bowl,TYPE,6,81,0,0,3,0,0,6,79,861,9,3,79,1722,1816,76,True,None
+JustSalad_2025_Additions,BOOLEAN,6,0,0,0,0,0,0,6,0,5,1,0,0,10,12,0,True,None
+JustSalad_2025_Wraps,TYPE,17,92,0,0,14,8,0,16,80,1043,17,22,80,2086,2302,64,True,None
+JustSalad_2025_Bases,TYPE,1,6,0,0,0,0,0,1,6,71,1,0,6,142,150,6,True,None
+PizzeriaLaTradizionale,TYPE,40,2,0,1,4,5,1,40,3,12,12,9,3,24,48,3,True,None
+LaGondolaDeYdai_Pizza,ARITHMETIC,56,0,0,0,4,4,0,56,0,11,9,8,0,22,39,0,True,None
+Ohana_2022_Poke,BOOLEAN,70,0,0,0,0,0,0,,,,16,0,,,,,,ERROR: reading FM model from resources/models/dataset_RestaurantDomain/Business08/Ohana_2022_Poke.uvl: argument 1: KeyboardInterrupt: 

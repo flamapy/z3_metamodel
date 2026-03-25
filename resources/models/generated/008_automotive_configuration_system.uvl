@@ -1,0 +1,25 @@
+namespace AutomotiveConfigurationSystem
+
+features
+	Vehicle {abstract}
+		mandatory
+			Powertrain {abstract}
+				alternative
+					Gasoline
+					Diesel
+					Electric
+						optional
+							Integer BatteryCapacity
+			Safety {abstract}
+				or
+					ABS
+					LaneAssist
+		optional
+			String OwnerName
+			Integer Warranty
+			Sunroof
+
+constraints
+	Electric => ABS
+	len(OwnerName) > 2
+	Sunroof => Warranty > 2

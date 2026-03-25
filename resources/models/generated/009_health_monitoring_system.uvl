@@ -1,0 +1,26 @@
+namespace HealthMonitoringSystem
+
+features
+	HealthMonitoringSystem {abstract}
+		mandatory
+			PatientInfo {abstract}
+				mandatory
+					String PatientName
+					Integer Age
+			Sensors {abstract}
+				or
+					HeartRateMonitor
+						optional
+							Boolean ContinuousTracking
+					BloodPressureMonitor
+		optional
+			AlertSystem {abstract}
+				alternative
+					SMSAlert
+					EmailAlert
+			Real SamplingRate
+
+constraints
+	SMSAlert => HeartRateMonitor
+	ContinuousTracking => SamplingRate
+	len(PatientName) >= 2 & Age > 0

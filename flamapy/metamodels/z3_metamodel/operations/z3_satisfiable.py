@@ -23,9 +23,16 @@ class Z3Satisfiable(Satisfiable):
         z3_model = cast(Z3Model, model)
         self._result = is_satisfiable(z3_model)
         return self
+    
+    def execute_solver(self, model: VariabilityModel, solver: z3.Solver) -> 'Z3Satisfiable':
+        self._result = is_satisfiable_with_solver(cast(Z3Model, model), solver)
+        return self
 
 
 def is_satisfiable(model: Z3Model) -> bool:
-    solver = z3.Solver(ctx=model.ctx)
-    solver.add(model.constraints)
+    solver = model.get_solver()
+    return solver.check() == z3.sat
+
+
+def is_satisfiable_with_solver(model: Z3Model, solver: z3.Solver) -> bool:
     return solver.check() == z3.sat

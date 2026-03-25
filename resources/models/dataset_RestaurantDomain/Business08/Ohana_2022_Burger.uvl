@@ -1,0 +1,62 @@
+features
+    Burger {abstract, Units {Price 'euro'}}
+        mandatory
+            Size {abstract}
+                alternative
+                    Normal {Price 11.95}
+                    Double {Price 13.95}
+            Bread {abstract}
+                alternative
+                    "Brioche bread"
+                    "Wholemeal bread"
+                    "Gluten free"
+            Meat {abstract}
+                alternative
+                    Beef {note 'ECO'}
+                    "Galician cow"
+                    "Halal lamb"
+                    "Free range chicken"
+                    "Red tuna" {Price 3.00}
+                    Vegan
+            String "Meat point"
+            Cheese {abstract, note 'ask us, maybe we have something new'}
+                alternative
+                    Gouda {note 'Dutch cow cheese'}
+                    Brie {note 'French semi cow cheese'}
+                    "Gruyere cheese"
+                    Parmesan {note 'Italian fruity cheese'}
+                    Idiazabal {note 'National cheese of smoked sheep'}
+                    Payoyo {note 'Cadiz cheese sheep & goat'}
+                    Cheddar {note 'English cow cheese'}
+            Topping {abstract, note 'ask us, maybe we have something new'}
+                alternative
+                    "Natural smoked bacon dried"
+                    "Dried tomato"
+                    Avocado
+                    Onion
+                    Cucumber
+                    Tomato
+                    "Caramelized purple onion"
+                    Egg {note 'ECO', Price 1.00}
+            Vegetable {abstract}
+                alternative
+                    "Mixed lettuce"
+                    "Lamb's lettuce"
+                    "Rocket salad"
+                    Spinach
+            Dressing {abstract, note 'ask about some new sauces'}
+                alternative
+                    "Wasabi mayonnaise" {Spicy}
+                    "Kimchei mayonnaise" {Spicy}
+                    "Curry mayonnaise"
+                    "Cajun mayonnaise"
+                    "Garam Masala mayonnaise"
+                    "Chimichurri herbal mustard"
+                    "Turkish sauce"
+                    Ketchup {note 'ECO'}
+                    Mustard {note 'ECO'}
+        optional
+            "Extra chips" {Price 2.50}
+            "Extra dressing" {Price 1}
+constraints
+    len("Meat point") > 0

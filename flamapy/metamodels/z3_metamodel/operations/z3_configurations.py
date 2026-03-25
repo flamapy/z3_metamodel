@@ -62,10 +62,7 @@ def _extract_feature_value(feature: str,
 
 def configurations(model: Z3Model,
                    partial_configuration: Optional[Configuration] = None) -> list[Configuration]:
-    solver = z3.Solver(ctx=model.ctx)
-
-    # 1. Add the model constraints to the solver
-    solver.add(model.constraints)
+    solver = model.get_solver()
 
     # 2. Create constraints for the given partial configuration (if any)
     if partial_configuration is not None:

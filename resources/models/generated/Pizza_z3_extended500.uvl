@@ -1,0 +1,604 @@
+features
+	Pizza {abstract}
+		optional
+			CheesyCrust {Kcal 370, Price 1.00}
+			Integer SpicyLvl
+			String Name
+			Integer TableNumber
+			Integer QuantityOrdered
+			Real DiscountRate
+			String CustomerName
+			String SpecialInstructions
+			Integer LoyaltyPointsBalance
+			Real TipAmount
+			String PromoCode
+			Integer PreparationMinutes
+			Real TotalWeight
+			String ChefNote
+			Integer OrderNumber
+			Real VATRate
+
+			Extras {abstract}
+				optional
+					GarlicSauce {Kcal 120, Price 0.50}
+					OliveOil {Kcal 80, Price 0.30}
+					Oregano {Kcal 10}
+					BasilLeaves {Kcal 5, Price 0.20}
+					ChiliFlakes {Kcal 15, Price 0.20}
+					BlackPepper {Kcal 10}
+					RoastedGarlic {Kcal 40, Price 0.30}
+					SunDriedTomatoes {Kcal 140, Price 0.60}
+					TruffleOil {Kcal 120, Price 1.50}
+					Capers {Kcal 25, Price 0.40}
+					HoneyDrizzle {Kcal 60, Price 0.30}
+					BalsamicGlaze {Kcal 45, Price 0.40}
+					PomegranateMolasses {Kcal 50, Price 0.50}
+					DukkaSpice {Kcal 35, Price 0.40}
+					ZaatarBlend {Kcal 20, Price 0.30}
+					SmokePaprika {Kcal 10, Price 0.20}
+					FennelSeeds {Kcal 15, Price 0.20}
+					CuminPowder {Kcal 10, Price 0.20}
+					TahinaPaste {Kcal 180, Price 0.60}
+					MisoGlaze {Kcal 35, Price 0.50}
+					Integer ExtraOliveOilMl
+					Integer ExtraChiliCount
+					Real ExtraSaucePortion
+					String AllergenNote
+
+			Crust {abstract}
+				optional
+					ThinCrust {Price 0.00}
+					ThickCrust {Price 0.50}
+					StuffedCrust {Kcal 200, Price 1.50}
+					CornmealCrust {Kcal 180, Price 0.80}
+					GlutenFreeCrust {Kcal 160, Price 1.20}
+					WholeWheatCrust {Kcal 170, Price 0.70}
+					CauliflowerCrust {Kcal 120, Price 1.00}
+					SesameSeededCrust {Kcal 190, Price 0.60}
+					SpeltCrust {Kcal 175, Price 0.90}
+					RyeCrust {Kcal 165, Price 0.80}
+					OatCrust {Kcal 155, Price 0.70}
+					PotatoCrust {Kcal 200, Price 0.90}
+					RiceCrust {Kcal 145, Price 1.10}
+					BeerCrust {Kcal 210, Price 1.20}
+					HerbCrust {Kcal 170, Price 0.80}
+					ChocolateCrust {Kcal 280, Price 1.50}
+					Integer CrustThicknessMm
+					Real CrustCrispIndex
+
+			Beverage {abstract}
+				optional
+					Water {Price 1.00}
+					Cola {Kcal 140, Price 1.50}
+					OrangeJuice {Kcal 110, Price 2.00}
+					Beer {Kcal 150, Price 2.50}
+					Wine {Kcal 125, Price 3.00}
+					Lemonade {Kcal 90, Price 1.80}
+					IcedTea {Kcal 70, Price 1.50}
+					Sparkling {Price 1.20}
+					Prosecco {Kcal 80, Price 4.00}
+					Espresso {Kcal 5, Price 1.50}
+					Cappuccino {Kcal 120, Price 2.00}
+					HotChocolate {Kcal 250, Price 2.50}
+					Kombucha {Kcal 30, Price 2.80}
+					GingerAle {Kcal 90, Price 1.50}
+					Milkshake {Kcal 400, Price 3.50}
+					CoconutWater {Kcal 45, Price 2.00}
+					RootBeer {Kcal 160, Price 1.80}
+					CraftBeer {Kcal 180, Price 3.50}
+					RedWine {Kcal 125, Price 4.00}
+					WhiteWine {Kcal 120, Price 4.00}
+					RoseWine {Kcal 115, Price 4.00}
+					Integer BeverageVolumeMl
+					String BeverageBrand
+					Integer BeverageTemperature
+
+			Dessert {abstract}
+				optional
+					TiraMisu {Kcal 400, Price 3.50}
+					Cannoli {Kcal 350, Price 2.50}
+					PannaCotta {Kcal 300, Price 3.00}
+					Gelato {Kcal 250, Price 2.00}
+					BrownieCake {Kcal 450, Price 3.00}
+					CheeseCake {Kcal 380, Price 3.50}
+					Sfogliatella {Kcal 320, Price 2.80}
+					Zeppole {Kcal 360, Price 2.50}
+					Bomboloni {Kcal 340, Price 2.20}
+					CioccolatoFondente {Kcal 500, Price 3.00}
+					AffogatoCafe {Kcal 200, Price 3.50}
+					SorbetLemon {Kcal 130, Price 2.50}
+					SorbetMango {Kcal 140, Price 2.50}
+					Profiteroles {Kcal 420, Price 3.80}
+					Waffle {Kcal 480, Price 3.00}
+					CrepeNutella {Kcal 460, Price 3.50}
+					Integer DessertPortionSize
+					String DessertFlavor
+					Real DessertSugarContent
+
+			Packaging {abstract}
+				alternative
+					DineIn
+					TakeAway {Price 0.50}
+					Delivery {Price 2.00}
+				optional
+					EcoFriendlyBox {Price 0.30}
+					RecyclableWrapper {Price 0.20}
+					InsulatedBag {Price 0.50}
+					GiftWrapping {Price 1.00}
+					String DeliveryAddress
+					Integer DeliveryFloor
+					String DeliveryInstructions
+					Integer EstimatedDeliveryMin
+
+			Loyalty {abstract}
+				optional
+					LoyaltyPoints
+					DiscountCoupon {Price -1.00}
+					BirthdayDiscount {Price -1.50}
+					MemberCard
+					GoldMembership {Price -2.00}
+					SilverMembership {Price -1.00}
+					ReferralBonus {Price -0.50}
+					SeasonalOffer {Price -1.50}
+					String MembershipID
+					Integer RewardPoints
+					Real CashbackPercent
+					String ReferralCode
+
+			Allergens {abstract}
+				optional
+					ContainsGluten
+					ContainsLactose
+					ContainsNuts
+					ContainsEgg
+					ContainsFish
+					ContainsSoy
+					ContainsMustard
+					ContainsSesame
+					ContainsSulphites
+					ContainsCelery
+					ContainsMolluscs
+					ContainsLupin
+					String AllergenFreeLabel
+					Integer AllergenSeverityLevel
+
+			NutritionalInfo {abstract}
+				optional
+					Integer TotalKcal
+					Real TotalFatGrams
+					Real SaturatedFatGrams
+					Real CarbohydratesGrams
+					Real SugarsGrams
+					Real ProteinGrams
+					Real SaltGrams
+					Real FibreGrams
+					Integer GlycemicIndex
+					Real OmegaThreeContent
+					String NutritionLabel
+					Integer CaloriesPerSlice
+
+			OrderMeta {abstract}
+				optional
+					String OrderChannel
+					Integer EstimatedReadyMin
+					String SpecialDietTag
+					Integer PartySize
+					String TableZone
+					Real ServiceChargeRate
+					String PaymentMethod
+					Integer SplitBillParts
+					String FeedbackRating
+					Integer WaitTimeMinutes
+
+		mandatory
+			Topping {abstract}
+				or
+					Salami {Kcal 462}
+					Ham {Kcal 115}
+					Mozzarella {Kcal 310}
+					Anchovies {Kcal 210, Price 0.50}
+					Pepperoni {Kcal 500, Price 0.80}
+					Mushrooms {Kcal 25, Price 0.40}
+					BellPepper {Kcal 30, Price 0.40}
+					RedOnion {Kcal 20, Price 0.30}
+					BlackOlives {Kcal 50, Price 0.40}
+					GreenOlives {Kcal 45, Price 0.40}
+					Pineapple {Kcal 50, Price 0.40}
+					Spinach {Kcal 20, Price 0.30}
+					Arugula {Kcal 15, Price 0.30}
+					Corn {Kcal 85, Price 0.30}
+					Artichoke {Kcal 50, Price 0.60}
+					Eggplant {Kcal 35, Price 0.40}
+					Zucchini {Kcal 20, Price 0.40}
+					SunflowerSeeds {Kcal 160, Price 0.50}
+					ParmesanCheese {Kcal 431, Price 0.70}
+					GorgonzolaBlue {Kcal 360, Price 0.80}
+					BurrataCheese {Kcal 330, Price 1.20}
+					RicottaCheese {Kcal 180, Price 0.60}
+					FontinaCheese {Kcal 390, Price 0.80}
+					CaciottaCheese {Kcal 350, Price 0.70}
+					Prosciutto {Kcal 250, Price 1.00}
+					CoppaColls {Kcal 430, Price 1.00}
+					Speck {Kcal 400, Price 1.10}
+					Bresaola {Kcal 160, Price 1.20}
+					ChickenBreast {Kcal 165, Price 1.00}
+					TunaDrained {Kcal 130, Price 0.80}
+					Shrimps {Kcal 85, Price 1.50}
+					Squid {Kcal 92, Price 1.50}
+					Clams {Kcal 74, Price 1.50}
+					ScrambledEgg {Kcal 150, Price 0.60}
+					BaconStrips {Kcal 540, Price 0.90}
+					Sausage {Kcal 480, Price 0.90}
+					JalapenoPepper {Kcal 29, Price 0.40}
+					HabaneroSlice {Kcal 18, Price 0.50}
+					RoastedPeppers {Kcal 40, Price 0.50}
+					SweetPotato {Kcal 90, Price 0.50}
+					Avocado {Kcal 160, Price 0.80}
+					Broccoli {Kcal 34, Price 0.40}
+					CherryTomatoes {Kcal 18, Price 0.30}
+					FreshBasil {Kcal 5, Price 0.20}
+					Truffle {Kcal 25, Price 2.50}
+					Nduja {Kcal 550, Price 1.20}
+					Lardo {Kcal 890, Price 1.00}
+					Guanciale {Kcal 650, Price 1.10}
+					Pancetta {Kcal 600, Price 1.00}
+					Mortadella {Kcal 520, Price 0.90}
+					CuredSalami {Kcal 470, Price 0.95}
+					VenisonSalami {Kcal 440, Price 1.50}
+					BuffaloMozzarella {Kcal 290, Price 1.40}
+					SmokedMozzarella {Kcal 320, Price 1.10}
+					Taleggio {Kcal 340, Price 1.20}
+					Pecorino {Kcal 400, Price 0.90}
+					AsiagoFresco {Kcal 370, Price 1.00}
+					MascarponeSpread {Kcal 430, Price 0.80}
+					CreamCheese {Kcal 350, Price 0.70}
+					VeganCheese {Kcal 200, Price 1.50}
+					Salmon {Kcal 208, Price 2.00}
+					Lobster {Kcal 89, Price 4.00}
+					Crab {Kcal 97, Price 2.50}
+					Oysters {Kcal 68, Price 3.00}
+					Octopus {Kcal 82, Price 2.00}
+					Mussels {Kcal 86, Price 1.80}
+					DuckConfit {Kcal 340, Price 2.50}
+					LambMince {Kcal 280, Price 2.00}
+					BisonStrip {Kcal 240, Price 3.00}
+					PotatoSlice {Kcal 77, Price 0.40}
+					LeekSlice {Kcal 28, Price 0.40}
+					FigSlice {Kcal 74, Price 0.60}
+					PearSlice {Kcal 57, Price 0.50}
+					AppleSlice {Kcal 52, Price 0.40}
+					WalnutHalves {Kcal 654, Price 0.70}
+					PineNuts {Kcal 673, Price 0.90}
+					AlmondFlakes {Kcal 579, Price 0.80}
+					PistachioChop {Kcal 562, Price 1.00}
+					MiniPepperoni {Kcal 490, Price 0.85}
+					BabySpinach {Kcal 23, Price 0.35}
+					RocketLeaves {Kcal 25, Price 0.40}
+					WatercressLeaf {Kcal 11, Price 0.50}
+					Endive {Kcal 17, Price 0.40}
+					RoastedBeetroot {Kcal 43, Price 0.50}
+					CaramelisedOnion {Kcal 90, Price 0.50}
+					PickledJalapeno {Kcal 20, Price 0.35}
+					PickledGherkin {Kcal 14, Price 0.30}
+					KimchiTopping {Kcal 15, Price 0.70}
+					Integer ToppingQuantity
+					Real ToppingWeightGrams
+					String ToppingCookStyle
+
+			Sauce {abstract}
+				alternative
+					TomatoSauce {Kcal 30, Price 0.00}
+					CreamSauce {Kcal 200, Price 0.50}
+					PestoSauce {Kcal 250, Price 0.80}
+					BiancaSauce {Kcal 60, Price 0.30}
+					SpicyTomatoSauce {Kcal 35, Price 0.20}
+					BarBQSauce {Kcal 180, Price 0.50}
+					ArrabiataSauce {Kcal 40, Price 0.30}
+					VodkaSauce {Kcal 220, Price 0.70}
+					NdujaSauce {Kcal 300, Price 1.00}
+					TruffleSauce {Kcal 280, Price 1.50}
+					RoastedGarlicSauce {Kcal 90, Price 0.50}
+					LemonButter {Kcal 320, Price 0.80}
+					MustardSauce {Kcal 110, Price 0.40}
+					HoisinSauce {Kcal 220, Price 0.60}
+					HarissaSauce {Kcal 50, Price 0.50}
+					TahiniSauce {Kcal 200, Price 0.60}
+				optional
+					Integer SauceAmountMl
+					Real SauceSpiciness
+					String SauceVariant
+
+			Size {abstract}
+				alternative
+					Personal {Price 6.00}
+					Normal {Price 8.00}
+					Big {Price 12.00}
+					Family {Price 16.00}
+					Party {Price 22.00}
+				optional
+					Integer DiameterCm
+					Real WeightKg
+					Integer SliceCount
+
+			Dough {abstract}
+				alternative
+					Neapolitan
+					Sicilian {Price 0.50}
+					Roman {Price 0.30}
+					NewYork {Price 0.40}
+					Detroit {Price 0.60}
+					Chicago {Price 0.70}
+					Focaccia {Price 0.50}
+					Sourdough {Price 0.80}
+					Multigrain {Price 0.60}
+					SpeltDough {Price 0.90}
+					EinkornDough {Price 1.20}
+					EmmerDough {Price 1.10}
+					RyeDough {Price 0.80}
+					PotatoDough {Price 0.70}
+					BeerDough {Price 1.00}
+					CornDough {Price 0.70}
+					VeganDough {Price 0.60}
+				optional
+					Integer DoughFermentationHours
+					Real DoughHydrationPercent
+					Integer DoughRestMinutes
+					String DoughFlourType
+
+			BakingMethod {abstract}
+				alternative
+					WoodFired {Price 1.00}
+					Electric
+					GasFired {Price 0.50}
+					StoneOven {Price 0.80}
+					ConveyorOven {Price 0.30}
+					DeckOven {Price 0.60}
+					HomeOven
+				optional
+					Integer BakingTempCelsius
+					Integer BakingTimeSec
+					Real OvenHumidityPercent
+
+			Temperature {abstract}
+				alternative
+					Hot
+					ExtraHot {Price 0.20}
+					Medium
+					Cold
+					RoomTemp
+
+			CookingTime {abstract}
+				alternative
+					Quick {Price 0.50}
+					Standard
+					SlowBaked {Price 0.30}
+					Overnight {Price 0.60}
+				optional
+					Integer ActualCookMinutes
+					Real CoreTempCelsius
+
+			Presentation {abstract}
+				optional
+					Whole
+					PreSliced {Price 0.30}
+					HalfAndHalf {Price 0.50}
+					String PresentationNote
+					Integer SliceAngleDeg
+					Real PlatingScore
+
+			Customisation {abstract}
+				optional
+					ExtraCheeseDouble {Price 0.80}
+					LightCheese {Price 0.00}
+					NoCheese
+					ExtraSauce {Price 0.30}
+					LightSauce
+					NoSauce
+					WellDone {Price 0.20}
+					LightlyBaked
+					String CustomRequest
+					Integer CustomKcalTarget
+					Real CustomPriceOverride
+					String DietaryTag
+
+constraints
+	// Original constraints
+	(CheesyCrust & Sicilian) => Big
+	Neapolitan => (!Salami & !Ham)
+	sum(Price) < 20
+	Name => len(Name)<10 & Name=='Margherita'
+	SpicyLvl >= 1 & SpicyLvl <= 5
+	SpicyLvl==5 => SpicyLvl.Price==1.00
+	(SpicyLvl>=1 & SpicyLvl<5) => SpicyLvl.Price==0
+
+	// Crust constraints
+	GlutenFreeCrust => !Neapolitan & !Sicilian
+	CauliflowerCrust => !StuffedCrust
+	ChocolateCrust => Dessert
+	BeerCrust => !GlutenFreeCrust
+	RiceCrust => GlutenFreeCrust
+	CrustThicknessMm >= 2 & CrustThicknessMm <= 30
+	CrustCrispIndex >= 0.0 & CrustCrispIndex <= 10.0
+
+	// Extras constraints
+	TruffleOil => !SpicyLvl
+	ExtraOliveOilMl >= 5 & ExtraOliveOilMl <= 50
+	ExtraChiliCount >= 1 & ExtraChiliCount <= 10
+	ExtraSaucePortion >= 0.5 & ExtraSaucePortion <= 3.0
+	MisoGlaze => !TomatoSauce & !ArrabiataSauce
+	TahinaPaste => !CreamSauce
+
+	// Topping constraints
+	(Shrimps | Squid | Clams) => !Pineapple
+	Truffle => TruffleSauce | TruffleOil
+	Nduja => SpicyLvl >= 3
+	(Prosciutto | Bresaola) => !SpicyTomatoSauce
+	HabaneroSlice => SpicyLvl >= 4
+	(Guanciale | Lardo) => !GlutenFreeCrust
+	(TunaDrained | Anchovies | Clams) => !CreamSauce
+	GorgonzolaBlue => !PestoSauce
+	(Avocado | FreshBasil) => !SpicyTomatoSauce & !ArrabiataSauce
+	Lobster => !SpicyLvl
+	Oysters => !SpicyTomatoSauce & !ArrabiataSauce & !HarissaSauce
+	KimchiTopping => SpicyLvl >= 2
+	PickledJalapeno => SpicyLvl >= 1
+	(Salmon | Lobster | Crab | Oysters) => !BarBQSauce
+	DuckConfit => (BiancaSauce | TruffleSauce | CreamSauce)
+	WalnutHalves => !TomatoSauce
+	FigSlice => !SpicyTomatoSauce & !ArrabiataSauce
+	LambMince => (ArrabiataSauce | HarissaSauce | TomatoSauce)
+	BisonStrip => (WoodFired | StoneOven)
+	VeganCheese => !Mozzarella & !ParmesanCheese & !BurrataCheese & !RicottaCheese & !GorgonzolaBlue
+	ToppingQuantity >= 1 & ToppingQuantity <= 8
+	ToppingWeightGrams >= 10.0 & ToppingWeightGrams <= 300.0
+	Pancetta => !BaconStrips
+	Mortadella => !Ham
+	BuffaloMozzarella => !SmokedMozzarella
+	PineNuts => PestoSauce | BiancaSauce
+	CaramelisedOnion => !RedOnion
+
+	// Sauce constraints
+	NdujaSauce => Nduja | JalapenoPepper
+	VodkaSauce => !Neapolitan
+	HoisinSauce => !TomatoSauce & !Neapolitan
+	HarissaSauce => SpicyLvl >= 2
+	LemonButter => (Shrimps | Salmon | Lobster | Clams | Mussels)
+	SauceAmountMl >= 30 & SauceAmountMl <= 200
+	SauceSpiciness >= 0.0 & SauceSpiciness <= 10.0
+	MustardSauce => !Anchovies & !TunaDrained
+
+	// Size constraints
+	Delivery => (Big | Family | Party)
+	Party => !Personal
+	DiameterCm >= 20 & DiameterCm <= 60
+	WeightKg >= 0.2 & WeightKg <= 3.0
+	SliceCount >= 4 & SliceCount <= 16
+	(Family | Party) => SliceCount >= 8
+
+	// Dough constraints
+	Chicago => ThickCrust | StuffedCrust
+	WoodFired => (Neapolitan | Roman)
+	Sourdough => !Quick
+	DoughFermentationHours >= 2 & DoughFermentationHours <= 72
+	DoughHydrationPercent >= 55.0 & DoughHydrationPercent <= 85.0
+	DoughRestMinutes >= 15 & DoughRestMinutes <= 480
+	EinkornDough => SlowBaked
+	EmmerDough => SlowBaked
+	BeerDough => !GlutenFreeCrust
+	PotatoDough => !ThinCrust
+	VeganDough => NoCheese | VeganCheese
+	Overnight => DoughFermentationHours >= 12
+	Sourdough => DoughFermentationHours >= 8
+
+	// Baking constraints
+	SlowBaked => WoodFired | StoneOven
+	Cold => !WoodFired & !GasFired & !StoneOven
+	ExtraHot => SpicyLvl >= 3
+	BakingTempCelsius >= 180 & BakingTempCelsius <= 500
+	BakingTimeSec >= 60 & BakingTimeSec <= 1200
+	OvenHumidityPercent >= 0.0 & OvenHumidityPercent <= 100.0
+	WoodFired => BakingTempCelsius >= 350
+	ConveyorOven => Quick
+	DeckOven => (Standard | SlowBaked)
+
+	// Beverage constraints
+	Beer => !Water & !Cola
+	Wine => !Beer & !Cola
+	Prosecco => !Beer & !Cola & !CraftBeer
+	(RedWine | WhiteWine | RoseWine) => !Wine
+	BeverageVolumeMl >= 200 & BeverageVolumeMl <= 1000
+	BeverageTemperature >= -5 & BeverageTemperature <= 80
+	Milkshake => !Beer & !Wine & !Prosecco
+	HotChocolate => !Beer & !Wine
+	Espresso => !Beer & !Wine
+	Cappuccino => !Beer & !Wine
+	CraftBeer => !Beer
+
+	// Dessert constraints
+	DessertPortionSize >= 1 & DessertPortionSize <= 5
+	DessertSugarContent >= 0.0 & DessertSugarContent <= 100.0
+	AffogatoCafe => Espresso
+	ChocolateCrust => (CioccolatoFondente | BrownieCake)
+
+	// Packaging constraints
+	EcoFriendlyBox => !GiftWrapping
+	InsulatedBag => Delivery
+	GiftWrapping => !DineIn
+	DeliveryFloor >= 0 & DeliveryFloor <= 50
+	EstimatedDeliveryMin >= 15 & EstimatedDeliveryMin <= 120
+	Delivery => DeliveryAddress
+
+	// Loyalty constraints
+	BirthdayDiscount => !DiscountCoupon
+	LoyaltyPoints => MemberCard
+	DiscountCoupon => MemberCard
+	BirthdayDiscount => MemberCard
+	GoldMembership => MemberCard
+	SilverMembership => MemberCard
+	GoldMembership => !SilverMembership
+	ReferralBonus => ReferralCode
+	LoyaltyPointsBalance >= 0 & LoyaltyPointsBalance <= 99999
+	RewardPoints >= 0 & RewardPoints <= 10000
+	CashbackPercent >= 0.0 & CashbackPercent <= 20.0
+
+	// Allergen constraints
+	AllergenSeverityLevel >= 1 & AllergenSeverityLevel <= 5
+	ContainsGluten => !GlutenFreeCrust
+	ContainsNuts => (WalnutHalves | PineNuts | AlmondFlakes | PistachioChop)
+	ContainsFish => (TunaDrained | Anchovies | Salmon)
+	ContainsMolluscs => (Squid | Clams | Oysters | Mussels | Octopus)
+	ContainsEgg => ScrambledEgg
+	ContainsSesame => SesameSeededCrust | TahinaPaste
+
+	// Nutritional constraints
+	TotalKcal >= 300 & TotalKcal <= 3000
+	TotalFatGrams >= 5.0 & TotalFatGrams <= 150.0
+	SaturatedFatGrams >= 1.0 & SaturatedFatGrams <= 70.0
+	CarbohydratesGrams >= 20.0 & CarbohydratesGrams <= 300.0
+	SugarsGrams >= 1.0 & SugarsGrams <= 80.0
+	ProteinGrams >= 5.0 & ProteinGrams <= 100.0
+	SaltGrams >= 0.5 & SaltGrams <= 10.0
+	FibreGrams >= 0.5 & FibreGrams <= 30.0
+	GlycemicIndex >= 10 & GlycemicIndex <= 100
+	OmegaThreeContent >= 0.0 & OmegaThreeContent <= 5.0
+	CaloriesPerSlice >= 50 & CaloriesPerSlice <= 600
+
+	// Order meta constraints
+	TableNumber >= 1 & TableNumber <= 200
+	QuantityOrdered >= 1 & QuantityOrdered <= 20
+	DiscountRate >= 0.0 & DiscountRate <= 0.5
+	TipAmount >= 0.0 & TipAmount <= 50.0
+	PreparationMinutes >= 5 & PreparationMinutes <= 90
+	TotalWeight >= 0.1 & TotalWeight <= 5.0
+	OrderNumber >= 1 & OrderNumber <= 999999
+	VATRate >= 0.0 & VATRate <= 0.25
+	LoyaltyPointsBalance >= 0 & LoyaltyPointsBalance <= 99999
+	ServiceChargeRate >= 0.0 & ServiceChargeRate <= 0.20
+	SplitBillParts >= 1 & SplitBillParts <= 20
+	WaitTimeMinutes >= 0 & WaitTimeMinutes <= 120
+	EstimatedReadyMin >= 5 & EstimatedReadyMin <= 90
+	PartySize >= 1 & PartySize <= 50
+	DineIn => TableNumber
+	Delivery => !DineIn & !TakeAway
+	TakeAway => !DineIn
+
+	// Customisation constraints
+	NoCheese => !CheesyCrust & !ExtraCheeseDouble
+	ExtraCheeseDouble => !LightCheese & !NoCheese
+	WellDone => BakingTempCelsius >= 250
+	CustomKcalTarget >= 200 & CustomKcalTarget <= 3000
+	CustomPriceOverride >= 0.0 & CustomPriceOverride <= 100.0
+	HalfAndHalf => (Big | Family)
+	PreSliced => !Whole
+
+	// Presentation constraints
+	SliceAngleDeg >= 15 & SliceAngleDeg <= 90
+	PlatingScore >= 0.0 & PlatingScore <= 10.0
+
+	// Cross-domain constraints
+	(Lobster | Crab | Oysters | BisonStrip | DuckConfit) => GoldMembership | SilverMembership
+	Truffle => GoldMembership | SilverMembership
+	(Party & Delivery) => InsulatedBag
+	(Family | Party) => !Personal
+	CustomRequest => ChefNote
+	PromoCode => DiscountCoupon | SeasonalOffer

@@ -1,0 +1,17 @@
+features 
+    Cheese
+        or 
+            Integer "Crumbled Feta" {Price 1.49, Calories 100, TotalFat 8, SaturatedFat 6, TransFat 0, Cholesterol 35, Sodium 350, TotalCarbs 2, DietaryFiber 0, Sugars 2, Protein 5, dairy, vegetarian}
+            Integer "Grated Cotija" {Price 1.49, Calories 50, TotalFat 4.5, SaturatedFat 2.5, TransFat 0, Cholesterol 15, Sodium 210, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 3, dairy, vegetarian}
+            Integer "Hot Honey Goat Cheese" {Price 1.89, Calories 110, TotalFat 8, SaturatedFat 6, TransFat 0, Cholesterol 20, Sodium 180, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 7, dairy, vegetarian}
+            Integer "Shaved Parmesan" {Price 1.49, Calories 110, TotalFat 9, SaturatedFat 5, TransFat 0, Cholesterol 30, Sodium 190, TotalCarbs 0, DietaryFiber 0, Sugars 0, Protein 6, dairy, vegetarian}
+            Integer "Tillmook White Cheddar" {Price 1.49, Calories 120, TotalFat 8, SaturatedFat 4.5, TransFat 0, Cholesterol 25, Sodium 500, TotalCarbs 4, DietaryFiber 0, Sugars 0, Protein 8, dairy, vegetarian}
+            Integer "Violife Creamy Vegan Feta" {Price 1.89, Calories 60, TotalFat 4.5, SaturatedFat 4.5, TransFat 0, Cholesterol 0, Sodium 210, TotalCarbs 3, DietaryFiber 0, Sugars 0, Protein 0, vegan}
+constraints
+    "Crumbled Feta" + "Grated Cotija" + "Hot Honey Goat Cheese" + "Shaved Parmesan" + "Tillmook White Cheddar" + "Violife Creamy Vegan Feta" <= 13 
+    "Crumbled Feta" >= 0
+    "Grated Cotija" >= 0 
+    "Hot Honey Goat Cheese" >= 0 
+    "Shaved Parmesan" >= 0
+    "Tillmook White Cheddar" >= 0
+    "Violife Creamy Vegan Feta" >= 0

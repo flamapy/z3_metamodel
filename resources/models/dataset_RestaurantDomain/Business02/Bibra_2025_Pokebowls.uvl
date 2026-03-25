@@ -1,0 +1,52 @@
+imports
+    Bibra_2025_Bases
+    Bibra_2025_Ingredients
+    Bibra_2025_Proteins
+    Bibra_2025_Marinades
+    Bibra_2025_Dressings
+    Bibra_2025_FinalTouch
+features
+    Pokebowls {abstract}
+        mandatory
+            Size {abstract}
+                alternative
+                    Medium {Price 11.95}
+                    Big {Price 14.95}
+            Bases cardinality [1..2] {abstract}
+                mandatory
+                    Bibra_2025_Bases.Bases
+            Ingredients cardinality [1..4] {abstract}
+                mandatory
+                    Bibra_2025_Ingredients.Ingredients
+            Proteins cardinality [1..1] {abstract}
+                mandatory
+                    Bibra_2025_Proteins.Proteins
+            Dressings cardinality [1..1] {abstract}
+                mandatory
+                    Bibra_2025_Dressings.Dressings
+            "Final Touch" cardinality [1..2] {abstract}
+                mandatory
+                    Bibra_2025_FinalTouch."Final Touch"
+        optional
+            Marinades cardinality [1..1] 
+                mandatory
+                    Bibra_2025_Marinades.Marinades
+constraints
+    Bibra_2025_Proteins."Flambeed teriyaki salmon" => !Marinades
+    !Bibra_2025_Bases."Mixed lettuce"
+    !Bibra_2025_Bases."Wild arugula"
+    !Bibra_2025_Ingredients."Muscat raisins"
+    !Bibra_2025_Ingredients."Goat cheese medallion"
+    !Bibra_2025_Ingredients."Torched goat cheese medallion"
+    !Bibra_2025_Ingredients."Boiled egg"
+    !Bibra_2025_Ingredients."Pumpkin seeds"
+    !Bibra_2025_Ingredients.Dates
+    !Bibra_2025_Proteins."Beetroot falafel"
+    !Bibra_2025_Proteins."Ponzu-marinated salmon"
+    !Bibra_2025_Proteins."Tuna marinated in soy and sesame oil"
+    !Bibra_2025_Proteins."Teriyaki chicken"
+    !Bibra_2025_Proteins."Canned tuna"
+    !Bibra_2025_Proteins."Beetroot falafel"
+    !Bibra_2025_Dressings."Homemade hummus"
+    !Bibra_2025_FinalTouch.Dates
+    !Bibra_2025_FinalTouch."Semi-dried tomato"
