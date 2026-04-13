@@ -1,0 +1,469 @@
+features
+	Pizza {abstract}
+		optional
+			// --- Atributos de Datos (Integers, Strings, Reals) ---
+			Integer SpicyLvl 
+			Integer Quantity 
+			Integer DeliveryTime 
+			Integer TableNumber 
+			Integer LoyaltyTier
+			Integer RewardPoints
+			Integer PreparationTime
+			Integer CaloriesTarget
+			Integer CustomerAge
+			Integer ZipCode
+			Integer ChefExperience
+			Integer OvenTemp
+			Integer EstimatedWait
+			Integer SliceCount
+			Integer NumberOfGuests
+			Integer PromoUses
+			Integer RatingStars
+			Integer PriorityLevel
+			Integer FloorNumber
+			Integer BoxCount
+			Integer DrinkVolume
+			Integer SodiumContent
+			Integer FatContent
+			Integer ProteinContent
+			Integer CarbContent
+			
+			String Name 
+			String CustomerNote 
+			String AllergyNote 
+			String PromoCode 
+			String CourierName
+			String ZoneArea
+			String StaffID
+			String Feedback
+			String KitchenID
+			String VehiclePlate
+			String PaymentTransactionID
+			String ReferralCode
+			String CurrencyCode
+			String CityName
+			String StreetName
+			String BuildingName
+			String BrandName
+			String BatchID
+			String SupplierName
+			String LanguageCode
+			String CountryCode
+			String SpecialInstruction
+			String DietaryPreference
+			String MarketingChannel
+			String ManagerName
+			
+			Real TotalPrice 
+			Real DiscountRate 
+			Real ServiceCharge
+			Real TaxAmount
+			Real DeliveryDistance
+			Real FuelSurcharge
+			Real WaitTimeReal
+			Real AverageRating
+			Real SurchargePercentage
+			Real IngredientWeight
+			Real CarbonFootprint
+			Real BasePrice
+			Real Gratuity
+			Real PackagingWeight
+			Real VolumeLiters
+
+			// --- Estados y Flags ---
+			IsVegan 
+			IsGlutenFree 
+			IsEcoFriendly
+			IsOrganic
+			IsHalal
+			IsKosher
+			IsLactoseFree
+			IsLowCarb
+			IsSpicy
+			IsSeafood
+			IsPremium
+			IsSeasonal
+			IsKidFriendly
+			CutInSlices
+			DoubleCheese
+			ExtraSauce
+			WellDone
+			VIPStatus
+
+			CrustOptions {abstract}
+				optional
+					CheesyCrust {Kcal 370, Price 1.00} 
+					StuffedCrust {Kcal 200, Price 1.50} 
+					GlutenFreeCrust {Kcal 160, Price 1.20} 
+					ThickCrust {Kcal 300, Price 0.50}
+					ThinCrust {Kcal 100}
+					SesameCrust
+					GarlicButterCrust
+					PretzelCrust
+					CauliflowerCrust
+					WholeWheatCrust
+
+			Extras {abstract} 
+				optional
+					GarlicSauce {Kcal 120, Price 0.50} 
+					OliveOil {Kcal 80, Price 0.30} 
+					ChiliFlakes {Kcal 15, Price 0.20} 
+					BasilLeaves {Kcal 5, Price 0.20} 
+					Oregano {Kcal 10} 
+					BlackPepper {Kcal 10} 
+					RoastedGarlic {Kcal 40, Price 0.30} 
+					SunDriedTomatoes {Kcal 140, Price 0.60} 
+					TruffleOil {Kcal 120, Price 1.50} 
+					Capers {Kcal 25, Price 0.40} 
+					BalsamicGlaze
+					PestoDrizzle
+					Honey
+					SesameSeeds
+					FriedOnions
+					JalapenoSlices
+					RanchDip
+					BlueCheeseDip
+					BBQDip
+					Mayo
+					Ketchup
+					Sriracha
+					Tabasco
+					HabaneroPaste
+					SeaSalt
+					Rosemary
+					Thyme
+					LemonZest
+
+			Beverage {abstract} 
+				optional
+					Water {Price 1.00} 
+					Cola {Kcal 140, Price 1.50} 
+					DietCola
+					ZeroCola
+					OrangeJuice {Kcal 110, Price 2.00} 
+					AppleJuice
+					Beer {Kcal 150, Price 2.50} 
+					CraftBeer
+					Wine {Kcal 125, Price 3.00} 
+					WhiteWine
+					RedWine
+					SparklingWine
+					Lemonade {Kcal 90, Price 1.80} 
+					IcedTea {Kcal 70, Price 1.50} 
+					PeachTea
+					GreenTea
+					Coffee
+					Espresso
+					Cappuccino
+					Latte
+					HotChocolate
+					Milkshake
+					VanillaShake
+					ChocolateShake
+					StrawberryShake
+					Smoothie
+					BerrySmoothie
+					MangoSmoothie
+					EnergyDrink
+					MineralWater
+					TonicWater
+					GingerAle
+					Cocktail
+					Margarita
+					Mojito
+					SodaWater
+
+			Loyalty {abstract} 
+				optional
+					MemberCard 
+					DiscountCoupon {Price -1.00} 
+					BirthdayDiscount {Price -1.50} 
+					LoyaltyPoints 
+					ReferralCredit
+					BonusPoints
+
+			Dessert {abstract} 
+				optional
+					TiraMisu {Kcal 400, Price 3.50} 
+					Gelato {Kcal 250, Price 2.00} 
+					VanillaGelato
+					ChocoGelato
+					StrawberryGelato
+					PistachioGelato
+					Cannoli {Kcal 350, Price 2.50} 
+					Brownie
+					Cheesecake
+					ApplePie
+					ChocoCake
+					FruitSalad
+					PannaCotta
+					Sorbet
+					LemonSorbet
+					MangoSorbet
+					Macarons
+					Cookies
+					Donut
+					Muffin
+
+			Sides {abstract}
+				optional
+					FrenchFries
+					SweetPotatoFries
+					GarlicBread
+					CheeseBread
+					OnionRings
+					ChickenWings
+					BuffaloWings
+					BBQWings
+					ChickenNuggets
+					MozzarellaSticks
+					Bruschetta
+					GreekSalad
+					CaesarSalad
+					GardenSalad
+					Coleslaw
+					PotatoWedges
+					NachoChips
+					HummusDip
+					CalzoneMini
+					Arancini
+
+			Logistics {abstract}
+				optional
+					DeliveryService {abstract}
+						alternative
+							StandardDelivery
+							ExpressDelivery
+							ScheduledDelivery
+							DroneDelivery
+					VehicleType {abstract}
+						alternative
+							Bicycle
+							Motorbike
+							Car
+							ElectricScooter
+					PriorityOrder
+					ContactlessDelivery
+					LeaveAtDoor
+					SignatureRequired
+					GiftWrap
+
+		mandatory
+			Topping {abstract} 
+				or
+					Salami {Kcal 462} 
+					Ham {Kcal 115} 
+					Mozzarella {Kcal 310} 
+					Anchovies {Kcal 210, Price 0.50} 
+					Pepperoni {Kcal 500, Price 0.80} 
+					Mushrooms {Kcal 25, Price 0.40} 
+					BellPepper {Kcal 30, Price 0.40} 
+					RedOnion {Kcal 20, Price 0.30} 
+					BlackOlives {Kcal 50, Price 0.40} 
+					Pineapple {Kcal 50, Price 0.40} 
+					Spinach {Kcal 20, Price 0.30} 
+					Arugula {Kcal 15, Price 0.30} 
+					ChickenBreast {Kcal 165, Price 1.00} 
+					TunaDrained {Kcal 130, Price 0.80} 
+					Shrimps {Kcal 85, Price 1.50} 
+					BaconStrips {Kcal 540, Price 0.90} 
+					Prosciutto {Kcal 250, Price 1.00} 
+					Gorgonzola
+					Parmesan
+					Cheddar
+					Feta
+					Ricotta
+					GoatCheese
+					Emmental
+					Provolone
+					Brie
+					VeganCheese
+					Meatballs
+					Sausage
+					Chorizo
+					TurkeyHam
+					GroundBeef
+					SmokedSalmon
+					Mussels
+					Calamari
+					Zucchini
+					Eggplant
+					Artichokes
+					SweetCorn
+					Jalapenos
+					CherryTomatoes
+					Broccoli
+					Asparagus
+					PotatoSlices
+					Walnuts
+					PineNuts
+					GreenOlives
+					Tofu
+					Seitan
+					Tempeh
+					BeyondMeat
+					FriedEgg
+					QuailEggs
+
+			Sauce {abstract} 
+				alternative
+					TomatoSauce {Kcal 30, Price 0.00} 
+					CreamSauce {Kcal 200, Price 0.50} 
+					PestoSauce {Kcal 250, Price 0.80} 
+					BiancaSauce {Kcal 60, Price 0.30} 
+					SpicyTomatoSauce {Kcal 35, Price 0.20} 
+					BarBQSauce {Kcal 180, Price 0.50} 
+					ArrabiataSauce {Kcal 40, Price 0.30} 
+					BuffaloSauce
+					AlfredoSauce
+					CurrySauce
+					TeriyakiSauce
+					TruffleSauce
+					PumpkinSauce
+					HummusSauce
+
+			Size {abstract} 
+				alternative
+					Personal {Price 6.00} 
+					Small
+					Normal {Price 8.00} 
+					Medium
+					Big {Price 12.00} 
+					Large
+					Family {Price 16.00} 
+					Party {Price 22.00} 
+					Giant
+
+			Dough {abstract} 
+				alternative
+					Neapolitan 
+					Sicilian {Price 0.50} 
+					Roman {Price 0.30} 
+					NewYork {Price 0.40} 
+					Chicago {Price 0.70} 
+					Sourdough {Price 0.80} 
+					WholeGrain
+					GlutenFreeDough
+					Multigrain
+					BlackCharcoal
+
+			Packaging {abstract} 
+				alternative
+					DineIn 
+					TakeAway {Price 0.50} 
+					Delivery {Price 2.00} 
+					EcoFriendlyBox
+					ReusableBox
+
+			BakingMethod {abstract} 
+				alternative
+					WoodFired {Price 1.00} 
+					Electric 
+					StoneOven {Price 0.80} 
+					ConveyorOven
+					CoalOven
+
+			Payment {abstract}
+				alternative
+					Cash
+					CreditCard
+					DebitCard
+					DigitalWallet
+					Crypto
+					ApplePay
+					GooglePay
+					Bitcoin
+					MealVoucher
+
+			Temperature {abstract} 
+				alternative
+					Hot 
+					ExtraHot {Price 0.20} 
+					Medium 
+					Cold 
+
+			CookingTime {abstract} 
+				alternative
+					Quick {Price 0.50} 
+					Standard 
+					SlowBaked {Price 0.30} 
+
+constraints
+	// --- Restricciones Originales y de 100 features ---
+	(CheesyCrust & Sicilian) => Big 
+	Neapolitan => (!Salami & !Ham) 
+	sum(Price) < 40 // Ajustado por volumen de features 
+	Name => len(Name) < 10 & Name == 'Margherita' 
+	SpicyLvl >= 1 & SpicyLvl <= 5 
+	SpicyLvl == 5 => ExtraHot 
+	TotalPrice => TotalPrice > 0.0 
+	TableNumber => DineIn 
+	CustomerNote => len(CustomerNote) < 100 
+	IsVegan => (!Salami & !Ham & !Anchovies & !Pepperoni & !BaconStrips & !ChickenBreast & !TunaDrained & !Shrimps & !Prosciutto) 
+	IsVegan => (!CreamSauce & !BarBQSauce & !Mozzarella) 
+	Delivery => (Big | Family | Party | Large | Giant) 
+	DiscountCoupon => MemberCard 
+	BirthdayDiscount => MemberCard 
+	LoyaltyPoints => MemberCard 
+	Beer => !Delivery 
+	PestoSauce => !SpicyLvl 
+	ChiliFlakes => (TomatoSauce | BiancaSauce | ArrabiataSauce | SpicyTomatoSauce) 
+	Anchovies => (!CreamSauce & !PestoSauce & !BarBQSauce) 
+	Family => (TakeAway | Delivery) 
+	Party => (TakeAway | Delivery) 
+	Personal => !Delivery 
+	Roman => !CheesyCrust 
+	Quantity >= 1 & Quantity <= 10 
+	DeliveryTime => Delivery 
+	AllergyNote => len(AllergyNote) < 200 
+	PromoCode => len(PromoCode) == 8 
+	DiscountRate => (DiscountCoupon | BirthdayDiscount | LoyaltyPoints | ReferralCredit) 
+	IsGlutenFree => GlutenFreeCrust 
+	IsGlutenFree => (!Neapolitan & !Sicilian & !Chicago & !Sourdough) 
+	GlutenFreeCrust => !StuffedCrust 
+	Chicago => StuffedCrust 
+	Sourdough => !Quick 
+	TruffleOil => !SpicyLvl 
+	TruffleOil => (!SpicyTomatoSauce & !ArrabiataSauce) 
+	WoodFired => (Neapolitan | Roman) 
+	StoneOven => !Quick 
+	SlowBaked => (WoodFired | StoneOven) 
+	Cold => Delivery 
+	(SpicyTomatoSauce | ArrabiataSauce) => SpicyLvl 
+	(Shrimps | TunaDrained | Anchovies) => !CreamSauce 
+	Prosciutto => !SpicyTomatoSauce 
+	Pineapple => (!Prosciutto & !Anchovies) 
+	IsVegan => (!TiraMisu & !Cannoli & !Gelato) 
+	(TiraMisu | Gelato | Cannoli) => !Delivery 
+	Wine => DineIn 
+	SunDriedTomatoes => !CreamSauce 
+
+	// --- Nuevas Restricciones de Expansión (500 features) ---
+	(Beer | Wine | CraftBeer | Cocktail | Margarita | Mojito) => (CustomerAge >= 18)
+	DroneDelivery => (Personal | Small)
+	DroneDelivery => !Beverage
+	IsHalal => (!Salami & !Ham & !BaconStrips & !Chorizo)
+	IsLactoseFree => (!Mozzarella & !CreamSauce & !Cheddar & !Brie & !AlfredoSauce)
+	Bitcoin => Crypto
+	Crypto => DigitalWallet
+	TableNumber => !Delivery
+	MemberCard => (LoyaltyTier >= 1)
+	VIPStatus => MemberCard
+	IsEcoFriendly => (EcoFriendlyBox | ReusableBox | DineIn)
+	ServiceCharge => DineIn
+	ChickenWings => (BuffaloWings | BBQWings)
+	IsOrganic => WoodFired
+	LoyaltyTier > 5 => DiscountRate > 0.2
+	PreparationTime => (Quick => PreparationTime < 15)
+	PreparationTime => (SlowBaked => PreparationTime > 30)
+	RewardPoints => MemberCard
+	StaffID => DineIn
+	CaloriesTarget => (ThinCrust & !DoubleCheese)
+	AppleJuice => !IsVegan
+	WholeGrain => !Quick
+	BeyondMeat => IsVegan
+	(Party | Giant) => !Personal
+	ScheduledDelivery => (DeliveryTime > 60)
+	ReferralCode => !PromoCode
+	DeliveryDistance > 10.0 => FuelSurcharge
+	CarbonFootprint < 2.5 => IsVegan

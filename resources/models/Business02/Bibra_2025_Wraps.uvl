@@ -1,0 +1,43 @@
+imports
+    Bibra_2025_Bases
+    Bibra_2025_Ingredients
+    Bibra_2025_Proteins
+    Bibra_2025_Dressings
+    Bibra_2025_FinalTouch
+features
+    Wraps {abstract}
+        mandatory
+            Temperature {abstract}
+                alternative
+                    Cold
+                    Hot
+            Bases cardinality [1..1] {abstract}
+                mandatory
+                    Bibra_2025_Bases.Bases
+            Ingredients cardinality [1..3] {abstract}
+                mandatory
+                    Bibra_2025_Ingredients.Ingredients
+            Proteins cardinality [1..1] {abstract}
+                mandatory
+                    Bibra_2025_Proteins.Proteins
+            Dressings cardinality [1..1] {abstract}
+                mandatory
+                    Bibra_2025_Dressings.Dressings
+            "Final Touch" cardinality [1..1] {abstract}
+                mandatory
+                    Bibra_2025_FinalTouch."Final Touch"
+constraints
+    Bibra_2025_Proteins."Canned tuna" | Bibra_2025_Proteins."Ponzu-marinated salmon" | Bibra_2025_Proteins."Tuna marinated in soy and sesame oil" => !Hot
+    !Bibra_2025_Bases."Sushi rice"
+    !Bibra_2025_Ingredients."Goat cheese medallion"
+    !Bibra_2025_Ingredients."Torched goat cheese medallion"
+    !Bibra_2025_Proteins."Marinated salmon"
+    !Bibra_2025_Proteins."Marinated tuna"
+    !Bibra_2025_Proteins."Flambeed teriyaki salmon"
+    !Bibra_2025_Dressings.Soy
+    !Bibra_2025_FinalTouch."Muscat raisins"
+    !Bibra_2025_FinalTouch."Pumpkin seeds"
+    !Bibra_2025_FinalTouch.Dates
+    !Bibra_2025_FinalTouch.Furikake
+    !Bibra_2025_FinalTouch."Semi-dried tomato"
+    Wraps.Price == 9.95

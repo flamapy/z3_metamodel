@@ -1,0 +1,41 @@
+imports
+    Bibra_2025_Bases
+    Bibra_2025_Ingredients
+    Bibra_2025_Proteins
+    Bibra_2025_Dressings
+    Bibra_2025_FinalTouch
+features
+    Salad {abstract}
+        mandatory
+            Bases cardinality [1..2] {abstract}
+                mandatory
+                    Bibra_2025_Bases.Bases
+            Ingredients cardinality [1..4] {abstract}
+                mandatory
+                    Bibra_2025_Ingredients.Ingredients
+            Proteins cardinality [1..1] {abstract}
+                mandatory
+                    Bibra_2025_Proteins.Proteins
+            Dressings cardinality [1..1] {abstract}
+                mandatory
+                    Bibra_2025_Dressings.Dressings 
+            "Final Touch" cardinality [1..1] {abstract}
+                mandatory
+                    Bibra_2025_FinalTouch."Final Touch"
+constraints
+    !Bibra_2025_Bases."Sushi rice"
+    !Bibra_2025_Bases."Brown rice"
+    !Bibra_2025_Ingredients."Semi-dried tomato"
+    !Bibra_2025_Ingredients."Goat cheese"
+    !Bibra_2025_Ingredients."Pumpkin seeds"
+    !Bibra_2025_Ingredients.Dates
+    !Bibra_2025_Proteins."Marinated salmon"
+    !Bibra_2025_Proteins."Marinated tuna"
+    !Bibra_2025_Dressings."Kimchi mayo"
+    !Bibra_2025_Dressings."Wasabi mayo"
+    !Bibra_2025_Dressings.Soy
+    !Bibra_2025_FinalTouch."Muscat raisins"
+    !Bibra_2025_FinalTouch.Chives
+    !Bibra_2025_FinalTouch.Coriander
+    !Bibra_2025_FinalTouch."Dried oregano"
+    Salad.Price == 10.95

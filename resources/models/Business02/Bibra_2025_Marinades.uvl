@@ -1,0 +1,9 @@
+features
+    Marinades {abstract}
+        alternative
+            "Soy sauce and sesame oil" {vegan}
+            Sriracha  {spicy, vegan}
+            Sojasabi  {vegan}
+            Ponzu {vegan}
+            Kimchi {spicy, vegan}
+            Teriyaki

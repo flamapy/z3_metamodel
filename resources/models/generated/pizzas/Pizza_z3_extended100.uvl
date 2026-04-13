@@ -1,0 +1,198 @@
+features
+	Pizza {abstract}
+		optional
+			CheesyCrust {Kcal 370, Price 1.00}
+			StuffedCrust {Kcal 200, Price 1.50}
+			GlutenFreeCrust {Kcal 160, Price 1.20}
+			Integer SpicyLvl
+			Integer Quantity
+			Integer DeliveryTime
+			Integer TableNumber
+			String Name
+			String CustomerNote
+			String AllergyNote
+			String PromoCode
+			Real TotalPrice
+			Real DiscountRate
+			IsVegan
+			IsGlutenFree
+			Extras {abstract}
+				optional
+					GarlicSauce {Kcal 120, Price 0.50}
+					OliveOil {Kcal 80, Price 0.30}
+					ChiliFlakes {Kcal 15, Price 0.20}
+					BasilLeaves {Kcal 5, Price 0.20}
+					Oregano {Kcal 10}
+					BlackPepper {Kcal 10}
+					RoastedGarlic {Kcal 40, Price 0.30}
+					SunDriedTomatoes {Kcal 140, Price 0.60}
+					TruffleOil {Kcal 120, Price 1.50}
+					Capers {Kcal 25, Price 0.40}
+			Beverage {abstract}
+				optional
+					Water {Price 1.00}
+					Cola {Kcal 140, Price 1.50}
+					OrangeJuice {Kcal 110, Price 2.00}
+					Beer {Kcal 150, Price 2.50}
+					Wine {Kcal 125, Price 3.00}
+					Lemonade {Kcal 90, Price 1.80}
+					IcedTea {Kcal 70, Price 1.50}
+			Loyalty {abstract}
+				optional
+					MemberCard
+					DiscountCoupon {Price -1.00}
+					BirthdayDiscount {Price -1.50}
+					LoyaltyPoints
+			Dessert {abstract}
+				optional
+					TiraMisu {Kcal 400, Price 3.50}
+					Gelato {Kcal 250, Price 2.00}
+					Cannoli {Kcal 350, Price 2.50}
+		mandatory
+			Topping {abstract}
+				or
+					Salami {Kcal 462}
+					Ham {Kcal 115}
+					Mozzarella {Kcal 310}
+					Anchovies {Kcal 210, Price 0.50}
+					Pepperoni {Kcal 500, Price 0.80}
+					Mushrooms {Kcal 25, Price 0.40}
+					BellPepper {Kcal 30, Price 0.40}
+					RedOnion {Kcal 20, Price 0.30}
+					BlackOlives {Kcal 50, Price 0.40}
+					Pineapple {Kcal 50, Price 0.40}
+					Spinach {Kcal 20, Price 0.30}
+					Arugula {Kcal 15, Price 0.30}
+					ChickenBreast {Kcal 165, Price 1.00}
+					TunaDrained {Kcal 130, Price 0.80}
+					Shrimps {Kcal 85, Price 1.50}
+					BaconStrips {Kcal 540, Price 0.90}
+					Prosciutto {Kcal 250, Price 1.00}
+			Sauce {abstract}
+				alternative
+					TomatoSauce {Kcal 30, Price 0.00}
+					CreamSauce {Kcal 200, Price 0.50}
+					PestoSauce {Kcal 250, Price 0.80}
+					BiancaSauce {Kcal 60, Price 0.30}
+					SpicyTomatoSauce {Kcal 35, Price 0.20}
+					BarBQSauce {Kcal 180, Price 0.50}
+					ArrabiataSauce {Kcal 40, Price 0.30}
+			Size {abstract}
+				alternative
+					Personal {Price 6.00}
+					Normal {Price 8.00}
+					Big {Price 12.00}
+					Family {Price 16.00}
+					Party {Price 22.00}
+			Dough {abstract}
+				alternative
+					Neapolitan
+					Sicilian {Price 0.50}
+					Roman {Price 0.30}
+					NewYork {Price 0.40}
+					Chicago {Price 0.70}
+					Sourdough {Price 0.80}
+			Packaging {abstract}
+				alternative
+					DineIn
+					TakeAway {Price 0.50}
+					Delivery {Price 2.00}
+			BakingMethod {abstract}
+				alternative
+					WoodFired {Price 1.00}
+					Electric
+					StoneOven {Price 0.80}
+			Temperature {abstract}
+				alternative
+					Hot
+					ExtraHot {Price 0.20}
+					Medium
+					Cold
+			CookingTime {abstract}
+				alternative
+					Quick {Price 0.50}
+					Standard
+					SlowBaked {Price 0.30}
+constraints
+	// --- Original constraints ---
+	(CheesyCrust & Sicilian) => Big
+	Neapolitan => (!Salami & !Ham)
+	sum(Price) < 20
+	Name => len(Name)<10 & Name=='Margherita'
+	SpicyLvl >= 1 & SpicyLvl <= 5
+	SpicyLvl==5 => SpicyLvl.Price==1.00
+	(SpicyLvl>=1 & SpicyLvl<5) => SpicyLvl.Price==0
+	// --- Constraints from 50-feature model ---
+	TotalPrice => TotalPrice > 0.0
+	TableNumber => DineIn
+	CustomerNote => len(CustomerNote) < 100
+	IsVegan => (!Salami & !Ham & !Anchovies & !Pepperoni & !BaconStrips & !ChickenBreast & !TunaDrained & !Shrimps & !Prosciutto)
+	IsVegan => (!CreamSauce & !BarBQSauce)
+	Delivery => (Big | Family | Party)
+	DiscountCoupon => MemberCard
+	BirthdayDiscount => MemberCard
+	LoyaltyPoints => MemberCard
+	Beer => !Delivery
+	PestoSauce => !SpicyLvl
+	ChiliFlakes => (TomatoSauce | BiancaSauce | ArrabiataSauce | SpicyTomatoSauce)
+	Anchovies => (!CreamSauce & !PestoSauce & !BarBQSauce)
+	Family => (TakeAway | Delivery)
+	Party => (TakeAway | Delivery)
+	Personal => !Delivery
+	Roman => !CheesyCrust
+	// --- New constraints for extended features ---
+	// Quantity: positive integer, max 10 per order
+	Quantity >= 1 & Quantity <= 10
+	// DeliveryTime: only relevant for Delivery, in minutes (15-120)
+	DeliveryTime => Delivery
+	DeliveryTime >= 15 & DeliveryTime <= 120
+	// AllergyNote: length limit
+	AllergyNote => len(AllergyNote) < 200
+	// PromoCode: fixed length code
+	PromoCode => len(PromoCode) == 8
+	// DiscountRate: valid percentage range (0.0 to 0.5 max 50%)
+	DiscountRate => DiscountRate > 0.0 & DiscountRate <= 0.5
+	// DiscountRate requires a loyalty feature active
+	DiscountRate => (DiscountCoupon | BirthdayDiscount | LoyaltyPoints)
+	// IsGlutenFree requires GlutenFreeCrust and forbids certain doughs
+	IsGlutenFree => GlutenFreeCrust
+	IsGlutenFree => (!Neapolitan & !Sicilian & !Chicago & !Sourdough)
+	// GlutenFreeCrust also incompatible with StuffedCrust
+	GlutenFreeCrust => !StuffedCrust
+	// Chicago dough requires ThickCrust or StuffedCrust
+	Chicago => StuffedCrust
+	// Sourdough not suitable for Quick cooking
+	Sourdough => !Quick
+	// TruffleOil incompatible with SpicyLvl and SpicyTomatoSauce
+	TruffleOil => !SpicyLvl
+	TruffleOil => (!SpicyTomatoSauce & !ArrabiataSauce)
+	// WoodFired only with Neapolitan or Roman dough
+	WoodFired => (Neapolitan | Roman)
+	// StoneOven compatible with all except Quick
+	StoneOven => !Quick
+	// SlowBaked requires WoodFired or StoneOven
+	SlowBaked => (WoodFired | StoneOven)
+	// Cold temperature only for Delivery (cold pizza delivery)
+	Cold => Delivery
+	// ExtraHot requires SpicyLvl >= 3
+	ExtraHot => SpicyLvl >= 3
+	// SpicyTomatoSauce and ArrabiataSauce require SpicyLvl
+	(SpicyTomatoSauce | ArrabiataSauce) => SpicyLvl
+	// Shrimps and TunaDrained incompatible with CreamSauce
+	(Shrimps | TunaDrained | Anchovies) => !CreamSauce
+	// Prosciutto incompatible with SpicyTomatoSauce
+	Prosciutto => !SpicyTomatoSauce
+	// Pineapple incompatible with Prosciutto and Anchovies
+	Pineapple => (!Prosciutto & !Anchovies)
+	// BirthdayDiscount incompatible with DiscountCoupon
+	BirthdayDiscount => !DiscountCoupon
+	// TiraMisu/Cannoli not for IsVegan
+	IsVegan => (!TiraMisu & !Cannoli)
+	// Dessert requires DineIn or TakeAway (not delivery)
+	(TiraMisu | Gelato | Cannoli) => !Delivery
+	// Party size requires at least 3 toppings implicitly, incompatible with Personal
+	Party => !Personal
+	// Wine only for DineIn
+	Wine => DineIn
+	// SunDriedTomatoes incompatible with CreamSauce
+	SunDriedTomatoes => !CreamSauce

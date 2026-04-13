@@ -1,0 +1,99 @@
+features
+	Pizza {abstract}
+		optional
+			CheesyCrust {Kcal 370, Price 1.00}
+			Integer SpicyLvl
+			String Name
+			String CustomerNote
+			Integer TableNumber
+			Real TotalPrice
+			IsVegan
+			Extras {abstract}
+				optional
+					GarlicSauce {Kcal 120, Price 0.50}
+					OliveOil {Kcal 80, Price 0.30}
+					ChiliFlakes {Kcal 15, Price 0.20}
+					BasilLeaves {Kcal 5, Price 0.20}
+					Oregano {Kcal 10}
+					BlackPepper {Kcal 10}
+			Beverage {abstract}
+				optional
+					Water {Price 1.00}
+					Cola {Kcal 140, Price 1.50}
+					OrangeJuice {Kcal 110, Price 2.00}
+					Beer {Kcal 150, Price 2.50}
+			Loyalty {abstract}
+				optional
+					MemberCard
+					DiscountCoupon {Price -1.00}
+		mandatory
+			Topping {abstract}
+				or
+					Salami {Kcal 462}
+					Ham {Kcal 115}
+					Mozzarella {Kcal 310}
+					Anchovies {Kcal 210, Price 0.50}
+					Pepperoni {Kcal 500, Price 0.80}
+					Mushrooms {Kcal 25, Price 0.40}
+					BellPepper {Kcal 30, Price 0.40}
+			Sauce {abstract}
+				alternative
+					TomatoSauce {Kcal 30, Price 0.00}
+					CreamSauce {Kcal 200, Price 0.50}
+					PestoSauce {Kcal 250, Price 0.80}
+					BiancaSauce {Kcal 60, Price 0.30}
+			Size {abstract}
+				alternative
+					Personal {Price 6.00}
+					Normal {Price 8.00}
+					Big {Price 12.00}
+					Family {Price 16.00}
+			Dough {abstract}
+				alternative
+					Neapolitan
+					Sicilian {Price 0.50}
+					Roman {Price 0.30}
+					NewYork {Price 0.40}
+			Packaging {abstract}
+				alternative
+					DineIn
+					TakeAway {Price 0.50}
+					Delivery {Price 2.00}
+constraints
+	// --- Original constraints ---
+	(CheesyCrust & Sicilian) => Big
+	Neapolitan => (!Salami & !Ham)
+	sum(Price) < 15
+	Name => len(Name)<10 & Name=='Margherita'
+	SpicyLvl >= 1 & SpicyLvl <= 5
+	SpicyLvl==5 => SpicyLvl.Price==1.00
+	(SpicyLvl>=1 & SpicyLvl<5) => SpicyLvl.Price==0
+	// --- New constraints ---
+	// TotalPrice must be positive and reflect sum
+	TotalPrice => TotalPrice > 0.0
+	// TableNumber only for DineIn, valid range
+	TableNumber => DineIn
+	TableNumber >= 1 & TableNumber <= 50
+	// CustomerNote length limit
+	CustomerNote => len(CustomerNote) < 100
+	// Vegan rules: no meat/fish toppings, no cream-based sauce
+	IsVegan => (!Salami & !Ham & !Anchovies & !Pepperoni)
+	IsVegan => !CreamSauce
+	// Delivery requires Big or Family size
+	Delivery => (Big | Family)
+	// DiscountCoupon requires MemberCard
+	DiscountCoupon => MemberCard
+	// Beer not compatible with DineIn-only constraint removed; Beer only for DineIn or TakeAway
+	Beer => !Delivery
+	// PestoSauce not compatible with SpicyLvl
+	PestoSauce => !SpicyLvl
+	// ChiliFlakes only with TomatoSauce or BiancaSauce
+	ChiliFlakes => (TomatoSauce | BiancaSauce)
+	// Anchovies not compatible with CreamSauce or PestoSauce
+	Anchovies => (!CreamSauce & !PestoSauce)
+	// Family size only for TakeAway or Delivery
+	Family => (TakeAway | Delivery)
+	// Personal size not for Delivery
+	Personal => !Delivery
+	// Roman dough not compatible with CheesyCrust
+	Roman => !CheesyCrust

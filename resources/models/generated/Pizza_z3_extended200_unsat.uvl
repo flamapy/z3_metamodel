@@ -1,0 +1,371 @@
+features
+	Pizza {abstract}
+		optional
+			CheesyCrust {Kcal 370, Price 1.00}
+			StuffedCrust {Kcal 200, Price 1.50}
+			GlutenFreeCrust {Kcal 160, Price 1.20}
+			Integer SpicyLvl
+			Integer Quantity
+			Integer DeliveryTime
+			Integer TableNumber
+			Integer MinAge
+			Integer LoyaltyScore
+			Integer PrepTime
+			Integer FloorNumber
+			String Name
+			String CustomerNote
+			String AllergyNote
+			String PromoCode
+			String DriverName
+			String ContactPhone
+			String SpecialRequest
+			String CouponLabel
+			Real TotalPrice
+			Real DiscountRate
+			Real TipAmount
+			Real WeightKg
+			IsVegan
+			IsGlutenFree
+			IsTakeawayBag
+			IsContactless
+			Crust {abstract}
+				optional
+					ThinCrust {Price 0.00}
+					ThickCrust {Price 0.50}
+					CornmealCrust {Kcal 180, Price 0.80}
+					WholeWheatCrust {Kcal 170, Price 0.70}
+					CauliflowerCrust {Kcal 120, Price 1.00}
+					SesameSeededCrust {Kcal 190, Price 0.60}
+			Extras {abstract}
+				optional
+					GarlicSauce {Kcal 120, Price 0.50}
+					OliveOil {Kcal 80, Price 0.30}
+					ChiliFlakes {Kcal 15, Price 0.20}
+					BasilLeaves {Kcal 5, Price 0.20}
+					Oregano {Kcal 10}
+					BlackPepper {Kcal 10}
+					RoastedGarlic {Kcal 40, Price 0.30}
+					SunDriedTomatoes {Kcal 140, Price 0.60}
+					TruffleOil {Kcal 120, Price 1.50}
+					Capers {Kcal 25, Price 0.40}
+					HotHoneySauce {Kcal 60, Price 0.40}
+					PomegranateSeeds {Kcal 35, Price 0.50}
+					ZaatarSpice {Kcal 20, Price 0.30}
+					SmokePaprika {Kcal 10, Price 0.20}
+					Truffle {Kcal 25, Price 2.50}
+			Beverage {abstract}
+				optional
+					Water {Price 1.00}
+					Cola {Kcal 140, Price 1.50}
+					OrangeJuice {Kcal 110, Price 2.00}
+					Beer {Kcal 150, Price 2.50}
+					Wine {Kcal 125, Price 3.00}
+					Lemonade {Kcal 90, Price 1.80}
+					IcedTea {Kcal 70, Price 1.50}
+					Sparkling {Price 1.20}
+					Milkshake {Kcal 400, Price 3.50}
+					HotChocolate {Kcal 320, Price 2.80}
+					Espresso {Kcal 10, Price 1.50}
+			Loyalty {abstract}
+				optional
+					MemberCard
+					DiscountCoupon {Price -1.00}
+					BirthdayDiscount {Price -1.50}
+					LoyaltyPoints
+					PremiumMembership {Price -2.00}
+					ReferralBonus {Price -0.50}
+					CashbackReward
+			Dessert {abstract}
+				optional
+					TiraMisu {Kcal 400, Price 3.50}
+					Gelato {Kcal 250, Price 2.00}
+					Cannoli {Kcal 350, Price 2.50}
+					PannaCotta {Kcal 300, Price 3.00}
+					BrownieCake {Kcal 450, Price 3.00}
+					CheeseCake {Kcal 380, Price 3.50}
+			Speciality {abstract}
+				optional
+					Margherita
+					Quattroformaggi
+					Diavola
+					Capricciosa
+					Marinara
+			Offer {abstract}
+				optional
+					HappyHour {Price -1.00}
+					ComboMeal {Price -2.00}
+					WeekendDeal {Price -1.50}
+					StudentDeal {Price -1.00}
+			Service {abstract}
+				optional
+					Cutlery
+					ExtraPlates {Price 0.50}
+					NapkinsPack {Price 0.20}
+					PizzaCutter {Price 1.00}
+					DeliveryBag {Price 0.80}
+			Origin {abstract}
+				optional
+					LocalIngredients
+					Organic {Price 1.50}
+					FairTrade {Price 1.00}
+					DOPCertified {Price 2.00}
+					IGPCertified {Price 1.50}
+			Payment {abstract}
+				optional
+					Cash
+					CreditCard
+					DebitCard
+					MobilePayment
+					Voucher
+			Nutrition {abstract}
+				optional
+					LowCalorie
+					HighProtein
+					LowCarb
+					DairyFree
+					NutFree
+		mandatory
+			Topping {abstract}
+				or
+					Salami {Kcal 462}
+					Ham {Kcal 115}
+					Mozzarella {Kcal 310}
+					Anchovies {Kcal 210, Price 0.50}
+					Pepperoni {Kcal 500, Price 0.80}
+					Mushrooms {Kcal 25, Price 0.40}
+					BellPepper {Kcal 30, Price 0.40}
+					RedOnion {Kcal 20, Price 0.30}
+					BlackOlives {Kcal 50, Price 0.40}
+					GreenOlives {Kcal 45, Price 0.40}
+					Pineapple {Kcal 50, Price 0.40}
+					Spinach {Kcal 20, Price 0.30}
+					Arugula {Kcal 15, Price 0.30}
+					Corn {Kcal 85, Price 0.30}
+					Artichoke {Kcal 50, Price 0.60}
+					Eggplant {Kcal 35, Price 0.40}
+					Zucchini {Kcal 20, Price 0.40}
+					SunflowerSeeds {Kcal 160, Price 0.50}
+					ParmesanCheese {Kcal 431, Price 0.70}
+					GorgonzolaBlue {Kcal 360, Price 0.80}
+					BurrataCheese {Kcal 330, Price 1.20}
+					RicottaCheese {Kcal 180, Price 0.60}
+					ChickenBreast {Kcal 165, Price 1.00}
+					TunaDrained {Kcal 130, Price 0.80}
+					Shrimps {Kcal 85, Price 1.50}
+					BaconStrips {Kcal 540, Price 0.90}
+					Prosciutto {Kcal 250, Price 1.00}
+					CoppaColls {Kcal 430, Price 1.00}
+					Speck {Kcal 400, Price 1.10}
+					Bresaola {Kcal 160, Price 1.20}
+					Squid {Kcal 92, Price 1.50}
+					Clams {Kcal 74, Price 1.50}
+					ScrambledEgg {Kcal 150, Price 0.60}
+					JalapenoPepper {Kcal 29, Price 0.40}
+					RoastedPeppers {Kcal 40, Price 0.50}
+					SweetPotato {Kcal 90, Price 0.50}
+					Avocado {Kcal 160, Price 0.80}
+					Broccoli {Kcal 34, Price 0.40}
+					CherryTomatoes {Kcal 18, Price 0.30}
+					FreshBasil {Kcal 5, Price 0.20}
+			Sauce {abstract}
+				alternative
+					TomatoSauce {Kcal 30, Price 0.00}
+					CreamSauce {Kcal 200, Price 0.50}
+					PestoSauce {Kcal 250, Price 0.80}
+					BiancaSauce {Kcal 60, Price 0.30}
+					SpicyTomatoSauce {Kcal 35, Price 0.20}
+					BarBQSauce {Kcal 180, Price 0.50}
+					ArrabiataSauce {Kcal 40, Price 0.30}
+					VodkaSauce {Kcal 220, Price 0.70}
+					NdujaSauce {Kcal 300, Price 1.00}
+			Size {abstract}
+				alternative
+					Personal {Price 6.00}
+					Normal {Price 8.00}
+					Big {Price 12.00}
+					Family {Price 16.00}
+					Maxi {Price 19.00}
+					Party {Price 22.00}
+			Dough {abstract}
+				alternative
+					Neapolitan
+					Sicilian {Price 0.50}
+					Roman {Price 0.30}
+					NewYork {Price 0.40}
+					Chicago {Price 0.70}
+					Sourdough {Price 0.80}
+					Detroit {Price 0.60}
+					Focaccia {Price 0.50}
+					Multigrain {Price 0.60}
+			Packaging {abstract}
+				alternative
+					DineIn
+					TakeAway {Price 0.50}
+					Delivery {Price 2.00}
+			BakingMethod {abstract}
+				alternative
+					WoodFired {Price 1.00}
+					Electric
+					StoneOven {Price 0.80}
+					GasFired {Price 0.50}
+			Temperature {abstract}
+				alternative
+					Hot
+					ExtraHot {Price 0.20}
+					Warm
+					Medium
+					Cold
+			CookingTime {abstract}
+				alternative
+					Quick {Price 0.50}
+					Standard
+					SlowBaked {Price 0.30}
+constraints
+	// --- Original constraints ---
+	(CheesyCrust & Sicilian) => Big
+	Neapolitan => (!Salami & !Ham)
+	sum(Price) < 25
+	Name => len(Name)<10 & Name=='Margherita'
+	SpicyLvl >= 1 & SpicyLvl <= 5
+	SpicyLvl==5 => SpicyLvl.Price==1.00
+	(SpicyLvl>=1 & SpicyLvl<5) => SpicyLvl.Price==0
+	// --- Constraints from 100-feature model ---
+	TotalPrice => TotalPrice > 0.0
+	TableNumber => DineIn
+	TableNumber >= 1 & TableNumber <= 50
+	CustomerNote => len(CustomerNote) < 100
+	IsVegan => (!Salami & !Ham & !Anchovies & !Pepperoni & !BaconStrips & !ChickenBreast & !TunaDrained & !Shrimps & !Prosciutto & !CoppaColls & !Speck & !Bresaola & !Squid & !Clams & !ScrambledEgg)
+	IsVegan => (!CreamSauce & !BarBQSauce)
+	IsVegan => (!TiraMisu & !Cannoli)
+	Delivery => (Big | Family | Maxi | Party)
+	DiscountCoupon => MemberCard
+	BirthdayDiscount => MemberCard
+	LoyaltyPoints => MemberCard
+	PremiumMembership => MemberCard
+	ReferralBonus => MemberCard
+	Beer => !Delivery
+	PestoSauce => !SpicyLvl
+	ChiliFlakes => (TomatoSauce | BiancaSauce | ArrabiataSauce | SpicyTomatoSauce)
+	Anchovies => (!CreamSauce & !PestoSauce & !BarBQSauce)
+	Family => (TakeAway | Delivery)
+	Maxi => (TakeAway | Delivery)
+	Party => (TakeAway | Delivery)
+	Personal => !Delivery
+	Roman => !CheesyCrust
+	Quantity >= 1 & Quantity <= 10
+	DeliveryTime => Delivery
+	DeliveryTime >= 15 & DeliveryTime <= 120
+	AllergyNote => len(AllergyNote) < 200
+	PromoCode => len(PromoCode) == 8
+	DiscountRate => DiscountRate > 0.0 & DiscountRate <= 0.5
+	DiscountRate => (DiscountCoupon | BirthdayDiscount | LoyaltyPoints | PremiumMembership)
+	IsGlutenFree => GlutenFreeCrust
+	IsGlutenFree => (!Neapolitan & !Sicilian & !Chicago & !Sourdough)
+	GlutenFreeCrust => !StuffedCrust
+	Chicago => StuffedCrust
+	Sourdough => !Quick
+	TruffleOil => !SpicyLvl
+	TruffleOil => (!SpicyTomatoSauce & !ArrabiataSauce)
+	WoodFired => (Neapolitan | Roman)
+	StoneOven => !Quick
+	SlowBaked => (WoodFired | StoneOven)
+	Cold => Delivery
+	ExtraHot => SpicyLvl >= 3
+	(SpicyTomatoSauce | ArrabiataSauce) => SpicyLvl
+	(Shrimps | TunaDrained | Anchovies | Squid | Clams) => !CreamSauce
+	Prosciutto => !SpicyTomatoSauce
+	Pineapple => (!Prosciutto & !Anchovies)
+	BirthdayDiscount => !DiscountCoupon
+	(TiraMisu | Gelato | Cannoli | PannaCotta | BrownieCake | CheeseCake) => !Delivery
+	Party => !Personal
+	Wine => DineIn
+	SunDriedTomatoes => !CreamSauce
+	// --- New constraints for 200-feature model ---
+	// MinAge: Beer and Wine require minimum age verification (18+)
+	MinAge => (Beer | Wine)
+	MinAge >= 18 & MinAge <= 99
+	// LoyaltyScore: non-negative, only with MemberCard
+	LoyaltyScore => MemberCard
+	LoyaltyScore >= 0 & LoyaltyScore <= 10000
+	// PrepTime: in minutes, mandatory for kitchen planning
+	PrepTime >= 5 & PrepTime <= 90
+	// FloorNumber: only for Delivery to buildings
+	FloorNumber => Delivery
+	FloorNumber >= 0 & FloorNumber <= 50
+	// DriverName: only for Delivery
+	DriverName => Delivery
+	// ContactPhone: required for Delivery
+	ContactPhone => Delivery
+	ContactPhone => len(ContactPhone) >= 9 & len(ContactPhone) <= 15
+	// SpecialRequest: length limit
+	SpecialRequest => len(SpecialRequest) < 300
+	// CouponLabel: linked to an active coupon
+	CouponLabel => (DiscountCoupon | BirthdayDiscount | PremiumMembership)
+	CouponLabel => len(CouponLabel) <= 20
+	// TipAmount: only for Delivery or DineIn, non-negative
+	TipAmount => (Delivery | DineIn)
+	TipAmount => TipAmount >= 0.0 & TipAmount <= 20.0
+	// WeightKg: valid pizza weight range
+	WeightKg => WeightKg >= 0.2 & WeightKg <= 3.0
+	// IsTakeawayBag: only for TakeAway or Delivery
+	IsTakeawayBag => (TakeAway | Delivery)
+	// IsContactless: only for Delivery or MobilePayment
+	IsContactless => (Delivery | MobilePayment)
+	// Crust options: only one crust type at a time (exclusive with CheesyCrust/StuffedCrust)
+	ThinCrust => (!ThickCrust & !CornmealCrust & !WholeWheatCrust & !CauliflowerCrust & !SesameSeededCrust)
+	ThickCrust => (!ThinCrust & !CornmealCrust & !WholeWheatCrust & !CauliflowerCrust & !SesameSeededCrust)
+	CauliflowerCrust => (!StuffedCrust & !CheesyCrust)
+	GlutenFreeCrust => (!ThinCrust & !ThickCrust & !CornmealCrust & !WholeWheatCrust & !SesameSeededCrust)
+	// Speciality presets define their own toppings/sauces
+	Margherita => (Mozzarella & TomatoSauce & FreshBasil)
+	Quattroformaggi => (Mozzarella & GorgonzolaBlue & ParmesanCheese & RicottaCheese & BiancaSauce)
+	Diavola => (Salami & SpicyTomatoSauce)
+	Capricciosa => (Ham & Mushrooms & Artichoke & BlackOlives & TomatoSauce)
+	Marinara => (TomatoSauce & !Mozzarella)
+	// Speciality incompatible with custom Name
+	(Margherita | Quattroformaggi | Diavola | Capricciosa | Marinara) => !Name
+	// Offers: HappyHour only for DineIn, WeekendDeal for any
+	HappyHour => DineIn
+	ComboMeal => (Beverage & Dessert)
+	StudentDeal => !PremiumMembership
+	// Service: Cutlery and ExtraPlates only for DineIn or TakeAway
+	(Cutlery | ExtraPlates | NapkinsPack | PizzaCutter) => !Delivery
+	DeliveryBag => Delivery
+	// Origin: DOPCertified and IGPCertified require Organic
+	(DOPCertified | IGPCertified) => Organic
+	// Payment: Voucher requires PromoCode or CouponLabel
+	Voucher => (PromoCode | CouponLabel)
+	// Cash not for Delivery
+	Cash => !Delivery
+	// MobilePayment enables IsContactless
+	MobilePayment => IsContactless
+	// Nutrition constraints
+	LowCalorie => (!BaconStrips & !CoppaColls & !Speck & !Salami)
+	DairyFree => (!Mozzarella & !ParmesanCheese & !GorgonzolaBlue & !BurrataCheese & !RicottaCheese & !CreamSauce)
+	NutFree => (!PestoSauce & !SunflowerSeeds)
+	HighProtein => (ChickenBreast | Shrimps | TunaDrained | Prosciutto | ScrambledEgg)
+	LowCarb => (!Pineapple & !Corn & !SweetPotato)
+	// VodkaSauce not for Neapolitan
+	VodkaSauce => !Neapolitan
+	// NdujaSauce requires SpicyLvl >= 3
+	NdujaSauce => SpicyLvl >= 3
+	// Detroit dough pairs well with ThickCrust
+	Detroit => ThickCrust
+	// Focaccia incompatible with ThinCrust
+	Focaccia => !ThinCrust
+	// Multigrain incompatible with CheesyCrust
+	Multigrain => !CheesyCrust
+	// Truffle (topping) pairs with PestoSauce or BiancaSauce
+	Truffle => (PestoSauce | BiancaSauce)
+	// JalapenoPepper requires SpicyLvl
+	JalapenoPepper => SpicyLvl >= 2
+	// Avocado incompatible with SpicyTomatoSauce and ArrabiataSauce
+	Avocado => (!SpicyTomatoSauce & !ArrabiataSauce)
+	// GasFired compatible with all doughs except Neapolitan
+	GasFired => !Neapolitan
+	// Warm temperature only for DineIn
+	Warm => DineIn
+	// CashbackReward: only for orders above a threshold (requires LoyaltyPoints)
+	CashbackReward => LoyaltyPoints
+	// PremiumMembership incompatible with StudentDeal
+	PremiumMembership => !StudentDeal
