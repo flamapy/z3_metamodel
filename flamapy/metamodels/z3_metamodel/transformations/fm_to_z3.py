@@ -194,8 +194,7 @@ class FmToZ3(ModelToModel):
         formula = z3.And(*formulas)
         self.destination_model.add_constraint(formula)
 
-    def _add_mutex_formula(self, relation: Relation) -> None:
-        formulas = []
+    def _add_mutex_formula(self, relation: Relation) -> None:  
         parent_variable = self.destination_model.get_variable(relation.parent.name)
         if parent_variable is None:
             raise FlamaException(f'Unsupported feature: {relation.parent.name}')
@@ -206,12 +205,13 @@ class FmToZ3(ModelToModel):
             if child_variable is None:
                 raise FlamaException(f'Unsupported feature: {child.name}')
             children.add(child_variable.sel)
+        one_child_formula = []
         for child in children:
-            children_negatives = children - {child}
-            formula = (child == z3.And([z3.Not(ch) for ch in children_negatives] + [parent]))
-            formulas.append(formula)
-        formula = z3.And(*formulas)
-        formula = z3.Or(parent == z3.Not(z3.Or(*children)), formula)
+            other_children_or = z3.Or(*[ch for ch in children - {child}])
+            one_child_formula.append(z3.Not(child) == other_children_or)
+        one_child_formula = z3.And(*one_child_formula)
+        no_child_formula = z3.And(*[z3.Not(ch) for ch in children])
+        formula = z3.Or(no_child_formula, z3.And(one_child_formula, parent))
         self.destination_model.add_constraint(formula)
 
     def _build_literals(self, children: list[Any], combination: tuple[Any, ...]) -> list[Any]:
