@@ -194,7 +194,7 @@ class FmToZ3(ModelToModel):
         formula = z3.And(*formulas)
         self.destination_model.add_constraint(formula)
 
-    def _add_mutex_formula(self, relation: Relation) -> None:  
+    def _add_mutex_formula(self, relation: Relation) -> None:
         parent_variable = self.destination_model.get_variable(relation.parent.name)
         if parent_variable is None:
             raise FlamaException(f'Unsupported feature: {relation.parent.name}')
@@ -207,7 +207,7 @@ class FmToZ3(ModelToModel):
             children.add(child_variable.sel)
         one_child_formula = []
         for child in children:
-            other_children_or = z3.Or(*[ch for ch in children - {child}])
+            other_children_or = z3.Or(*list(children - {child}))
             one_child_formula.append(z3.Not(child) == other_children_or)
         one_child_formula = z3.And(*one_child_formula)
         no_child_formula = z3.And(*[z3.Not(ch) for ch in children])
