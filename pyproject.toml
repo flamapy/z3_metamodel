@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "flamapy-z3"
-version = "2.6.0.dev3"
+version = "2.6.0.dev4"
 description = "z3-plugin for the automated analysis of feature models"
 readme = "README.md"
 license = "GPL-3.0-or-later"
 authors = [{ name = "Flamapy", email = "flamapy@us.es" }]
 requires-python = ">=3.11"
 dependencies = [
-    "flamapy-fw~=2.6.0.dev3",
-    "flamapy-fm~=2.6.0.dev3",
+    "flamapy-fw~=2.6.0.dev4",
+    "flamapy-fm~=2.6.0.dev4",
     "z3-solver~=4.14.1.0",
 ]
 
