@@ -10,7 +10,7 @@ from flamapy.metamodels.fm_metamodel.models import FeatureModel
 from flamapy.metamodels.z3_metamodel.models import Z3Model
 
 
-LOGGER = logging.getLogger('PySATFalseOptionalFeatures')
+LOGGER = logging.getLogger('Z3FalseOptionalFeatures')
 
 
 class Z3FalseOptionalFeatures(FalseOptionalFeatures):
@@ -26,11 +26,11 @@ class Z3FalseOptionalFeatures(FalseOptionalFeatures):
 
     def execute(self, model: VariabilityModel) -> 'Z3FalseOptionalFeatures':
         z3_model = cast(Z3Model, model)
-        try:
-            feature_model = cast(FeatureModel, model.original_model)
-        except FlamaException:
-            LOGGER.exception("The transformation didn't attach the source model, "
-                             "which is required for this operation.")
+        original_model = getattr(model, 'original_model', None)
+        if original_model is None:
+            raise FlamaException("The transformation didn't attach the source model, "
+                                 "which is required for this operation.")
+        feature_model = cast(FeatureModel, original_model)
         self._result = get_false_optional_features(z3_model, feature_model)
         return self
 
