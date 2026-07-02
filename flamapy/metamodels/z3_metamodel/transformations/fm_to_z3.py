@@ -61,10 +61,16 @@ class FmToZ3(ModelToModel):
     def get_destination_extension() -> str:
         return "z3"
 
-    def __init__(self, source_model: FeatureModel) -> None:
+    def __init__(self, source_model: FeatureModel, cnf_method: str = 'direct') -> None:
         self.source_model = source_model
         self.destination_model: Z3Model = Z3Model()
         self._counter: int = 0
+        # 'direct' (default) builds Z3 boolean expressions straight from the AST. 'tseytin'
+        # applies the Tseytin CNF encoding to purely propositional boolean constraints
+        # (others fall back to 'direct'). Framework-only opt-in; Z3 already clausifies
+        # internally, so this exists for cross-backend uniformity/experimentation, not speed.
+        self.cnf_method = cnf_method
+        self._aux_counter: int = 0
 
     def transform(self) -> Z3Model:
         self.destination_model = Z3Model()
@@ -258,8 +264,53 @@ class FmToZ3(ModelToModel):
         self._add_inactive_parent_constraints(parent, children)
 
     def _add_constraint_formula(self, ctc: Constraint) -> None:
+        if self.cnf_method == 'tseytin' and self._is_propositional_boolean(ctc):
+            self._add_tseytin_constraint(ctc)
+            return
         expr = self._get_expression(ctc.ast.root, None)
         self.destination_model.add_constraint(expr)
+
+    def _is_propositional_boolean(self, ctc: Constraint) -> bool:
+        """Whether a constraint is purely propositional over boolean features, i.e. safe
+        for the Tseytin CNF encoding. Arithmetic/aggregation/typed constraints are not."""
+        if any(op not in LOGICAL_OPERATORS for op in ctc.ast.get_operators()):
+            return False
+        for operand in ctc.ast.get_operands():
+            if not isinstance(operand, str):
+                return False
+            info = self.destination_model.get_variable(operand)
+            if info is None or info.ftype != FeatureType.BOOLEAN:
+                return False
+        return True
+
+    def _add_tseytin_constraint(self, ctc: Constraint) -> None:
+        clauses, aux_names = ctc.ast.get_clauses_with_aux(method='tseytin')
+        ctx = self.destination_model.ctx
+        # Fresh, globally-unique Z3 Bool per auxiliary name (same-named Bools in one Z3
+        # context are the same variable, so per-constraint names must not collide).
+        local: dict[str, Any] = {}
+        for name in aux_names:
+            self._aux_counter += 1
+            aux_var = z3.Bool(f'__tseytin_aux_{self._aux_counter}', ctx=ctx)
+            local[name] = aux_var
+            self.destination_model.auxiliary_variables.append(aux_var)
+
+        def literal_expr(term: str) -> Any:
+            negated = term.startswith('-')
+            name = term[1:] if negated else term
+            if name in local:
+                expr = local[name]
+            else:
+                info = self.destination_model.get_variable(name)
+                if info is None:
+                    raise FlamaException(f'Unsupported feature: {name}')
+                expr = info.sel
+            return z3.Not(expr) if negated else expr
+
+        for clause in clauses:
+            literals = [literal_expr(term) for term in clause]
+            formula = literals[0] if len(literals) == 1 else z3.Or(*literals)
+            self.destination_model.add_constraint(formula)
 
     def _get_expression(self, node: Node, parent: Optional[Node]) -> z3.ExprRef:
         if node.is_term():
