@@ -5,6 +5,7 @@ import z3
 
 from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import Operation
+from flamapy.core.operations.descriptor import OperationDescriptor, Input
 from flamapy.metamodels.z3_metamodel.models import Z3Model
 from flamapy.metamodels.fm_metamodel.models import FeatureType
 
@@ -19,6 +20,11 @@ class Z3FeatureBounds(Operation):
     """Computes the effective bounds (min/max) for numeric features,
     and the length bounds (min_len/max_len) for string features, with safety checks.
     """
+
+    facade = OperationDescriptor(
+        name='feature_bounds', operation='Z3FeatureBounds', default_backend='z3',
+        inputs=(Input('variable_name', str, required=True, setter='set_variable_name'),),
+    )
 
     def __init__(self) -> None:
         self._result: dict[str, Any] = {}
