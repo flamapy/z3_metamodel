@@ -3,6 +3,7 @@ from typing import Any, cast
 
 from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import Operation
+from flamapy.core.operations.descriptor import OperationDescriptor
 from flamapy.metamodels.z3_metamodel.models import Z3Model
 from flamapy.metamodels.z3_metamodel.operations import Z3FeatureBounds
 from flamapy.metamodels.fm_metamodel.models import FeatureType
@@ -15,6 +16,16 @@ class Z3AllFeatureBounds(Operation):
     """Computes the effective bounds (min/max) for ALL typed feature
     (Integer, Real, String length) in the Z3 model.
     """
+
+    facade = OperationDescriptor(
+        doc=(
+            'Returns the value bounds for all typed (Integer, Real, String) attribute\n'
+            "features in the model. Each entry maps a feature name to a dict with 'min',\n"
+            "'max', and 'bounded' keys. Requires the z3 metamodel plugin."
+        ),
+        returns='Union[None, Dict[str, Dict[str, Any]]]',
+        name='all_feature_bounds', operation='Z3AllFeatureBounds', default_backend='z3'
+    )
 
     def __init__(self) -> None:
         # El resultado será un diccionario donde la clave es el nombre de la variable

@@ -1,27 +1,12 @@
-from abc import abstractmethod
-from enum import Enum
+"""Backward-compatible re-export.
 
-from flamapy.core.operations import Operation
-from flamapy.metamodels.configuration_metamodel.models import Configuration
-from flamapy.metamodels.fm_metamodel.models import Attribute
+``AttributeOptimization`` and ``OptimizationGoal`` now live in the core framework so
+that every backend shares one interface. This module keeps the historical import path
+``flamapy.metamodels.z3_metamodel.operations.interfaces.attribute_optimization`` working.
+"""
+from flamapy.core.operations.attribute_optimization import (
+    AttributeOptimization,
+    OptimizationGoal,
+)
 
-
-class OptimizationGoal(Enum):
-    MAXIMIZE = 'Maximize'
-    MINIMIZE = 'Minimize'
-
-
-class AttributeOptimization(Operation):
-    """This operation returns the configurations that optimize the given attribute(s)."""
-
-    @abstractmethod
-    def __init__(self) -> None:
-        pass
-
-    @abstractmethod
-    def set_attributes(self, attributes: dict[Attribute, OptimizationGoal]) -> None:
-        pass
-
-    @abstractmethod
-    def optimize(self) -> list[Configuration]:
-        pass
+__all__ = ["AttributeOptimization", "OptimizationGoal"]

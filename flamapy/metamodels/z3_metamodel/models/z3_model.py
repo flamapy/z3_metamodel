@@ -35,6 +35,9 @@ class Z3Model(VariabilityModel):
         self.attributes: dict[str, list[Any]] = {}  # attr_name -> [z3var]
         self.attributes_types: dict[str, AttributeType] = {}  # attr_name -> AttributeType
         self.constraints: list[Any] = []  # list of z3 expressions
+        # Auxiliary (Tseytin) boolean variables. Kept out of ``features`` so that feature
+        # enumeration/counting/bounds operations ignore them.
+        self.auxiliary_variables: list[Any] = []
         self.original_model: Optional[VariabilityModel] = None
 
     def create_const(self, ftype: FeatureType | AttributeType, value: Any) -> Any:

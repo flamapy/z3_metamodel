@@ -53,7 +53,8 @@ def test_z3_satisfiable(path: str, expected: bool):
     ('resources/models/uvl_models/fm09_real_bounded.uvl', 6),
     ('resources/models/uvl_models/fm10_real_conditional_bounded.uvl', 3),
     ('resources/models/uvl_models/icecream_attributes.uvl', 15),
-    ('resources/models/uvl_models/group_cardinalities.uvl', 16)
+    ('resources/models/uvl_models/group_cardinalities.uvl', 16),
+    ('resources/models/uvl_models/mutex.uvl', 6)
 ])
 def test_nconfigs(path: str, expected: int):
     z3_model = _read_model(path)

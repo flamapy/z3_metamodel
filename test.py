@@ -99,8 +99,9 @@ def main():
     print(z3_model)
 
     _show_analysis(z3_model)
-    _show_configurations(z3_model)
+    #_show_configurations(z3_model)
     _show_attributes(fm_model, z3_model)
+    raise Exception("Stopping before optimization to show the rest of the results first.")
     _show_optimization(z3_model)
     _check_satisfiable_configuration(z3_model, CONFIG_1)
     _check_satisfiable_configuration(z3_model, CONFIG_2)
