@@ -18,6 +18,12 @@ class Z3AllFeatureBounds(Operation):
     """
 
     facade = OperationDescriptor(
+        doc=(
+            'Returns the value bounds for all typed (Integer, Real, String) attribute\n'
+            "features in the model. Each entry maps a feature name to a dict with 'min',\n"
+            "'max', and 'bounded' keys. Requires the z3 metamodel plugin."
+        ),
+        returns='Union[None, Dict[str, Dict[str, Any]]]',
         name='all_feature_bounds', operation='Z3AllFeatureBounds', default_backend='z3'
     )
 

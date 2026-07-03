@@ -22,6 +22,12 @@ class Z3FeatureBounds(Operation):
     """
 
     facade = OperationDescriptor(
+        doc=(
+            'Returns the value bounds for a specific typed attribute feature. The result\n'
+            "dict contains 'min', 'max', and 'bounded' keys. Requires the z3 metamodel\n"
+            'plugin.'
+        ),
+        returns='Union[None, Dict[str, Any]]',
         name='feature_bounds', operation='Z3FeatureBounds', default_backend='z3',
         inputs=(Input('variable_name', str, required=True, setter='set_variable_name'),),
     )
