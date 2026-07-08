@@ -25,6 +25,9 @@ dev = [
     "coverage",
 ]
 
+[project.entry-points."flamapy.plugins"]
+z3 = "flamapy.metamodels.z3_metamodel"
+
 [project.urls]
 Homepage = "https://github.com/flamapy/z3_metamodel"
 
