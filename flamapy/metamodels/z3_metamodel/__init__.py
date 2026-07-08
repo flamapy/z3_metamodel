@@ -9,6 +9,7 @@ MANIFEST = PluginManifest(
     operations={
         'feature_bounds': OperationCapability(),
         'all_feature_bounds': OperationCapability(),
-        'optimize_attributes': OperationCapability(),
+        # Single- and multi-objective (Pareto) optimization over typed attributes.
+        'attribute_optimization': OperationCapability(),
     },
 )
