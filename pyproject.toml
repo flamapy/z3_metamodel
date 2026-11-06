@@ -25,6 +25,11 @@ dev = [
     "coverage",
 ]
 
+# The suite needs no sibling plugin beyond flamapy-fm.
+test = [
+    "pytest",
+]
+
 [project.entry-points."flamapy.plugins"]
 z3 = "flamapy.metamodels.z3_metamodel"
 
