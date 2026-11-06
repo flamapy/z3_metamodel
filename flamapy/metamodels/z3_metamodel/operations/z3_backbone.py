@@ -25,46 +25,29 @@ class Z3Backbone(Operation):
 
 
 def get_backbone(model: Z3Model) -> dict[str, list[Any]]:
+    """Core and dead features: the literals over the selection variables that the model implies.
+
+    `Solver.consequences` computes every implied literal among the given variables in one call,
+    inside the solver (models prune the candidates and unsatisfiable cores prove the rest), so no
+    per-feature check is needed. It also works on typed models, where the implications may
+    depend on the arithmetic and string constraints. An unsatisfiable model has no core
+    features and every feature dead, as in the SAT plugin.
+    """
     solver = z3.Solver(ctx=model.ctx)
     solver.add(model.constraints)
-
-    vars_to_features = {f_info.sel: name for name, f_info in model.features.items()}
-
-    # (out, C) <- SAT(phi)
-    if solver.check() != z3.sat:
+    selections = [info.sel for info in model.features.values()]
+    names = {info.sel.get_id(): name for name, info in model.features.items()}
+    status, implied = solver.consequences([], selections)
+    if status != z3.sat:
         return {"core": [], "dead": list(model.features.keys())}
-
-    m = solver.model()
-    # C <- filter(C)
-    core_candidates = {var for var in vars_to_features.keys() if z3.is_true(m[var])}
-    dead_candidates = {var for var in vars_to_features.keys() if z3.is_false(m[var])}
-
-    backbone_core = []
-    backbone_dead = []
-
-    while core_candidates or dead_candidates:
-        if core_candidates:
-            literal = next(iter(core_candidates))
-            check_lit = z3.Not(literal)
-            is_core = True
+    core: list[Any] = []
+    dead: list[Any] = []
+    for consequence in implied:  # each one is Implies(And(<assumptions>), literal)
+        literal = consequence.arg(1)
+        if z3.is_not(literal):
+            dead.append(names[literal.arg(0).get_id()])
         else:
-            literal = next(iter(dead_candidates))
-            check_lit = literal
-            is_core = False
-
-        # (out, S) <- SAT(phi U {not l})
-        if solver.check([check_lit]) == z3.unsat:
-            if is_core:
-                backbone_core.append(vars_to_features[literal])
-                solver.add(literal)
-                core_candidates.remove(literal)
-            else:
-                backbone_dead.append(vars_to_features[literal])
-                solver.add(z3.Not(literal))
-                dead_candidates.remove(literal)
-        else:
-            new_model = solver.model()
-            core_candidates = {var for var in core_candidates if z3.is_true(new_model[var])}
-            dead_candidates = {var for var in dead_candidates if z3.is_false(new_model[var])}
-
-    return {"core": backbone_core, "dead": backbone_dead}
+            core.append(names[literal.get_id()])
+    order = {name: index for index, name in enumerate(model.features)}
+    return {"core": sorted(core, key=order.__getitem__),
+            "dead": sorted(dead, key=order.__getitem__)}
