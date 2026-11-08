@@ -12,6 +12,7 @@ _SAT_QUERY = ((200, 1), (500, 4), (1000, 6), (2000, 16), (10000, 40))
 
 MANIFEST = PluginManifest(
     name='z3',
+    calibration='2026-11-06',
     extension='z3',
     supported_level=LanguageLevel(MajorLevel.TYPE, {
         MinorLevel.STRING_CONSTRAINTS, MinorLevel.AGGREGATE_FUNCTION,
