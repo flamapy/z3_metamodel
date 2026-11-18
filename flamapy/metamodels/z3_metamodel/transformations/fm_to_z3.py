@@ -140,7 +140,9 @@ class FmToZ3(ModelToModel):
             self._add_alternative_formula(relation)
         elif relation.is_mutex():
             self._add_mutex_formula(relation)
-        elif relation.is_cardinal():
+        else:
+            # Any other [min..max], including one-child groups such as [0..0] or [1..2] that
+            # Relation.is_cardinal() does not cover (it needs two children), as ClauseSet does.
             self._add_cardinality_formula(relation)
 
     def _add_mandatory_formula(self, relation: Relation) -> None:
@@ -234,8 +236,10 @@ class FmToZ3(ModelToModel):
             if val < card_min or val > card_max:
                 for combination in itertools.combinations(children, val):
                     literals = self._build_literals(children, combination)
+                    # A group without children that still needs one cannot have its parent.
                     self.destination_model.add_constraint(
-                        z3.Implies(parent, z3.Not(z3.And(*literals)))
+                        z3.Implies(parent, z3.Not(z3.And(*literals))) if literals
+                        else z3.Not(parent)
                     )
 
     def _add_inactive_parent_constraints(self, parent: Any, children: list[Any]) -> None:
