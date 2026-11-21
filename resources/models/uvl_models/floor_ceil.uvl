@@ -1,0 +1,7 @@
+features
+    Root
+        mandatory
+            Item {Price 10.5}
+constraints
+    floor(Item.Price) == 10
+    ceil(Item.Price) == 11
