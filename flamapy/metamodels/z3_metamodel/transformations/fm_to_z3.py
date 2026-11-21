@@ -22,6 +22,7 @@ from flamapy.metamodels.fm_metamodel.models import (
     FeatureType,
     AttributeType
 )
+from flamapy.metamodels.fm_metamodel.transformations.uvl_writer import UVL_OPERATORS
 
 from flamapy.metamodels.z3_metamodel.models import Z3Model, FeatureInfo
 
@@ -73,6 +74,10 @@ class FmToZ3(ModelToModel):
         # internally, so this exists for cross-backend uniformity/experimentation, not speed.
         self.cnf_method = cnf_method
         self._aux_counter: int = 0
+        # Conditions under which the constraint being translated is defined (e.g. an avg
+        # needs at least one selected feature declaring its attribute); see
+        # _add_constraint_formula.
+        self._definedness: list[Any] = []
 
     def transform(self) -> Z3Model:
         self.destination_model = Z3Model()
@@ -273,7 +278,11 @@ class FmToZ3(ModelToModel):
         if self.cnf_method == 'tseytin' and self._is_propositional_boolean(ctc):
             self._add_tseytin_constraint(ctc)
             return
+        self._definedness = []
         expr = self._get_expression(ctc.ast.root, None)
+        if self._definedness:
+            # An undefined term (the average of nothing) makes the whole constraint false.
+            expr = z3.And(expr, *self._definedness)
         self.destination_model.add_constraint(expr)
 
     def _is_propositional_boolean(self, ctc: Constraint) -> bool:
@@ -375,6 +384,12 @@ class FmToZ3(ModelToModel):
         if parent.data in LOGICAL_OPERATORS:
             return variable.sel
         if parent.data in ARITHMETIC_OPERATORS:
+            if variable.val is None:
+                raise FlamaException(
+                    f"Boolean feature '{variable.name}' cannot be used with "
+                    f"'{UVL_OPERATORS.get(parent.data, parent.data)}': arithmetic and "
+                    "comparison operators need a typed (Integer/Real/String) feature "
+                    "or an attribute")
             return variable.val
         if parent.data in AGGREGATION_OPERATORS:
             return variable
@@ -419,6 +434,18 @@ class FmToZ3(ModelToModel):
         if node.data == ASTOperation.LEN:
             return self._get_len_expression(left_expr)
         if node.data in (ASTOperation.FLOOR, ASTOperation.CEIL):
+            name = UVL_OPERATORS.get(node.data, node.data)
+            if isinstance(left_expr, FeatureInfo):
+                # A feature reference under an aggregate arrives as its FeatureInfo.
+                if left_expr.ftype not in (FeatureType.INTEGER, FeatureType.REAL):
+                    raise FlamaException(
+                        f"{name} needs a numeric feature or attribute: "
+                        f"'{left_expr.name}' is {left_expr.ftype.value}")
+                left_expr = left_expr.val
+            elif not z3.is_arith(left_expr):
+                raise FlamaException(
+                    f"{name} needs a numeric feature or attribute: "
+                    f"got {left_expr}")
             operand = z3.ToReal(left_expr) if z3.is_int(left_expr) else left_expr
             if node.data == ASTOperation.FLOOR:
                 return z3.ToReal(z3.ToInt(operand))
@@ -430,23 +457,47 @@ class FmToZ3(ModelToModel):
                                 left_expr: Any,
                                 right_expr: Optional[Any]) -> z3.ExprRef:
         """Build a Z3 expression for SUM or AVG aggregation."""
-        attr_name = str(left_expr).strip("'\"")
+        if isinstance(left_expr, FeatureInfo):
+            attr_name = left_expr.name
+        else:
+            attr_name = str(left_expr).strip("'\"")
+        if self.source_model.get_attribute_by_name(attr_name) is None:
+            raise FlamaException(
+                f"'{attr_name}' is not a declared attribute: sum/avg take (attribute) or "
+                "(attribute, rootFeature); use '+' to add feature values")
         if right_expr is not None:
+            if not isinstance(right_expr, FeatureInfo):
+                root_name = str(right_expr).strip("'\"")
+                raise FlamaException(
+                    f"'{root_name}' is not a feature: the second argument of sum/avg "
+                    "must be the root feature of the subtree")
             feature = self.source_model.get_feature_by_name(right_expr.name)
             if feature is None:
                 raise FlamaException(f'Unsupported feature: {right_expr.name}')
-            attributes_vars = self._collect_attribute_vars(attr_name, feature)
         else:
-            attributes_vars = self._collect_attribute_vars(attr_name, self.source_model.root)
+            feature = self.source_model.root
+        attributes_vars, selectors = self._collect_attribute_vars(attr_name, feature)
         if node.data == ASTOperation.SUM:
             return z3.Sum(attributes_vars)
         if not attributes_vars:
             raise FlamaException('Cannot compute average over empty set')
-        return z3.Sum(attributes_vars) / len(attributes_vars)
+        # The average is taken over the *selected* features declaring the attribute, with
+        # real division. With none selected it is undefined, so the constraint is false.
+        ctx = self.destination_model.ctx
+        count = z3.Sum([z3.If(sel, z3.IntVal(1, ctx=ctx), z3.IntVal(0, ctx=ctx))
+                        for sel in selectors])
+        self._definedness.append(count > 0)
+        total = z3.Sum(attributes_vars)
+        if z3.is_int(total):
+            total = z3.ToReal(total)
+        return total / z3.ToReal(count)
 
-    def _collect_attribute_vars(self, attr_name: str, root_feature: Feature) -> list[Any]:
-        """Collect Z3 attribute variables from the subtree rooted at root_feature."""
+    def _collect_attribute_vars(self, attr_name: str,
+                                root_feature: Feature) -> tuple[list[Any], list[Any]]:
+        """Collect the Z3 attribute values (0 when the feature is not selected) declared in
+        the subtree rooted at root_feature, and the selectors of the declaring features."""
         attributes_vars = []
+        selectors = []
         for feat in get_subtree(root_feature):
             variable = self.destination_model.get_variable(feat.name)
             if variable is None:
@@ -459,7 +510,8 @@ class FmToZ3(ModelToModel):
                 else:
                     zero_val = z3.RealVal(0.0, ctx=self.destination_model.ctx)
                 attributes_vars.append(z3.If(variable.sel, attr_info['var'], zero_val))
-        return attributes_vars
+                selectors.append(variable.sel)
+        return attributes_vars, selectors
 
     def _get_len_expression(self, left_expr: Any) -> z3.ExprRef:
         """Build a Z3 expression for the LEN aggregation operator."""
@@ -467,6 +519,10 @@ class FmToZ3(ModelToModel):
             variable = self.destination_model.get_variable(left_expr.name)
             if variable is None:
                 raise FlamaException(f'Unsupported feature: {left_expr.name}')
+            if variable.ftype != FeatureType.STRING:
+                raise FlamaException(
+                    f"len needs a String feature or attribute: '{variable.name}' is "
+                    f"{variable.ftype.value}")
             return z3.Length(variable.val)
         if '.' in str(left_expr):
             return self._get_len_attribute_expression(str(left_expr))
