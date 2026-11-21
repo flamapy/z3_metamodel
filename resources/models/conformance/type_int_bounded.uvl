@@ -1,0 +1,7 @@
+features
+    R
+        mandatory
+            Integer x
+constraints
+    x > 0
+    x < 3

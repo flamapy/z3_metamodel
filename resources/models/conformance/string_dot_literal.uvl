@@ -1,0 +1,6 @@
+features
+    R
+        mandatory
+            String B
+constraints
+    B == 'a.b'

@@ -1,0 +1,6 @@
+features
+    R
+        [1..2]
+            A
+            B
+            C

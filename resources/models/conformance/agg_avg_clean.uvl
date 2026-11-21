@@ -1,0 +1,7 @@
+features
+    R
+        mandatory
+            B {Price 5}
+            C {Price 3}
+constraints
+    avg(Price) == 4

@@ -1,0 +1,6 @@
+features
+    R
+        mandatory
+            B {Fun 8, Z 2}
+constraints
+    B.Fun / B.Z == 4

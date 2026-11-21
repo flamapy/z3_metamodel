@@ -1,0 +1,4 @@
+features
+    R
+        mandatory
+            String s

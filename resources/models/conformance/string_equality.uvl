@@ -1,0 +1,6 @@
+features
+    R
+        mandatory
+            B {Name 'Fun'}
+constraints
+    B.Name == 'Fun'

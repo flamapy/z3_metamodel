@@ -1,0 +1,4 @@
+features
+    R
+        mandatory
+            Integer x
