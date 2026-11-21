@@ -412,6 +412,11 @@ class FmToZ3(ModelToModel):
             return self._get_sum_avg_expression(node, left_expr, right_expr)
         if node.data == ASTOperation.LEN:
             return self._get_len_expression(left_expr)
+        if node.data in (ASTOperation.FLOOR, ASTOperation.CEIL):
+            operand = z3.ToReal(left_expr) if z3.is_int(left_expr) else left_expr
+            if node.data == ASTOperation.FLOOR:
+                return z3.ToReal(z3.ToInt(operand))
+            return z3.ToReal(-z3.ToInt(-operand))
         raise FlamaException(f'Unsupported aggregation operator: {node.data}')
 
     def _get_sum_avg_expression(self,

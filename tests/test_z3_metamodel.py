@@ -37,7 +37,9 @@ def _read_model(path: str) -> Z3Model:
     ('resources/models/uvl_models/fm10_real_conditional_bounded.uvl', True),
     ('resources/models/uvl_models/fm11_real_bounded_infinite.uvl', True),
     ('resources/models/uvl_models/icecream_attributes.uvl', True),
-    ('resources/models/uvl_models/group_cardinalities.uvl', True)
+    ('resources/models/uvl_models/group_cardinalities.uvl', True),
+    # floor(10.5) == 10 and ceil(10.5) == 11 must be supported, not rejected.
+    ('resources/models/uvl_models/floor_ceil.uvl', True)
 ])
 def test_z3_satisfiable(path: str, expected: bool):
     z3_model = _read_model(path)
