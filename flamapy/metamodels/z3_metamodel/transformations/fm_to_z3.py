@@ -41,7 +41,9 @@ _BINARY_OPS: dict[ASTOperation, Any] = {
     ASTOperation.ADD: lambda lhs, rhs: (lhs + rhs),
     ASTOperation.SUB: lambda lhs, rhs: (lhs - rhs),
     ASTOperation.MUL: lambda lhs, rhs: (lhs * rhs),
-    ASTOperation.DIV: lambda lhs, rhs: (lhs / rhs),
+    ASTOperation.DIV: lambda lhs, rhs: (
+        (z3.ToReal(lhs) if z3.is_int(lhs) else lhs)
+        / (z3.ToReal(rhs) if z3.is_int(rhs) else rhs)),
     ASTOperation.EQUALS: lambda lhs, rhs: (lhs == rhs),
     ASTOperation.LOWER: lambda lhs, rhs: (lhs < rhs),
     ASTOperation.GREATER: lambda lhs, rhs: (lhs > rhs),

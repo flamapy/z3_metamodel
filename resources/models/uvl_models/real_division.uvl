@@ -1,0 +1,7 @@
+features
+    Root
+        mandatory
+            A {Numerator 12}
+            B {Denominator 8}
+constraints
+    A.Numerator / B.Denominator == 1.5
