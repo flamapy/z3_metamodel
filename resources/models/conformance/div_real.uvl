@@ -1,0 +1,7 @@
+features
+    R
+        mandatory
+            A {P 12}
+            B {Q 8}
+constraints
+    A.P / B.Q == 1.5

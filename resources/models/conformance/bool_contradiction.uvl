@@ -1,0 +1,6 @@
+features
+    R
+        mandatory
+            A
+constraints
+    !A
