@@ -37,7 +37,9 @@ def _read_model(path: str) -> Z3Model:
     ('resources/models/uvl_models/fm10_real_conditional_bounded.uvl', True),
     ('resources/models/uvl_models/fm11_real_bounded_infinite.uvl', True),
     ('resources/models/uvl_models/icecream_attributes.uvl', True),
-    ('resources/models/uvl_models/group_cardinalities.uvl', True)
+    ('resources/models/uvl_models/group_cardinalities.uvl', True),
+    # Division must be real (12 / 8 == 1.5); integer division would make this UNSAT.
+    ('resources/models/uvl_models/real_division.uvl', True)
 ])
 def test_z3_satisfiable(path: str, expected: bool):
     z3_model = _read_model(path)
