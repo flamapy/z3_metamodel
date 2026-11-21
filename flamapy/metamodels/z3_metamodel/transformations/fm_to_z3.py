@@ -54,6 +54,30 @@ _BINARY_OPS: dict[ASTOperation, Any] = {
 }
 
 
+# Operators whose operands must be numbers; the comparisons also order two strings, and
+# == and != compare any two operands of the same kind.
+_NUMERIC_ONLY_OPS = (ASTOperation.ADD, ASTOperation.SUB, ASTOperation.MUL, ASTOperation.DIV)
+_SAME_KIND_OPS = (ASTOperation.EQUALS, ASTOperation.NOT_EQUALS)
+
+
+def _kind(expr: Any) -> str:
+    """The kind of value a Z3 expression holds, in the words of a UVL modeller."""
+    if z3.is_bool(expr) or isinstance(expr, bool):
+        return 'Boolean'
+    if z3.is_arith(expr) or isinstance(expr, (int, float)):  # z3.Sum([]) is the int 0
+        return 'numeric'
+    if z3.is_string(expr):
+        return 'String'
+    return str(expr.sort())
+
+
+def _describe(node: Node) -> str:
+    """How an operand is named in an error message."""
+    if node.is_term():
+        return f"'{node.data}'"
+    return f"the '{UVL_OPERATORS.get(node.data, node.data)}' expression"
+
+
 class FmToZ3(ModelToModel):
 
     @staticmethod
@@ -335,6 +359,7 @@ class FmToZ3(ModelToModel):
         if node.is_unary_op():
             left_expr = self._get_expression(node.left, node)
             if node.data == ASTOperation.NOT:
+                self._check_operand_kinds(node, [(node.left, left_expr)])
                 return z3.Not(left_expr)
             raise FlamaException(f'Unsupported unary operator: {node.data}')
         if node.is_aggregate_op():
@@ -375,6 +400,10 @@ class FmToZ3(ModelToModel):
             return self._get_feature_term_expression(variable, parent)
         if '.' in node.data:
             return self._get_attribute_term_expression(node.data)
+        if node.is_feature() and parent.data not in (ASTOperation.SUM, ASTOperation.AVG):
+            # A reference that names nothing (e.g. a misspelled feature). Only sum/avg take a
+            # bare name that is not a feature: the attribute they aggregate.
+            raise FlamaException(f"'{node.data}' is not a feature of the model")
         return z3.StringVal(node.data.strip("'\""), ctx=self.destination_model.ctx)
 
     def _get_feature_term_expression(self,
@@ -421,7 +450,33 @@ class FmToZ3(ModelToModel):
         op_fn = _BINARY_OPS.get(node.data)
         if op_fn is None:
             raise FlamaException(f'Unsupported binary operator: {node.data}')
+        self._check_operand_kinds(node, [(node.left, left_expr), (node.right, right_expr)])
         return op_fn(left_expr, right_expr)
+
+    @staticmethod
+    def _check_operand_kinds(node: Node, operands: list[tuple[Node, Any]]) -> None:
+        """Reject operands an operator cannot take, which Z3 reports as a sort mismatch."""
+        symbol = UVL_OPERATORS.get(node.data, node.data)
+        kinds = [_kind(expr) for _, expr in operands]
+        if node.data in LOGICAL_OPERATORS:
+            needed = ['Boolean']
+        elif node.data in _NUMERIC_ONLY_OPS:
+            needed = ['numeric']
+        elif node.data in _SAME_KIND_OPS:
+            needed = ['Boolean', 'numeric', 'String']
+        else:
+            needed = ['numeric', 'String']
+        for (operand, _), kind in zip(operands, kinds):
+            if kind not in needed:
+                hint = ('; compare it with a value to get a condition'
+                        if needed == ['Boolean'] else '')
+                raise FlamaException(
+                    f"'{symbol}' needs {' or '.join(needed)} operands: "
+                    f"{_describe(operand)} is {kind}{hint}")
+        if len(set(kinds)) > 1:
+            raise FlamaException(
+                f"'{symbol}' cannot combine {_describe(operands[0][0])} ({kinds[0]}) with "
+                f"{_describe(operands[1][0])} ({kinds[1]})")
 
     def _get_aggregate_op_expression(self, node: Node) -> z3.ExprRef:
         """Build a Z3 expression for an aggregation operator node."""

@@ -233,3 +233,66 @@ def test_floor_ceil_non_numeric_is_rejected(tmp_path, constraint, message):
     path.write_text(_FLOOR_CEIL_MODEL.replace("{constraint}", constraint))
     with pytest.raises(FlamaException, match=message):
         _read_model(str(path))
+
+
+_KINDS_MODEL = """features
+    Root
+        optional
+            A {Price 2, Name 'x', Flag true}
+            B {Flag false}
+            Integer I
+            Real R
+            String S
+constraints
+    {constraint}
+"""
+
+
+@pytest.mark.parametrize("constraint, message", [
+    # A reference that names nothing used to become a string constant.
+    ("Scop <= 3", "'Scop' is not a feature of the model"),
+    ("A & Scop", "'Scop' is not a feature of the model"),
+    ("len(Scop) > 0", "'Scop' is not a feature of the model"),
+    # A String mixed with numbers.
+    ("S + 1 > 0", "'\\+' needs numeric operands: 'S' is String"),
+    ("S > 1", "'>' cannot combine 'S' \\(String\\) with '1' \\(numeric\\)"),
+    ("I == 'abc'", "'==' cannot combine 'I' \\(numeric\\) with 'abc' \\(String\\)"),
+    ("A.Name * 2 > 1", "'\\*' needs numeric operands: 'A.Name' is String"),
+    ("S - S == S", "'-' needs numeric operands: 'S' is String"),
+    # A value where a condition is expected.
+    ("A.Price & B", "'&' needs Boolean operands: 'A.Price' is numeric; compare it"),
+    ("B => A.Name", "'=>' needs Boolean operands: 'A.Name' is String"),
+    ("!A.Price", "'!' needs Boolean operands: 'A.Price' is numeric"),
+    ("I + 1 == 'abc'",
+     "'==' cannot combine the '\\+' expression \\(numeric\\) with 'abc' \\(String\\)"),
+    # A condition where a value is expected.
+    ("A.Flag + 1 > 0", "'\\+' needs numeric operands: 'A.Flag' is Boolean"),
+    ("A.Flag < 1", "'<' needs numeric or String operands: 'A.Flag' is Boolean"),
+    ("A.Flag == 1", "'==' cannot combine 'A.Flag' \\(Boolean\\) with '1' \\(numeric\\)"),
+])
+def test_ill_typed_constraint_is_rejected(tmp_path, constraint, message):
+    path = tmp_path / "kinds.uvl"
+    path.write_text(_KINDS_MODEL.replace("{constraint}", constraint))
+    with pytest.raises(FlamaException, match=message):
+        _read_model(str(path))
+
+
+@pytest.mark.parametrize("constraint, expected", [
+    ("I + R > 1.5 & I * 2 - 1 == 3", True),      # Integer and Real mix freely
+    ("I / 2 == 1.5", True),
+    ("S == 'abc' & S != 'abd'", True),
+    ("S < 'b' & S > 'a'", True),                 # strings are ordered
+    ("A.Name == 'x' & A", True),
+    ("A.Name == 'y' & A", False),
+    ("A.Flag == B.Flag & A & B", False),         # two Boolean attributes compare
+    ("A.Flag != B.Flag & A & B", True),
+    ("A.Flag & A", True),                        # and a Boolean attribute is a condition
+    ("B.Flag & B", False),
+    ("A.Price > 1 & !(I > 3) & (A => S == 'abc')", True),
+    ("sum(Price) == 2 & avg(Price) == 2", True),
+    ("len(S) == 3 & len(A.Name) == 1 & A", True),
+])
+def test_well_typed_constraint_is_accepted(tmp_path, constraint, expected):
+    path = tmp_path / "kinds.uvl"
+    path.write_text(_KINDS_MODEL.replace("{constraint}", constraint))
+    assert Z3Satisfiable().execute(_read_model(str(path))).get_result() == expected
