@@ -37,7 +37,9 @@ def _read_model(path: str) -> Z3Model:
     ('resources/models/uvl_models/fm10_real_conditional_bounded.uvl', True),
     ('resources/models/uvl_models/fm11_real_bounded_infinite.uvl', True),
     ('resources/models/uvl_models/icecream_attributes.uvl', True),
-    ('resources/models/uvl_models/group_cardinalities.uvl', True)
+    ('resources/models/uvl_models/group_cardinalities.uvl', True),
+    # A string literal containing '.' must be a constant, not parsed as Feature.Attribute.
+    ('resources/models/uvl_models/string_literal_with_dot.uvl', True)
 ])
 def test_z3_satisfiable(path: str, expected: bool):
     z3_model = _read_model(path)

@@ -355,6 +355,10 @@ class FmToZ3(ModelToModel):
 
     def _get_str_term_expression(self, node: Node, parent: Node) -> z3.ExprRef:
         """Handle a terminal string node that has a parent operator."""
+        if node.is_literal():
+            # A quoted string literal is a constant, even when it contains '.', so resolve it
+            # before interpreting the text as a feature or a Feature.Attribute reference.
+            return z3.StringVal(str(node.data).strip("'\""), ctx=self.destination_model.ctx)
         variable = self.destination_model.get_variable(node.data)
         if variable is not None:
             return self._get_feature_term_expression(variable, parent)
