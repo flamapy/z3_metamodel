@@ -41,7 +41,9 @@ def _read_model(path: str) -> Z3Model:
     # Division must be real (12 / 8 == 1.5); integer division would make this UNSAT.
     ('resources/models/uvl_models/real_division.uvl', True),
     # floor(10.5) == 10 and ceil(10.5) == 11 must be supported, not rejected.
-    ('resources/models/uvl_models/floor_ceil.uvl', True)
+    ('resources/models/uvl_models/floor_ceil.uvl', True),
+    # A string literal containing '.' must be a constant, not parsed as Feature.Attribute.
+    ('resources/models/uvl_models/string_literal_with_dot.uvl', True)
 ])
 def test_z3_satisfiable(path: str, expected: bool):
     z3_model = _read_model(path)
