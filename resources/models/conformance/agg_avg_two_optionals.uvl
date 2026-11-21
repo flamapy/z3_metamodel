@@ -1,0 +1,8 @@
+features
+    R
+        optional
+            A {X 4}
+        optional
+            B {X 8}
+constraints
+    avg(X) == 6
