@@ -1,0 +1,8 @@
+features
+    R
+        mandatory
+            A {X 10}
+        optional
+            B {X 2}
+constraints
+    avg(X) == 5

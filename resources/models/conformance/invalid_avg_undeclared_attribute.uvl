@@ -1,0 +1,6 @@
+features
+    R
+        mandatory
+            B
+constraints
+    avg(Price) > 3

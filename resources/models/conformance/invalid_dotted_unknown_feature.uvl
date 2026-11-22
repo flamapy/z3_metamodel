@@ -1,0 +1,6 @@
+features
+    R
+        mandatory
+            B {Price 5}
+constraints
+    Ghost.Price == 5
